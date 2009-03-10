@@ -1,5 +1,5 @@
-#summary MoneyDance is personal finance software.
+#summary Moneydance is personal finance software.
 
-MoneyDance is an intuitive personal finance software. Written in Java it supports many popular operating systems.
+Moneydance is an intuitive personal finance software. Written in Java it supports many popular operating systems.
 
 http://www.moneydance.net 
