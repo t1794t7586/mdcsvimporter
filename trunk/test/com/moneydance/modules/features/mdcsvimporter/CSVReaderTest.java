@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.moneydance.modules.features.csvimporter;
+package com.moneydance.modules.features.mdcsvimporter;
 
+import com.moneydance.modules.features.mdcsvimporter.CSVReader;
 import java.io.IOException;
 import java.io.StringReader;
 import org.junit.After;
