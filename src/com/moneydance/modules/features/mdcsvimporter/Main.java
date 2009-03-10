@@ -1,6 +1,6 @@
 /*
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the Lesser GNU General Public License as published by
+ * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -13,7 +13,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.moneydance.modules.features.csvimporter;
+package com.moneydance.modules.features.mdcsvimporter;
 
 import com.moneydance.apps.md.controller.FeatureModule;
 import com.moneydance.apps.md.controller.FeatureModuleContext;
@@ -30,10 +30,15 @@ import javax.imageio.ImageIO;
 public class Main extends FeatureModule
 {
    private static final int VERSION = 3;
+   private static final String NAME = "CSV Importer (Citibank Canada)";
    private static final String VENDOR = "Milutin Jovanović";
-   private static final String URL = "http://www.voreni.com";
+   private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
-      "Imports online transactions from text files.";
+      "Moneydance CitiBank Canada CSV Importer Plug-In version BETA 3. " +
+      "To report problems or make suggestions please go to the web side below.\n\n" +
+      "This software is distributed under GNU Lesser General Public License (see " +
+      "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
+      "accepting terms of this license.";
    
    private static Image image;
    {
@@ -61,7 +66,7 @@ public class Main extends FeatureModule
          return;
       }
 
-      context.registerFeature( this, "import", image, "Import CSV File" );
+      context.registerFeature( this, "import", image, "Import CitiBank Canada CSV File" );
    }
 
    RootAccount getRootAccount()
@@ -69,6 +74,12 @@ public class Main extends FeatureModule
       FeatureModuleContext context = getContext();
 
       return context.getRootAccount();
+   }
+
+   @Override
+   public String getName()
+   {
+      return NAME;
    }
 
    @Override
@@ -97,12 +108,6 @@ public class Main extends FeatureModule
       ImportDialog dialog = new ImportDialog( null, this );
       dialog.setLocationRelativeTo( null );
       dialog.setVisible( true );
-   }
-
-   @Override
-   public String getName()
-   {
-      return getIDStr();
    }
 
    @Override

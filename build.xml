@@ -7,8 +7,8 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="CSVImporter" default="default" basedir=".">
-    <description>Builds, tests, and runs the project CSVImporter.</description>
+<project name="mdcsvimporter" default="default" basedir=".">
+    <description>Builds, tests, and runs the project mdcsvimporter.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
 
@@ -72,6 +72,7 @@
 
     -->
     <target name="-post-init">
+        <property name="idstring" value="mdcsvimporter"/>
         <property name="privatekey" value="private.key"/>
         <property name="publickey" value="public.key"/>
         <property name="privatekeyid" value="99"/>
@@ -87,11 +88,11 @@
             <arg value="signextjar"/>
             <arg value="${privatekey}"/>
             <arg value="${privatekeyid}"/>
-            <arg value="csvimporter"/>
+            <arg value="${idstring}"/>
             <arg line="${dist.jar}"/>
         </java>
         <basename property="dist.jar.fileonly" file="${dist.jar}"/>
-        <move file="s-${dist.jar.fileonly}" tofile="${dist.jar}" overwrite="true"/>
+        <move file="s-${idstring}.mxt" tofile="${dist.jar}" overwrite="true"/>
     </target>
 
     <target name="genkeys" depends="init">
