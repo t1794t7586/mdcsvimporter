@@ -1,0 +1,1 @@
+#summary MXT is the file format used for Moneydance extensions or plug-ins.
