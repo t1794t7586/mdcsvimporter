@@ -71,9 +71,7 @@ public class ImportDialog
       comboAccount.removeAllItems();
       for ( int i = 0; i < rootAccount.getSubAccountCount(); ++i ) {
          Account account = rootAccount.getSubAccount( i );
-         if ( account.isOnlineBankingCandidate() ) {
-            comboAccount.addItem( account );
-         }
+         comboAccount.addItem( account );
       }
       if ( comboAccount.getItemCount() > 0 ) {
          comboAccount.setSelectedIndex( 0 );
