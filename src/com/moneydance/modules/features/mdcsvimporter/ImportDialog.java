@@ -308,6 +308,9 @@ public class ImportDialog
          try {
             double amountDouble = StringUtils.parseDoubleWithException( amountString, '.' );
             amount = currency.getLongValue( amountDouble );
+            if ( account.balanceIsNegated() ) {
+               amount = -amount;
+            }
          }
          catch ( Exception x ) { // invalid value
             continue;
@@ -385,7 +388,7 @@ public class ImportDialog
       }
 
       Account account = (Account) comboAccount.getSelectedItem();
-      if ( account == null || !account.isOnlineBankingCandidate() ) {
+      if ( account == null ) {
          enabled = false;
       }
 
