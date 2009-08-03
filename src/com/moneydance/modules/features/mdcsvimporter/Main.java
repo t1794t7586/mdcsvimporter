@@ -29,12 +29,12 @@ import javax.imageio.ImageIO;
  */
 public class Main extends FeatureModule
 {
-   private static final int VERSION = 5;
+   private static final int VERSION = 6;
    private static final String NAME = "CSV Importer (Citibank Canada)";
    private static final String VENDOR = "Milutin Jovanović";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
-      "Moneydance CitiBank Canada CSV Importer Plug-In version BETA 5. " +
+      "Moneydance CitiBank Canada CSV Importer Plug-In version BETA 6. " +
       "To report problems or make suggestions please go to the web side below.\n\n" +
       "This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
