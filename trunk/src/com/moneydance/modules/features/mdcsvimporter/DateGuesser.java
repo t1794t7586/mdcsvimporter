@@ -12,7 +12,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.moneydance.modules.features.mdcsvimporter;
 
 import java.io.IOException;
@@ -37,13 +36,10 @@ public class DateGuesser
    private static final String MM = "MM";
    private static final String YY = "YY";
    private static final String YYYY = "YYYY";
-
-   private Map<String,Integer> results = new HashMap<String,Integer>();
+   private Map<String, Integer> results = new HashMap<String, Integer>();
    private int datesDetected = 0;
-
    private String[] possibleFormats;
    private double bestFormatProbability;
-
    private StringBuilder field1 = new StringBuilder();
    private int field1Value;
    private String field1Format;
@@ -55,12 +51,12 @@ public class DateGuesser
    private StringBuilder field3 = new StringBuilder();
    private int field3Value;
    private String field3Format;
-
    private StringBuilder format = new StringBuilder();
 
    public void checkDateString( String date )
    {
-      try {
+      try
+      {
          date = date.trim();
          StringReader reader = new StringReader( date );
 
@@ -69,19 +65,22 @@ public class DateGuesser
          int eof = parseField( reader, field3 );
 
          if ( field1.length() == 0 || field2.length() == 0 || field3.length() == 0 ||
-            !isEof( eof ) ) {
+            !isEof( eof ) )
+         {
             return;
          }
-         
+
          field1Value = Integer.parseInt( field1.toString() );
          field2Value = Integer.parseInt( field2.toString() );
          field3Value = Integer.parseInt( field3.toString() );
 
-         if ( checkPossibleFormats() ) {
+         if ( checkPossibleFormats() )
+         {
             ++datesDetected;
          }
       }
-      catch ( Exception x ) {
+      catch ( Exception x )
+      {
          // ignore errors, simply means this is probably not a date string
       }
    }
@@ -91,15 +90,19 @@ public class DateGuesser
       boolean retVal = false;
 
       // check if its possible to be a day
-      if ( field1Value >= 1 && field1Value <= 31 && field1.length() <= 2 ) {
-         if ( field1.length() == 1 ) {
+      if ( field1Value >= 1 && field1Value <= 31 && field1.length() <= 2 )
+      {
+         if ( field1.length() == 1 )
+         {
             field1Format = D;
             retVal |= checkPossibleFormats2();
          }
-         else {
+         else
+         {
             field1Format = DD;
             retVal |= checkPossibleFormats2();
-            if ( field1Value >= 10 ) {
+            if ( field1Value >= 10 )
+            {
                field1Format = D;
                retVal |= checkPossibleFormats2();
             }
@@ -107,15 +110,19 @@ public class DateGuesser
       }
 
       // check if its possible to be a month
-      if ( field1Value >= 1 && field1Value <= 12 && field1.length() <= 2 ) {
-         if ( field1.length() == 1 ) {
+      if ( field1Value >= 1 && field1Value <= 12 && field1.length() <= 2 )
+      {
+         if ( field1.length() == 1 )
+         {
             field1Format = M;
             retVal |= checkPossibleFormats2();
          }
-         else {
+         else
+         {
             field1Format = MM;
             retVal |= checkPossibleFormats2();
-            if ( field1Value >= 10 ) {
+            if ( field1Value >= 10 )
+            {
                field1Format = M;
                retVal |= checkPossibleFormats2();
             }
@@ -123,11 +130,13 @@ public class DateGuesser
       }
 
       // check if its possible to be a year
-      if ( field1.length() == 2 ) {
+      if ( field1.length() == 2 )
+      {
          field1Format = YY;
          retVal |= checkPossibleFormats2();
       }
-      else if ( field1.length() == 4 ) {
+      else if ( field1.length() == 4 )
+      {
          field1Format = YYYY;
          retVal |= checkPossibleFormats2();
       }
@@ -140,16 +149,21 @@ public class DateGuesser
       boolean retVal = false;
 
       // check if its possible to be a day
-      if ( field1Format != D && field1Format != DD ) {
-         if ( field2Value >= 1 && field2Value <= 31 && field2.length() <= 2 ) {
-            if ( field2.length() == 1 ) {
+      if ( field1Format != D && field1Format != DD )
+      {
+         if ( field2Value >= 1 && field2Value <= 31 && field2.length() <= 2 )
+         {
+            if ( field2.length() == 1 )
+            {
                field2Format = D;
                retVal |= checkPossibleFormats3();
             }
-            else {
+            else
+            {
                field2Format = DD;
                retVal |= checkPossibleFormats3();
-               if ( field2Value >= 10 ) {
+               if ( field2Value >= 10 )
+               {
                   field2Format = D;
                   retVal |= checkPossibleFormats3();
                }
@@ -158,16 +172,21 @@ public class DateGuesser
       }
 
       // check if its possible to be a month
-      if ( field1Format != M && field1Format != MM ) {
-         if ( field2Value >= 1 && field2Value <= 12 && field2.length() <= 2 ) {
-            if ( field2.length() == 1 ) {
+      if ( field1Format != M && field1Format != MM )
+      {
+         if ( field2Value >= 1 && field2Value <= 12 && field2.length() <= 2 )
+         {
+            if ( field2.length() == 1 )
+            {
                field2Format = M;
                retVal |= checkPossibleFormats3();
             }
-            else {
+            else
+            {
                field2Format = MM;
                retVal |= checkPossibleFormats3();
-               if ( field2Value >= 10 ) {
+               if ( field2Value >= 10 )
+               {
                   field2Format = M;
                   retVal |= checkPossibleFormats3();
                }
@@ -176,12 +195,15 @@ public class DateGuesser
       }
 
       // check if its possible to be a year
-      if ( field1Format != YY && field1Format != YYYY ) {
-         if ( field2.length() == 2 ) {
+      if ( field1Format != YY && field1Format != YYYY )
+      {
+         if ( field2.length() == 2 )
+         {
             field2Format = YY;
             retVal |= checkPossibleFormats3();
          }
-         else if ( field2.length() == 4 ) {
+         else if ( field2.length() == 4 )
+         {
             field2Format = YYYY;
             retVal |= checkPossibleFormats3();
          }
@@ -195,20 +217,24 @@ public class DateGuesser
       boolean retVal = false;
 
       // check if its possible to be a day
-      if ( field1Format != D && field1Format != DD
-         && field2Format != D && field2Format != DD)
+      if ( field1Format != D && field1Format != DD && field2Format != D && field2Format !=
+         DD )
       {
-         if ( field3Value >= 1 && field3Value <= 31 && field3.length() <= 2 ) {
-            if ( field3.length() == 1 ) {
+         if ( field3Value >= 1 && field3Value <= 31 && field3.length() <= 2 )
+         {
+            if ( field3.length() == 1 )
+            {
                field3Format = D;
                retVal = true;
                registerFormat();
             }
-            else {
+            else
+            {
                field3Format = DD;
                retVal = true;
                registerFormat();
-               if ( field3Value >= 10 ) {
+               if ( field3Value >= 10 )
+               {
                   field3Format = D;
                   registerFormat();
                }
@@ -217,20 +243,24 @@ public class DateGuesser
       }
 
       // check if its possible to be a month
-      if ( field1Format != M && field1Format != MM
-         && field2Format != M && field2Format != MM )
+      if ( field1Format != M && field1Format != MM && field2Format != M && field2Format !=
+         MM )
       {
-         if ( field3Value >= 1 && field3Value <= 12 && field3.length() <= 2 ) {
-            if ( field3.length() == 1 ) {
+         if ( field3Value >= 1 && field3Value <= 12 && field3.length() <= 2 )
+         {
+            if ( field3.length() == 1 )
+            {
                field3Format = M;
                retVal = true;
                registerFormat();
             }
-            else {
+            else
+            {
                field3Format = MM;
                retVal = true;
                registerFormat();
-               if ( field3Value >= 10 ) {
+               if ( field3Value >= 10 )
+               {
                   field3Format = M;
                   registerFormat();
                }
@@ -239,15 +269,17 @@ public class DateGuesser
       }
 
       // check if its possible to be a year
-      if ( field1Format != YY && field1Format != YYYY
-         && field2Format != YY && field2Format != YYYY )
+      if ( field1Format != YY && field1Format != YYYY && field2Format != YY &&
+         field2Format != YYYY )
       {
-         if ( field3.length() == 2 ) {
+         if ( field3.length() == 2 )
+         {
             field3Format = YY;
             retVal = true;
             registerFormat();
          }
-         else if ( field3.length() == 4 ) {
+         else if ( field3.length() == 4 )
+         {
             field3Format = YYYY;
             retVal = true;
             registerFormat();
@@ -271,10 +303,12 @@ public class DateGuesser
       String key = format.toString();
 
       Integer count = results.get( key );
-      if ( count == null ) {
+      if ( count == null )
+      {
          results.put( key, 1 );
       }
-      else {
+      else
+      {
          results.put( key, count + 1 );
       }
    }
@@ -283,10 +317,12 @@ public class DateGuesser
    {
       calculateResults();
 
-      if ( possibleFormats.length > 0 ) {
+      if ( possibleFormats.length > 0 )
+      {
          return possibleFormats[0];
       }
-      else {
+      else
+      {
          return null;
       }
    }
@@ -313,33 +349,36 @@ public class DateGuesser
 
    private void calculateResults()
    {
-      if ( possibleFormats != null ) { // are results already calculated?
+      if ( possibleFormats != null )
+      { // are results already calculated?
          return;
       }
 
-      SortedMap<Integer,String> sortedResults = new TreeMap<Integer,String>(
+      SortedMap<Integer, String> sortedResults = new TreeMap<Integer, String>(
          new Comparator<Integer>()
          {
             public int compare( Integer o1, Integer o2 )
             {
                return o2 - o1;
             }
-         }
-      );
+         } );
 
-      for ( Map.Entry<String,Integer> entry : results.entrySet() ) {
+      for ( Map.Entry<String, Integer> entry : results.entrySet() )
+      {
          sortedResults.put( entry.getValue(), entry.getKey() );
       }
 
       possibleFormats = new String[sortedResults.size()];
       sortedResults.values().toArray( possibleFormats );
 
-      if ( datesDetected == 0 ) {
+      if ( datesDetected == 0 )
+      {
          bestFormatProbability = 0;
       }
-      else {
-         bestFormatProbability = sortedResults.firstKey().doubleValue()
-            / (double)datesDetected;
+      else
+      {
+         bestFormatProbability = sortedResults.firstKey().doubleValue() /
+            (double) datesDetected;
       }
    }
 
@@ -348,12 +387,14 @@ public class DateGuesser
    {
       fieldValue.setLength( 0 );
 
-      if ( !reader.ready() ) {
+      if ( !reader.ready() )
+      {
          return -1;
       }
 
       int ch;
-      for ( ch = reader.read(); isDigit( ch ); ch = reader.read() ) {
+      for ( ch = reader.read(); isDigit( ch ); ch = reader.read() )
+      {
          fieldValue.appendCodePoint( ch );
       }
 

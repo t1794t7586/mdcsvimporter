@@ -12,7 +12,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.moneydance.modules.features.mdcsvimporter;
 
 import java.io.File;
@@ -39,7 +38,8 @@ public class SecureFileDeleter
    public static void delete( File file )
       throws IOException
    {
-      if ( !file.exists() || !file.isFile() || !file.canWrite() ) {
+      if ( !file.exists() || !file.isFile() || !file.canWrite() )
+      {
          throw new IOException( "Unable to securely delete specified file." );
       }
 
@@ -47,13 +47,15 @@ public class SecureFileDeleter
       byte[] buffer = new byte[CHUNK_SIZE];
 
       // fill file with 0xFF
-      for ( int i = 0; i < CHUNK_SIZE; ++i ) {
-         buffer[i] = (byte)0xFF;
+      for ( int i = 0; i < CHUNK_SIZE; ++i )
+      {
+         buffer[i] = (byte) 0xFF;
       }
       long fileLength = file.length();
       OutputStream output = new FileOutputStream( file );
-      while ( fileLength > 0 ) {
-         int chunkSize = fileLength > CHUNK_SIZE ? CHUNK_SIZE : (int)fileLength;
+      while ( fileLength > 0 )
+      {
+         int chunkSize = fileLength > CHUNK_SIZE ? CHUNK_SIZE : (int) fileLength;
          output.write( buffer, 0, chunkSize );
          fileLength -= chunkSize;
       }
@@ -62,8 +64,9 @@ public class SecureFileDeleter
       // fill file with random values
       fileLength = file.length();
       output = new FileOutputStream( file );
-      while ( fileLength > 0 ) {
-         int chunkSize = fileLength > CHUNK_SIZE ? CHUNK_SIZE : (int)fileLength;
+      while ( fileLength > 0 )
+      {
+         int chunkSize = fileLength > CHUNK_SIZE ? CHUNK_SIZE : (int) fileLength;
          random.nextBytes( buffer );
          output.write( buffer, 0, chunkSize );
          fileLength -= chunkSize;
@@ -71,20 +74,23 @@ public class SecureFileDeleter
       output.close();
 
       // fill file with 0's
-      for ( int i = 0; i < CHUNK_SIZE; ++i ) {
-         buffer[i] = (byte)0;
+      for ( int i = 0; i < CHUNK_SIZE; ++i )
+      {
+         buffer[i] = (byte) 0;
       }
       fileLength = file.length();
       output = new FileOutputStream( file );
-      while ( fileLength > 0 ) {
-         int chunkSize = fileLength > CHUNK_SIZE ? CHUNK_SIZE : (int)fileLength;
+      while ( fileLength > 0 )
+      {
+         int chunkSize = fileLength > CHUNK_SIZE ? CHUNK_SIZE : (int) fileLength;
          random.nextBytes( buffer );
          output.write( buffer, 0, chunkSize );
          fileLength -= chunkSize;
       }
       output.close();
 
-      if ( !file.delete() ) {
+      if ( !file.delete() )
+      {
          throw new IOException( "Failed to delete file." );
       }
    }

@@ -12,7 +12,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.moneydance.modules.features.mdcsvimporter;
 
 import com.moneydance.apps.md.controller.FeatureModule;
@@ -22,25 +21,28 @@ import java.awt.Image;
 import java.io.IOException;
 import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 /**
  *
  * @author miki
  */
-public class Main extends FeatureModule
+public class Main
+   extends FeatureModule
 {
    private static final int VERSION = 6;
-   private static final String NAME = "CSV Importer (Citibank Canada)";
+   private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Milutin Jovanović";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
-      "Moneydance CitiBank Canada CSV Importer Plug-In version BETA 6. " +
-      "To report problems or make suggestions please go to the web side below.\n\n" +
+      "Moneydance CSV Importer Plug-In version BETA 6. To report problems or make " +
+      "suggestions please go to the web side below.\n\n" +
       "This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
       "accepting terms of this license.";
-   
    private static Image image;
+
+
    {
       try
       {
@@ -66,14 +68,35 @@ public class Main extends FeatureModule
          return;
       }
 
-      context.registerFeature( this, "import", image, "Import CitiBank Canada CSV File" );
+      context.registerFeature( this, "import", image, "Import CSV File" );
    }
 
    RootAccount getRootAccount()
    {
       FeatureModuleContext context = getContext();
-
       return context.getRootAccount();
+   }
+
+   private JFrame getMoneydanceWindow()
+   {
+      // Using undocumented feature. This way our windows and dialogs can have a parent,
+      // and behave more conformingly. Alternative is just returning null. Effects should
+      // be minor visual inconsistencies.
+      
+      FeatureModuleContext context = getContext();
+      com.moneydance.apps.md.controller.Main main =
+         (com.moneydance.apps.md.controller.Main) context;
+      if ( main == null )
+      {
+         return null;
+      }
+      com.moneydance.apps.md.view.gui.MoneydanceGUI gui =
+         (com.moneydance.apps.md.view.gui.MoneydanceGUI) main.getUI();
+      if ( gui == null )
+      {
+         return null;
+      }
+      return gui.getTopLevelFrame();
    }
 
    @Override
@@ -102,10 +125,12 @@ public class Main extends FeatureModule
       int count = tokenizer.countTokens();
       String url = count + " tokens(";
       while ( tokenizer.hasMoreTokens() )
+      {
          url = url.concat( tokenizer.nextToken() );
+      }
       url += ")";
 
-      ImportDialog dialog = new ImportDialog( null, this );
+      ImportDialog dialog = new ImportDialog( getMoneydanceWindow(), this );
       dialog.setLocationRelativeTo( null );
       dialog.setVisible( true );
    }

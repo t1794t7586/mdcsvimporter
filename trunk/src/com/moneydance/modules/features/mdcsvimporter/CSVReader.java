@@ -12,7 +12,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.moneydance.modules.features.mdcsvimporter;
 
 import java.io.IOException;
@@ -68,7 +67,8 @@ public class CSVReader
    public CSVReader( Reader reader )
       throws IOException
    {
-      if ( reader == null || !reader.ready() ) {
+      if ( reader == null || !reader.ready() )
+      {
          throw new IllegalArgumentException( "Reader must be a valid object." );
       }
       this.reader = reader;
@@ -98,23 +98,29 @@ public class CSVReader
    public boolean nextLine()
       throws IOException
    {
-      while ( nextField() != null ) {
+      while ( nextField() != null )
+      {
       }
 
       // skip EOL; possible combinations are CR, CR+LF, LF
-      if ( lastChar == CR ) {
+      if ( lastChar == CR )
+      {
          lastChar = reader.read();
       }
-      if ( lastChar == LF ) {
+      if ( lastChar == LF )
+      {
          lastChar = reader.read();
       }
-      if ( trimFields ) {
+      if ( trimFields )
+      {
          // skip whitespace at the beginning
-         while ( isWhitespace( lastChar ) && !isEof( lastChar ) ) {
+         while ( isWhitespace( lastChar ) && !isEof( lastChar ) )
+         {
             lastChar = reader.read();
          }
       }
-      if ( isEof( lastChar ) ) {
+      if ( isEof( lastChar ) )
+      {
          return false;
       }
       return true;
@@ -130,53 +136,64 @@ public class CSVReader
    public String nextField()
       throws IOException
    {
-      if ( isEol( lastChar ) || isEof( lastChar ) ) {
+      if ( isEol( lastChar ) || isEof( lastChar ) )
+      {
          return null;
       }
 
       builder.setLength( 0 );
 
-      if ( isQuote( lastChar ) ) {
+      if ( isQuote( lastChar ) )
+      {
          // quoted field
          lastChar = reader.read();
-         while ( !isQuote( lastChar ) && !isEol( lastChar ) && !isEof( lastChar ) ) {
+         while ( !isQuote( lastChar ) && !isEol( lastChar ) && !isEof( lastChar ) )
+         {
             builder.appendCodePoint( lastChar );
             lastChar = reader.read();
          }
 
-         if ( !isQuote( lastChar ) ) {
+         if ( !isQuote( lastChar ) )
+         {
             throw new IOException( "Unexpected end of line." );
          }
 
          // skip quote
          lastChar = reader.read();
          // skip spaces
-         while ( isWhitespace( lastChar ) ) {
+         while ( isWhitespace( lastChar ) )
+         {
             lastChar = reader.read();
          }
          // and the next field separator
-         if ( isFieldSeparator( lastChar ) ) {
+         if ( isFieldSeparator( lastChar ) )
+         {
             lastChar = reader.read();
          }
       }
-      else {
+      else
+      {
          // plain value
-         do {
+         do
+         {
             builder.appendCodePoint( lastChar );
             lastChar = reader.read();
          } while ( !isFieldSeparator( lastChar ) && !isEol( lastChar ) &&
             !isEof( lastChar ) );
-         if ( isFieldSeparator( lastChar ) ) {
+         if ( isFieldSeparator( lastChar ) )
+         {
             lastChar = reader.read();
          }
       }
 
       // TODO: skip separator
 
-      if ( trimFields ) {
+      if ( trimFields )
+      {
          return builder.toString().trim();
       }
-      else {
+      else
+      {
          return builder.toString();
       }
    }
@@ -218,8 +235,7 @@ public class CSVReader
    {
       return (ch == 32 // space
          || ch == 8) // tab
-         && ch != quoteCharacter
-         && ch != fieldSeparator;
+         && ch != quoteCharacter && ch != fieldSeparator;
    }
 
    protected final boolean isQuote( int ch )
