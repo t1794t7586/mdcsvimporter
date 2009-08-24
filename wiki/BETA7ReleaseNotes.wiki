@@ -1,0 +1,15 @@
+#summary Release notes for BETA7 release.
+
+=== BETA7 Release Notes ===
+August 24, 2009.
+
+=== Enhancements ===
+
+  * Added ING Netherlands import.
+  * Dialog settings are now saved and used next time dialog is opened.
+
+=== Fixes ===
+
+  * Fixed Main Menu problem on Mac OS X.
+  * Fixed date format detection problem.
+  * Ensured compatibility with Java 1.5.
