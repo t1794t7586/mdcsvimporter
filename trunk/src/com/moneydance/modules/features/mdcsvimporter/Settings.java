@@ -162,4 +162,25 @@ public final class Settings
    {
       set( name, value ? "yes" : "no" );
    }
+
+   public static int getInteger( String name )
+   {
+      return getInteger( name, 0 );
+   }
+
+   public static int getInteger( String name, int defaultValue )
+   {
+      String value = get( name );
+      if ( value == null )
+      {
+         return defaultValue;
+      }
+
+      return Integer.parseInt( value );
+   }
+
+   public static void setInteger( String name, int value )
+   {
+      set( name, Integer.toString( value ) );
+   }
 }

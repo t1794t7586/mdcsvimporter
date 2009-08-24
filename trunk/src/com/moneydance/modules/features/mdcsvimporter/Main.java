@@ -30,12 +30,12 @@ import javax.swing.JFrame;
 public class Main
    extends FeatureModule
 {
-   private static final int VERSION = 6;
+   private static final int VERSION = 7;
    private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Milutin Jovanović";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
-      "Moneydance CSV Importer Plug-In version BETA 6. To report problems or make " +
+      "Moneydance CSV Importer Plug-In version BETA 7. To report problems or make " +
       "suggestions please go to the web side below.\n\n" +
       "This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
@@ -77,12 +77,12 @@ public class Main
       return context.getRootAccount();
    }
 
-   private JFrame getMoneydanceWindow()
+   JFrame getMoneydanceWindow()
    {
       // Using undocumented feature. This way our windows and dialogs can have a parent,
       // and behave more conformingly. Alternative is just returning null. Effects should
       // be minor visual inconsistencies.
-      
+
       FeatureModuleContext context = getContext();
       com.moneydance.apps.md.controller.Main main =
          (com.moneydance.apps.md.controller.Main) context;
@@ -130,7 +130,7 @@ public class Main
       }
       url += ")";
 
-      ImportDialog dialog = new ImportDialog( getMoneydanceWindow(), this );
+      ImportDialog dialog = new ImportDialog( this );
       dialog.setLocationRelativeTo( null );
       dialog.setVisible( true );
    }

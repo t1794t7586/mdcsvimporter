@@ -39,9 +39,9 @@ public class ImportDialog
    private TransactionReader transactionReader;
    private Main main;
 
-   public ImportDialog( java.awt.Frame parent, Main main )
+   public ImportDialog( Main main )
    {
-      super( parent, true );
+      super( main.getMoneydanceWindow(), true );
       initComponents();
 
       textFilename.getDocument().addDocumentListener( new DocumentListener()
@@ -68,11 +68,12 @@ public class ImportDialog
       for ( int i = 0; i < rootAccount.getSubAccountCount(); ++i )
       {
          Account account = rootAccount.getSubAccount( i );
-         comboAccount.addItem( account );
+         if ( account.isRegisterAccount() )
+            comboAccount.addItem( account );
       }
       if ( comboAccount.getItemCount() > 0 )
       {
-         comboAccount.setSelectedIndex( 0 );
+         comboAccount.setSelectedIndex( Settings.getInteger( "selected.account", 0 ) );
       }
 
       checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
@@ -239,6 +240,9 @@ public class ImportDialog
 
     private void btnProcessActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnProcessActionPerformed
     {//GEN-HEADEREND:event_btnProcessActionPerformed
+       Settings.setYesNo( "delete.file", checkDeleteFile.isSelected() );
+       Settings.setInteger( "selected.account", comboAccount.getSelectedIndex() );
+
        CSVReader csvReader = null;
        try
        {
@@ -260,7 +264,6 @@ public class ImportDialog
           return;
        }
 
-       Settings.setYesNo( "delete.file", checkDeleteFile.isSelected() );
        if ( checkDeleteFile.isSelected() )
        {
           try
