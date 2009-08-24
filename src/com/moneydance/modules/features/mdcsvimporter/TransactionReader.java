@@ -88,7 +88,7 @@ public abstract class TransactionReader
       for ( String field = reader.nextField(); field != null; field = reader.nextField() )
       {
          field = field.trim();
-         if ( field.isEmpty() )
+         if ( field.length() == 0 )
          {
             throw new IOException( "Empty column names are not supported." );
          }
