@@ -1,0 +1,7 @@
+#summary Release notes for BETA8 release.
+
+August 26, 2009.
+
+=== Fixes ===
+
+  * Fixed transaction id generation for ING Netherlands.
