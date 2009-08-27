@@ -282,10 +282,14 @@ class INGNetherlandsReader
 
       int date = dateFormat.parseInt( datum );
 
+      Integer hashCode = naam.hashCode() ^ rekening.hashCode() ^ 
+         tegenrekening.hashCode() ^ code.hashCode() ^ af_bij.hashCode() ^ 
+         mutatiesort.hashCode() ^ mededelingen.hashCode();
+
       txn.setAmount( amount );
       txn.setTotalAmount( amount );
       txn.setMemo( mededelingen );
-      txn.setFITxnId( tegenrekening );
+      txn.setFITxnId( datum + ":" + bedrag + ":" + hashCode.toString() );
       txn.setDatePostedInt( date );
       txn.setDateInitiatedInt( date );
       txn.setDateAvailableInt( date );
