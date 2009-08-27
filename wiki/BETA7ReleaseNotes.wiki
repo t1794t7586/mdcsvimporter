@@ -1,6 +1,5 @@
 #summary Release notes for BETA7 release.
 
-=== BETA7 Release Notes ===
 August 24, 2009.
 
 === Enhancements ===
