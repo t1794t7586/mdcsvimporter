@@ -63,22 +63,36 @@ public class ImportDialog
       } );
 
       this.main = main;
-      RootAccount rootAccount = main.getRootAccount();
-      comboAccount.removeAllItems();
-      for ( int i = 0; i < rootAccount.getSubAccountCount(); ++i )
-      {
-         Account account = rootAccount.getSubAccount( i );
-         if ( account.isRegisterAccount() )
-            comboAccount.addItem( account );
-      }
-      if ( comboAccount.getItemCount() > 0 )
-      {
-         comboAccount.setSelectedIndex( Settings.getInteger( "selected.account", 0 ) );
-      }
+      fillAccountCombo( main );
 
       checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
 
       updateActions();
+   }
+
+   private void fillAccountCombo( Main main )
+   {
+      RootAccount rootAccount = main.getRootAccount();
+      comboAccount.removeAllItems();
+
+      fillAccountCombo_( rootAccount );
+
+      if ( comboAccount.getItemCount() > 0 ) {
+         comboAccount.setSelectedIndex( Settings.getInteger( "selected.account", 0 ) );
+      }
+   }
+
+   private void fillAccountCombo_( Account parentAccount )
+   {
+      for ( int i = 0; i < parentAccount.getSubAccountCount(); ++i ) {
+         Account account = parentAccount.getSubAccount( i );
+         if ( account.isRegisterAccount() ) {
+            comboAccount.addItem( account );
+         }
+         else {
+            fillAccountCombo_( account );
+         }
+      }
    }
 
    /** This method is called from within the constructor to
