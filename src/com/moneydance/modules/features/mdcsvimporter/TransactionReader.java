@@ -18,11 +18,11 @@ import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.CurrencyType;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.apps.md.model.OnlineTxnList;
-import com.moneydance.util.CustomDateFormat;
-import com.moneydance.util.StringUtils;
+import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public abstract class TransactionReader
    protected abstract boolean parseNext( OnlineTxn txn )
       throws IOException;
 
-   protected abstract String getFormatName();
+   public abstract String getFormatName();
 
    protected final void throwException( String message )
       throws IOException
@@ -109,192 +109,12 @@ public abstract class TransactionReader
       {
          retVal = new INGNetherlandsReader();
       }
+      else if ( SimpleCreditDebitReader.canParse( columns.iterator() ) )
+      {
+         retVal = new SimpleCreditDebitReader();
+      }
 
       return retVal;
    }
 }
 
-class CitiBankCanadaReader
-   extends TransactionReader
-{
-   private static final String TRANSACTION_DATE = "transaction date";
-   private static final String POSTING_DATE = "posting date";
-   private static final String DESCRIPTION = "description";
-   private static final String AMOUNT = "amount";
-   private CustomDateFormat dateFormat = new CustomDateFormat( "MM/DD/YYYY" );
-
-   public static boolean canParse( Iterator<String> columns )
-      throws IOException
-   {
-      try
-      {
-         return TRANSACTION_DATE.equals( columns.next() ) &&
-            POSTING_DATE.equals( columns.next() ) &&
-            DESCRIPTION.equals( columns.next() ) &&
-            AMOUNT.equals( columns.next() ) &&
-            !columns.hasNext();
-      }
-      catch ( Throwable x )
-      {
-         return false;
-      }
-   }
-
-   @Override
-   protected String getFormatName()
-   {
-      return "CitiBank Canada";
-   }
-
-   @Override
-   protected boolean parseNext( OnlineTxn txn )
-      throws IOException
-   {
-      String transactionDateString = reader.nextField();
-      if ( transactionDateString == null )
-      { // empty line
-         return false;
-      }
-      if ( transactionDateString.equalsIgnoreCase( "Date downloaded:" ) )
-      { // skip the footer line
-         return false;
-      }
-      String postingDateString = reader.nextField();
-      String description = reader.nextField();
-      String amountString = reader.nextField();
-      if ( amountString == null )
-      {
-         throwException( "Invalid line." );
-      }
-
-      long amount = 0;
-      try
-      {
-         double amountDouble = StringUtils.parseDoubleWithException( amountString, '.' );
-         amount = currency.getLongValue( amountDouble );
-      }
-      catch ( Exception x )
-      {
-         throwException( "Invalid amount." );
-      }
-
-      int transactionDate = dateFormat.parseInt( transactionDateString );
-      int postingDate = dateFormat.parseInt( postingDateString );
-
-      txn.setAmount( amount );
-      txn.setTotalAmount( amount );
-      txn.setMemo( description );
-      txn.setFITxnId( postingDate + ":" + amountString + ":" + description );
-      txn.setDatePostedInt( postingDate );
-      txn.setDateInitiatedInt( transactionDate );
-      txn.setDateAvailableInt( postingDate );
-
-      return true;
-   }
-}
-
-class INGNetherlandsReader
-   extends TransactionReader
-{
-   private static final String DATUM = "datum";
-   private static final String NAAM_OMSCHRIJVING = "naam / omschrijving";
-   private static final String REKENING = "rekening";
-   private static final String TEGENREKENING = "tegenrekening";
-   private static final String CODE = "code";
-   private static final String AF_BIJ = "af bij";
-   private static final String BEDRAG_EUR = "bedrag (eur)";
-   private static final String MUTATIESORT = "mutatiesoort";
-   private static final String MEDEDELINGEN = "mededelingen";
-   private CustomDateFormat dateFormat = new CustomDateFormat( "D-M-YYYY" );
-
-   public static boolean canParse( Iterator<String> columns )
-      throws IOException
-   {
-      try
-      {
-         return DATUM.equals( columns.next() ) &&
-            NAAM_OMSCHRIJVING.equals( columns.next() ) &&
-            REKENING.equals( columns.next() ) &&
-            TEGENREKENING.equals( columns.next() ) &&
-            CODE.equals( columns.next() ) &&
-            AF_BIJ.equals( columns.next() ) &&
-            BEDRAG_EUR.equals( columns.next() ) &&
-            MUTATIESORT.equals( columns.next() ) &&
-            MEDEDELINGEN.equals( columns.next() ) &&
-            !columns.hasNext();
-      }
-      catch ( Throwable x )
-      {
-         return false;
-      }
-   }
-
-   @Override
-   protected String getFormatName()
-   {
-      return "ING The Netherlands";
-   }
-
-   @Override
-   protected boolean parseNext( OnlineTxn txn )
-      throws IOException
-   {
-      String datum = reader.nextField();
-      if ( datum == null )
-      { // empty line
-         return false;
-      }
-      String naam = reader.nextField();
-      String rekening = reader.nextField();
-      String tegenrekening = reader.nextField();
-      String code = reader.nextField();
-      String af_bij = reader.nextField();
-      String bedrag = reader.nextField();
-      String mutatiesort = reader.nextField();
-      String mededelingen = reader.nextField();
-      if ( mededelingen == null )
-      {
-         throwException( "Invalid line." );
-      }
-
-      long amount = 0;
-      try
-      {
-         double amountDouble = StringUtils.parseDoubleWithException( bedrag, ',' );
-         amount = currency.getLongValue( amountDouble );
-      }
-      catch ( Exception x )
-      {
-         throwException( "Invalid amount." );
-      }
-
-      if ( af_bij.equalsIgnoreCase( "af" ) )
-      {
-         amount = -amount;
-      }
-      else if ( af_bij.equalsIgnoreCase( "bij" ) )
-      {
-      }
-      else
-      {
-         throwException( "Value of Af/Bij field must be 'Af' or 'Bij'." );
-      }
-
-      int date = dateFormat.parseInt( datum );
-
-      Integer hashCode = naam.hashCode() ^ rekening.hashCode() ^ 
-         tegenrekening.hashCode() ^ code.hashCode() ^ af_bij.hashCode() ^ 
-         mutatiesort.hashCode() ^ mededelingen.hashCode();
-
-      txn.setAmount( amount );
-      txn.setTotalAmount( amount );
-      txn.setMemo( mededelingen );
-      txn.setFITxnId( datum + ":" + bedrag + ":" + hashCode.toString() );
-      txn.setDatePostedInt( date );
-      txn.setDateInitiatedInt( date );
-      txn.setDateAvailableInt( date );
-      txn.setPayeeName( naam );
-
-      return true;
-   }
-}
