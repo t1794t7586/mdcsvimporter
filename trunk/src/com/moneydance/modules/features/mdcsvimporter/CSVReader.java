@@ -32,6 +32,14 @@ public class CSVReader
     */
    private static final int LF = 10;
    /**
+    * Space
+    */
+   private static final int SPACE = 32;
+   /**
+    * Tab
+    */
+   private static final int TAB = 8;
+   /**
     * Character used as a separator of individual fields.
     */
    private int fieldSeparator = ',';
@@ -40,10 +48,22 @@ public class CSVReader
     */
    private int quoteCharacter = '"';
    /**
+    * Character used to mark comment lines.
+    */
+   private int commentCharacter = '#';
+   /**
+    * Character used to mark pragma lines.
+    */
+   private int pragmaCharacter = '$';
+   /**
     * True if the fields values should be trimmed before return. Equivalent of returning
     * nextField().trim().
     */
    private boolean trimFields = true;
+   /**
+    * True if empty lines should be skipped and not reported as data rows.
+    */
+   private boolean skipEmptyLines = false;
    /**
     * Reference to the reader.
     */
@@ -111,14 +131,41 @@ public class CSVReader
       {
          lastChar = reader.read();
       }
+
+      // skip whitespace at the beginning
       if ( trimFields )
       {
-         // skip whitespace at the beginning
          while ( isWhitespace( lastChar ) && !isEof( lastChar ) )
          {
             lastChar = reader.read();
          }
       }
+
+      // skip comment lines
+      if ( lastChar == commentCharacter )
+      {
+         do
+         {
+            lastChar = reader.read();
+         } while ( !isEof( lastChar ) && lastChar != CR && lastChar != LF );
+         return nextLine();
+      }
+
+      // handle pragma lines
+      if ( lastChar == pragmaCharacter )
+      {
+         throw new IOException( "Pragma lines (starting with " + pragmaCharacter +
+            ") are currently not supported. If you need to use this character surround " +
+            "the field with quotes." );
+      }
+
+      // skip empty lines if so requested
+      if ( skipEmptyLines && isEol( lastChar ) )
+      {
+         return nextLine();
+      }
+
+      // end of file
       if ( isEof( lastChar ) )
       {
          return false;
@@ -174,12 +221,12 @@ public class CSVReader
       else
       {
          // plain value
-         do
+         while ( !isFieldSeparator( lastChar ) && !isEol( lastChar ) &&
+            !isEof( lastChar ) )
          {
             builder.appendCodePoint( lastChar );
             lastChar = reader.read();
-         } while ( !isFieldSeparator( lastChar ) && !isEol( lastChar ) &&
-            !isEof( lastChar ) );
+         }
          if ( isFieldSeparator( lastChar ) )
          {
             lastChar = reader.read();
@@ -199,7 +246,6 @@ public class CSVReader
    }
 
    public void setFieldSeparator( int fieldSeparator )
-      throws IOException
    {
       this.fieldSeparator = fieldSeparator;
    }
@@ -210,7 +256,6 @@ public class CSVReader
    }
 
    public void setQuoteCharacter( int quoteCharacter )
-      throws IOException
    {
       this.quoteCharacter = quoteCharacter;
    }
@@ -220,8 +265,27 @@ public class CSVReader
       return quoteCharacter;
    }
 
+   public void setCommentCharacter( int commentCharacter )
+   {
+      this.commentCharacter = commentCharacter;
+   }
+
+   public int getCommentCharacter()
+   {
+      return commentCharacter;
+   }
+
+   public void setPragmaCharacter( int pragmaCharacter )
+   {
+      this.pragmaCharacter = pragmaCharacter;
+   }
+
+   public int getPragmaCharacter()
+   {
+      return pragmaCharacter;
+   }
+
    public void setTrimFields( boolean trimFields )
-      throws IOException
    {
       this.trimFields = trimFields;
    }
@@ -231,11 +295,19 @@ public class CSVReader
       return trimFields;
    }
 
+   public void setSkipEmptyLines( boolean skipEmptyLines )
+   {
+      this.skipEmptyLines = skipEmptyLines;
+   }
+
+   public boolean getSkipEmptyLines()
+   {
+      return skipEmptyLines;
+   }
+
    protected final boolean isWhitespace( int ch )
    {
-      return (ch == 32 // space
-         || ch == 8) // tab
-         && ch != quoteCharacter && ch != fieldSeparator;
+      return (ch == SPACE || ch == TAB) && !isQuote( ch ) && !isFieldSeparator( ch );
    }
 
    protected final boolean isQuote( int ch )
@@ -250,9 +322,7 @@ public class CSVReader
 
    protected final boolean isEol( int ch )
    {
-      return (ch == 10 // LF
-         || ch == 13) // CR
-         && ch != quoteCharacter && ch != fieldSeparator;
+      return (ch == LF || ch == CR) && !isQuote( ch ) && !isFieldSeparator( ch );
    }
 
    protected final boolean isEof( int ch )
