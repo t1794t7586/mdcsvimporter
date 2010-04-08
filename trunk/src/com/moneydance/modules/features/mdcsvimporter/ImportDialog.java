@@ -215,7 +215,7 @@ public class ImportDialog
                   .add(lblAccount)
                   .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                   .add(comboAccount, 0, 321, Short.MAX_VALUE)))
-            .add(32, 32, 32))
+            .add(12, 12, 12))
       );
       layout.setVerticalGroup(
          layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

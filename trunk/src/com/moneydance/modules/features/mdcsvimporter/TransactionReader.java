@@ -21,6 +21,7 @@ import com.moneydance.apps.md.model.OnlineTxnList;
 import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -34,6 +35,7 @@ public abstract class TransactionReader
    private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
    private static SimpleCreditDebitReader simpleCreditDebitReader =
       new SimpleCreditDebitReader();
+   private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
    protected CSVData reader;
    protected Account account;
    protected OnlineTxnList transactionList;
@@ -105,6 +107,11 @@ public abstract class TransactionReader
       if ( simpleCreditDebitReader.canParse( data ) )
       {
          formats.add( simpleCreditDebitReader );
+      }
+
+      if ( wellsFargoReader.canParse( data ) )
+      {
+         formats.add( wellsFargoReader );
       }
 
       TransactionReader[] retVal = new TransactionReader[formats.size()];
