@@ -1,0 +1,11 @@
+#summary Release notes for BETA10 release.
+
+April 8, 2009.
+
+=== Improvements ===
+
+  * User now given choice for file and date format, where applicable
+
+=== Fixes ===
+
+  * account list now includes all nested, and not just top level accounts 
