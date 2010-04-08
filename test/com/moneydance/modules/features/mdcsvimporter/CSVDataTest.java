@@ -17,9 +17,9 @@ import static org.junit.Assert.*;
  *
  * @author miki
  */
-public class CSVReaderTest
+public class CSVDataTest
 {
-   public CSVReaderTest()
+   public CSVDataTest()
    {
    }
 
@@ -53,26 +53,33 @@ public class CSVReaderTest
    {
       StringReader data = new StringReader( test1 );
       CSVReader reader = new CSVReader( data );
-      doTest1( reader );
+      CSVData csvdata = new CSVData( reader );
+      doTest1( csvdata );
    }
 
-   private void doTest1( CSVReader reader )
+   private void doTest1( CSVData reader )
       throws IOException
    {
-      assertNull( reader.nextField() );
+      assertFalse( reader.nextField() );
       assertTrue( reader.nextLine() );
-      assertEquals( reader.nextField(), "Column 1" );
-      assertEquals( reader.nextField(), "Column 2" );
-      assertNull( reader.nextField() );
+      assertTrue( reader.nextField() );
+      assertEquals( reader.getField(), "Column 1" );
+      assertTrue( reader.nextField() );
+      assertEquals( reader.getField(), "Column 2" );
+      assertFalse( reader.nextField() );
       assertTrue( reader.nextLine() );
-      assertEquals( reader.nextField(), "value 11" );
-      assertEquals( reader.nextField(), "value 12" );
-      assertNull( reader.nextField() );
+      assertTrue( reader.nextField() );
+      assertEquals( reader.getField(), "value 11" );
+      assertTrue( reader.nextField() );
+      assertEquals( reader.getField(), "value 12" );
+      assertFalse( reader.nextField() );
       assertTrue( reader.nextLine() );
-      assertEquals( reader.nextField(), "value 21" );
-      assertEquals( reader.nextField(), "value 22" );
-      assertNull( reader.nextField() );
+      assertTrue( reader.nextField() );
+      assertEquals( reader.getField(), "value 21" );
+      assertTrue( reader.nextField() );
+      assertEquals( reader.getField(), "value 22" );
+      assertFalse( reader.nextField() );
       assertFalse( reader.nextLine() );
-      assertNull( reader.nextField() );
+      assertFalse( reader.nextField() );
    }
 }

@@ -17,16 +17,17 @@ package com.moneydance.modules.features.mdcsvimporter;
 import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.RootAccount;
 import java.awt.Color;
+import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -36,6 +37,7 @@ public class ImportDialog
    extends javax.swing.JDialog
 {
    private File selectedFile;
+   private CSVData csvData;
    private TransactionReader transactionReader;
    private Main main;
 
@@ -67,7 +69,7 @@ public class ImportDialog
 
       checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
 
-      updateActions();
+      fileChanged();
    }
 
    private void fillAccountCombo( Main main )
@@ -77,19 +79,23 @@ public class ImportDialog
 
       fillAccountCombo_( rootAccount );
 
-      if ( comboAccount.getItemCount() > 0 ) {
+      if ( comboAccount.getItemCount() > 0 )
+      {
          comboAccount.setSelectedIndex( Settings.getInteger( "selected.account", 0 ) );
       }
    }
 
    private void fillAccountCombo_( Account parentAccount )
    {
-      for ( int i = 0; i < parentAccount.getSubAccountCount(); ++i ) {
+      for ( int i = 0; i < parentAccount.getSubAccountCount(); ++i )
+      {
          Account account = parentAccount.getSubAccount( i );
-         if ( account.isRegisterAccount() ) {
+         if ( account.isRegisterAccount() )
+         {
             comboAccount.addItem( account );
          }
-         else {
+         else
+         {
             fillAccountCombo_( account );
          }
       }
@@ -105,15 +111,19 @@ public class ImportDialog
    private void initComponents() {
 
       jLabel3 = new javax.swing.JLabel();
-      jLabel1 = new javax.swing.JLabel();
+      lblSelectFile = new javax.swing.JLabel();
       textFilename = new javax.swing.JTextField();
       btnBrowse = new javax.swing.JButton();
       checkDeleteFile = new javax.swing.JCheckBox();
       btnClose = new javax.swing.JButton();
       btnProcess = new javax.swing.JButton();
-      jLabel2 = new javax.swing.JLabel();
+      lblAccount = new javax.swing.JLabel();
       comboAccount = new javax.swing.JComboBox();
       lblMessage = new javax.swing.JLabel();
+      lblFileFormat = new javax.swing.JLabel();
+      comboFileFormat = new javax.swing.JComboBox();
+      lblDateFormat = new javax.swing.JLabel();
+      comboDateFormat = new javax.swing.JComboBox();
 
       jLabel3.setText("jLabel3");
 
@@ -122,7 +132,7 @@ public class ImportDialog
       setName("importDialog"); // NOI18N
       setResizable(false);
 
-      jLabel1.setText("Select File:");
+      lblSelectFile.setText("Select File:");
 
       btnBrowse.setText("...");
       btnBrowse.addActionListener(new java.awt.event.ActionListener() {
@@ -149,7 +159,7 @@ public class ImportDialog
          }
       });
 
-      jLabel2.setText("Select Account:");
+      lblAccount.setText("Select Account:");
 
       comboAccount.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -158,6 +168,19 @@ public class ImportDialog
       lblMessage.setText("jLabel4");
       lblMessage.setOpaque(true);
 
+      lblFileFormat.setText("File Format:");
+
+      comboFileFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+      comboFileFormat.addItemListener(new java.awt.event.ItemListener() {
+         public void itemStateChanged(java.awt.event.ItemEvent evt) {
+            fileFormatChanged(evt);
+         }
+      });
+
+      lblDateFormat.setText("Date Format:");
+
+      comboDateFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
       org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
       getContentPane().setLayout(layout);
       layout.setHorizontalGroup(
@@ -165,48 +188,60 @@ public class ImportDialog
          .add(layout.createSequentialGroup()
             .addContainerGap()
             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-               .add(layout.createSequentialGroup()
+               .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                  .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                     .add(lblSelectFile)
+                     .add(lblFileFormat))
+                  .add(29, 29, 29)
                   .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                      .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .add(36, 36, 36)
-                        .add(textFilename, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+                        .add(textFilename, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(btnBrowse, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(btnProcess)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(btnClose)))
-                  .addContainerGap())
+                     .add(comboFileFormat, 0, 320, Short.MAX_VALUE)))
+               .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                  .add(btnProcess)
+                  .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                  .add(btnClose))
                .add(layout.createSequentialGroup()
-                  .add(jLabel2)
-                  .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                  .add(comboAccount, 0, 284, Short.MAX_VALUE)
-                  .add(52, 52, 52))
+                  .add(103, 103, 103)
+                  .add(comboDateFormat, 0, 320, Short.MAX_VALUE))
+               .add(lblDateFormat)
                .add(layout.createSequentialGroup()
                   .add(checkDeleteFile)
-                  .addContainerGap(184, Short.MAX_VALUE))
+                  .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 168, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+               .add(lblMessage, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 423, Short.MAX_VALUE)
                .add(layout.createSequentialGroup()
-                  .add(lblMessage, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
-                  .addContainerGap())))
+                  .add(lblAccount)
+                  .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                  .add(comboAccount, 0, 321, Short.MAX_VALUE)))
+            .add(32, 32, 32))
       );
       layout.setVerticalGroup(
          layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
          .add(layout.createSequentialGroup()
             .addContainerGap()
             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-               .add(jLabel1)
+               .add(lblSelectFile)
                .add(textFilename, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                .add(btnBrowse))
-            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-               .add(jLabel2)
+               .add(comboFileFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+               .add(lblFileFormat))
+            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+               .add(lblDateFormat)
+               .add(comboDateFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(18, 18, 18)
+            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+               .add(lblAccount)
                .add(comboAccount, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
             .add(checkDeleteFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
             .add(lblMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 21, Short.MAX_VALUE)
+            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                .add(btnClose)
                .add(btnProcess))
@@ -243,7 +278,7 @@ public class ImportDialog
           selectedFile = dialog.getSelectedFile();
           Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
           textFilename.setText( selectedFile.getPath() );
-          updateActions();
+          fileChanged();
        }
 }//GEN-LAST:event_btnBrowseActionPerformed
 
@@ -257,24 +292,20 @@ public class ImportDialog
        Settings.setYesNo( "delete.file", checkDeleteFile.isSelected() );
        Settings.setInteger( "selected.account", comboAccount.getSelectedIndex() );
 
-       CSVReader csvReader = null;
+       TransactionReader reader = (TransactionReader) comboFileFormat.getSelectedItem();
+       reader.setDateFormat( (String) comboDateFormat.getSelectedItem() );
+
        try
        {
-          csvReader = new CSVReader( new FileReader( selectedFile ) );
-          transactionReader.parse( csvReader, (Account) comboAccount.getSelectedItem() );
-          csvReader.close();
+          reader.parse( csvData, (Account) comboAccount.getSelectedItem() );
        }
        catch ( IOException x )
        {
-          try
-          {
-             csvReader.close();
-          }
-          catch ( Exception ex )
-          {
-          }
-          JOptionPane.showMessageDialog( rootPane, "Error reading from the file.",
-             "Error Reading File", JOptionPane.ERROR_MESSAGE );
+          JOptionPane.showMessageDialog( rootPane, "There was a problem importing "
+             + " selected file, probably because the file format was wrong. Some items " +
+             "might have been added to your account.",
+             "Error Importing File",
+             JOptionPane.ERROR_MESSAGE );
           return;
        }
 
@@ -286,8 +317,8 @@ public class ImportDialog
           }
           catch ( IOException x )
           {
-             JOptionPane.showMessageDialog( rootPane, "The file was imported properly, " +
-                "however it could not be erased as requested.", "Cannot Delete File",
+             JOptionPane.showMessageDialog( rootPane, "The file was imported properly, "
+                + "however it could not be erased as requested.", "Cannot Delete File",
                 JOptionPane.ERROR_MESSAGE );
              return;
           }
@@ -296,110 +327,74 @@ public class ImportDialog
        if ( !Settings.getBoolean( "success.dialog.shown", false ) )
        {
           Settings.setYesNo( "success.dialog.shown", true );
-          JOptionPane.showMessageDialog( rootPane, 
-             "The file was imported properly. \n\n" +
-             "You can view the imported items when you open the account you have \n" +
-             "selected and click on the 'downloaded transactions' message at the \n" +
-             "bottom of the screen.",
+          JOptionPane.showMessageDialog( rootPane,
+             "The file was imported properly. \n\n"
+             + "You can view the imported items when you open the account you have \n"
+             + "selected and click on the 'downloaded transactions' message at the \n"
+             + "bottom of the screen.",
              "Import Successful", JOptionPane.INFORMATION_MESSAGE );
        }
 
        setVisible( false );
     }//GEN-LAST:event_btnProcessActionPerformed
+
+    private void fileFormatChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_fileFormatChanged
+    {//GEN-HEADEREND:event_fileFormatChanged
+       if ( evt.getStateChange() == ItemEvent.SELECTED )
+       {
+          TransactionReader reader;
+          try
+          {
+             reader = (TransactionReader) evt.getItem();
+          }
+          catch ( ClassCastException x )
+          {
+             reader = null;
+          }
+          if ( reader != null )
+          {
+             String[] formats = reader.getSupportedDateFormats();
+
+             comboDateFormat.removeAllItems();
+             for ( String s : formats )
+             {
+                comboDateFormat.addItem( s );
+             }
+
+             if ( formats.length == 0 )
+             {
+                comboDateFormat.addItem( "Date format not recognized" );
+                comboDateFormat.setEnabled( false );
+             }
+             else if ( formats.length == 1 )
+             {
+                comboDateFormat.setSelectedIndex( 0 );
+                comboDateFormat.setEnabled( false );
+             }
+             else
+             {
+                comboDateFormat.setEnabled( true );
+                comboDateFormat.setSelectedItem( reader.getDateFormat() );
+             }
+          }
+       }
+    }//GEN-LAST:event_fileFormatChanged
    // Variables declaration - do not modify//GEN-BEGIN:variables
    private javax.swing.JButton btnBrowse;
    private javax.swing.JButton btnClose;
    private javax.swing.JButton btnProcess;
    private javax.swing.JCheckBox checkDeleteFile;
    private javax.swing.JComboBox comboAccount;
-   private javax.swing.JLabel jLabel1;
-   private javax.swing.JLabel jLabel2;
+   private javax.swing.JComboBox comboDateFormat;
+   private javax.swing.JComboBox comboFileFormat;
    private javax.swing.JLabel jLabel3;
+   private javax.swing.JLabel lblAccount;
+   private javax.swing.JLabel lblDateFormat;
+   private javax.swing.JLabel lblFileFormat;
    private javax.swing.JLabel lblMessage;
+   private javax.swing.JLabel lblSelectFile;
    private javax.swing.JTextField textFilename;
    // End of variables declaration//GEN-END:variables
-
-   protected void updateActions()
-   {
-      boolean enabled = true;
-      String message = null;
-      CSVReader csvReader = null;
-
-      try
-      {
-         // see if the file is selected
-         if ( selectedFile == null || !selectedFile.exists() || !selectedFile.isFile() )
-         {
-            enabled = false;
-            message = "Please select a valid file.";
-         }
-
-         if ( enabled )
-         {
-            try
-            {
-               csvReader = new CSVReader( new FileReader( selectedFile ) );
-            }
-            catch ( Throwable x )
-            {
-               enabled = false;
-               message = "Cannot open file.";
-               Logger.getLogger( ImportDialog.class.getName() ).log( Level.SEVERE, null, x );
-            }
-         }
-
-         // detect file format
-         if ( enabled )
-         {
-            try
-            {
-               transactionReader = TransactionReader.create( csvReader );
-               if ( transactionReader == null )
-               {
-                  enabled = false;
-                  message = "CSV files in this format are not supported.";
-               }
-            }
-            catch ( Throwable x )
-            {
-               enabled = false;
-               message = "Error reading file.";
-               Logger.getLogger( ImportDialog.class.getName() ).log( Level.SEVERE, null, x );
-            }
-         }
-
-         Account account = (Account) comboAccount.getSelectedItem();
-         if ( account == null )
-         {
-            enabled = false;
-         }
-      }
-      finally
-      {
-         try
-         {
-            if ( csvReader != null )
-            {
-               csvReader.close();
-            }
-         }
-         catch ( Throwable x )
-         {
-         }
-      }
-
-      btnProcess.setEnabled( enabled );
-      if ( message != null )
-      {
-         lblMessage.setText( message );
-         lblMessage.setForeground( new Color( 255, 0, 51 ) );
-      }
-      else
-      {
-         lblMessage.setText( "File from " + transactionReader.getFormatName() + "." );
-         lblMessage.setForeground( Color.BLACK );
-      }
-   }
 
    private void textFilenameChanged()
    {
@@ -408,7 +403,125 @@ public class ImportDialog
       if ( !newFile.equals( selectedFile ) )
       {
          selectedFile = newFile;
-         updateActions();
+         fileChanged();
+      }
+   }
+
+   private void fileChanged()
+   {
+      String message = null;
+      boolean error = false;
+
+      // see if the file is selected
+      if ( selectedFile == null || !selectedFile.exists() || !selectedFile.isFile() )
+      {
+         message = "Please select a valid file.";
+         error = true;
+      }
+
+      // try reading the file
+      if ( !error )
+      {
+         try
+         {
+            CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
+            csvData = new CSVData( csvReader );
+         }
+         catch ( Throwable x )
+         {
+            error = true;
+            message = "Error reading file.";
+            Logger.getLogger( ImportDialog.class.getName() ).log( Level.SEVERE, null, x );
+         }
+      }
+
+      // detect file format
+      if ( !error )
+      {
+         TransactionReader[] fileFormats =
+            TransactionReader.getCompatibleReaders( csvData );
+
+         comboFileFormat.removeAllItems();
+         for ( TransactionReader reader : fileFormats )
+         {
+            comboFileFormat.addItem( reader );
+         }
+
+         if ( fileFormats.length == 0 )
+         {
+            comboFileFormat.addItem( "Format not recognized" );
+            comboFileFormat.setEnabled( false );
+            comboDateFormat.setEnabled( false );
+            error = true;
+            message = "Unsupported CSV file format.";
+         }
+         else if ( fileFormats.length == 1 )
+         {
+            comboFileFormat.setSelectedIndex( 0 );
+            comboFileFormat.setEnabled( false );
+         }
+         else
+         {
+            comboFileFormat.setEnabled( true );
+         }
+      }
+      else
+      {
+         comboFileFormat.removeAllItems();
+         comboFileFormat.addItem( "Format not recognized" );
+         comboFileFormat.setEnabled( false );
+      }
+
+      if ( !error )
+      {
+         TransactionReader reader = (TransactionReader) comboFileFormat.getSelectedItem();
+         String[] formats = reader.getSupportedDateFormats();
+
+         comboDateFormat.removeAllItems();
+         for ( String s : formats )
+         {
+            comboDateFormat.addItem( s );
+         }
+
+         if ( formats.length == 0 )
+         {
+            comboDateFormat.addItem( "Date format not recognized" );
+            comboDateFormat.setEnabled( false );
+            error = true;
+            message = "Cannot recognize date format used in the file.";
+         }
+         else if ( formats.length == 1 )
+         {
+            comboDateFormat.setSelectedIndex( 0 );
+            comboDateFormat.setEnabled( false );
+         }
+         else
+         {
+            comboDateFormat.setEnabled( true );
+            comboDateFormat.setSelectedItem( reader.getDateFormat() );
+         }
+      }
+      else
+      {
+         comboDateFormat.removeAllItems();
+         comboDateFormat.addItem( "Date format not recognized" );
+         comboDateFormat.setEnabled( false );
+      }
+
+      btnProcess.setEnabled( !error );
+      if ( error )
+      {
+         csvData = null;
+      }
+      if ( message != null )
+      {
+         lblMessage.setVisible( true );
+         lblMessage.setText( message );
+         lblMessage.setForeground( new Color( 255, 0, 51 ) );
+      }
+      else
+      {
+         lblMessage.setVisible( false );
       }
    }
 }

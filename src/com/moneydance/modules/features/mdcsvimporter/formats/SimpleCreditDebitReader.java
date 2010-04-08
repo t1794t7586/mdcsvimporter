@@ -15,11 +15,12 @@
 package com.moneydance.modules.features.mdcsvimporter.formats;
 
 import com.moneydance.apps.md.model.OnlineTxn;
+import com.moneydance.modules.features.mdcsvimporter.CSVData;
+import com.moneydance.modules.features.mdcsvimporter.DateGuesser;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
  *
@@ -32,23 +33,43 @@ public class SimpleCreditDebitReader
    private static final String DESCRIPTION = "description";
    private static final String CREDIT = "credit";
    private static final String DEBIT = "debit";
-   private CustomDateFormat dateFormat = new CustomDateFormat( "DD/MM/YYYY" );
+   private CustomDateFormat dateFormat;
+   private String[] compatibleDateFormats;
+   private String dateFormatString;
 
-   public static boolean canParse( Iterator<String> columns )
-      throws IOException
+   @Override
+   public boolean canParse( CSVData data )
    {
-      try
+      data.reset();
+
+      boolean retVal = data.nextLine() &&
+         data.nextField() && DATE.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && DESCRIPTION.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && CREDIT.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && DEBIT.equals( data.getField().toLowerCase() ) &&
+         !data.nextField();
+
+      // find guessable date formats
+      if ( retVal )
       {
-         return DATE.equals( columns.next() ) &&
-            DESCRIPTION.equals( columns.next() ) &&
-            CREDIT.equals( columns.next() ) &&
-            DEBIT.equals( columns.next() ) &&
-            !columns.hasNext();
+         DateGuesser guesser = new DateGuesser();
+         while ( data.nextLine() )
+         {
+            if ( data.nextField() )
+            {
+               guesser.checkDateString( data.getField() );
+            }
+         }
+
+         compatibleDateFormats = guesser.getPossibleFormats();
+         if ( dateFormatString == null ||
+            !find( compatibleDateFormats, dateFormatString ) )
+         {
+            setDateFormat( guesser.getBestFormat() );
+         }
       }
-      catch ( Throwable x )
-      {
-         return false;
-      }
+
+      return retVal;
    }
 
    @Override
@@ -61,14 +82,21 @@ public class SimpleCreditDebitReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      String dateString = reader.nextField();
+      reader.nextField();
+      String dateString = reader.getField();
       if ( dateString == null || dateString.length() == 0 )
       { // empty line
          return false;
       }
-      String description = reader.nextField();
-      String credit = reader.nextField();
-      String debit = reader.nextField();
+
+      reader.nextField();
+      String description = reader.getField();
+
+      reader.nextField();
+      String credit = reader.getField();
+
+      reader.nextField();
+      String debit = reader.getField();
       if ( credit == null && debit == null )
       {
          throwException( "Invalid line." );
@@ -108,6 +136,57 @@ public class SimpleCreditDebitReader
       txn.setDateInitiatedInt( date );
       txn.setDateAvailableInt( date );
 
+      return true;
+   }
+
+   @Override
+   public String[] getSupportedDateFormats()
+   {
+      return compatibleDateFormats;
+   }
+
+   @Override
+   public String getDateFormat()
+   {
+      return dateFormatString;
+   }
+
+   @Override
+   public void setDateFormat( String format )
+   {
+      if ( format == null )
+      {
+         return;
+      }
+
+      if ( !format.equals( dateFormatString ) )
+      {
+         dateFormat = new CustomDateFormat( format );
+         dateFormatString = format;
+      }
+   }
+
+   private static boolean find( String[] compatibleDateFormats, String dateFormatString )
+   {
+      if ( dateFormatString == null )
+      {
+         return false;
+      }
+
+      for ( String s : compatibleDateFormats )
+      {
+         if ( dateFormatString.equals( dateFormatString ) )
+         {
+            return true;
+         }
+      }
+
+      return false;
+   }
+
+   @Override
+   protected boolean haveHeader()
+   {
       return true;
    }
 }

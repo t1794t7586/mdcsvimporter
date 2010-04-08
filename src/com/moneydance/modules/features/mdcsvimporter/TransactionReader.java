@@ -23,7 +23,6 @@ import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReade
 import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -31,15 +30,27 @@ import java.util.List;
  */
 public abstract class TransactionReader
 {
-   protected CSVReader reader;
+   private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
+   private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
+   private static SimpleCreditDebitReader simpleCreditDebitReader =
+      new SimpleCreditDebitReader();
+   protected CSVData reader;
    protected Account account;
    protected OnlineTxnList transactionList;
    protected CurrencyType currency;
+
+   protected abstract boolean canParse( CSVData data );
 
    protected abstract boolean parseNext( OnlineTxn txn )
       throws IOException;
 
    public abstract String getFormatName();
+
+   public abstract String[] getSupportedDateFormats();
+
+   public abstract String getDateFormat();
+
+   public abstract void setDateFormat( String format );
 
    protected final void throwException( String message )
       throws IOException
@@ -47,7 +58,7 @@ public abstract class TransactionReader
       throw new IOException( message );
    }
 
-   public final void parse( CSVReader reader, Account account )
+   public final void parse( CSVData reader, Account account )
       throws IOException
    {
       this.reader = reader;
@@ -55,7 +66,11 @@ public abstract class TransactionReader
       this.transactionList = account.getDownloadedTxns();
       this.currency = account.getCurrencyType();
 
-      reader.nextLine(); // skip the header
+      reader.reset();
+      if ( haveHeader() )
+      {
+         reader.nextLine(); // skip the header
+      }
 
       while ( reader.nextLine() )
       {
@@ -73,48 +88,36 @@ public abstract class TransactionReader
       }
    }
 
-   public static TransactionReader create( CSVReader reader )
-      throws IOException
+   public static TransactionReader[] getCompatibleReaders( CSVData data )
    {
-      TransactionReader retVal = null;
+      ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
 
-      if ( !reader.nextLine() )
+      if ( citiBankCanadaReader.canParse( data ) )
       {
-         throw new IOException( "File is empty." );
+         formats.add( citiBankCanadaReader );
       }
 
-      List<String> columns = new ArrayList<String>();
-
-      for ( String field = reader.nextField(); field != null; field = reader.nextField() )
+      if ( ingNetherlandsReader.canParse( data ) )
       {
-         field = field.trim();
-         if ( field.length() == 0 )
-         {
-            throw new IOException( "Empty column names are not supported." );
-         }
-         field = field.toLowerCase();
-         columns.add( field );
+         formats.add( ingNetherlandsReader );
       }
 
-      if ( columns.isEmpty() )
+      if ( simpleCreditDebitReader.canParse( data ) )
       {
-         throw new IOException( "No columns found." );
+         formats.add( simpleCreditDebitReader );
       }
 
-      if ( CitiBankCanadaReader.canParse( columns.iterator() ) )
-      {
-         retVal = new CitiBankCanadaReader();
-      }
-      else if ( INGNetherlandsReader.canParse( columns.iterator() ) )
-      {
-         retVal = new INGNetherlandsReader();
-      }
-      else if ( SimpleCreditDebitReader.canParse( columns.iterator() ) )
-      {
-         retVal = new SimpleCreditDebitReader();
-      }
-
+      TransactionReader[] retVal = new TransactionReader[formats.size()];
+      formats.toArray( retVal );
       return retVal;
    }
+
+   @Override
+   public String toString()
+   {
+      return getFormatName();
+   }
+
+   protected abstract boolean haveHeader();
 }
 

@@ -16,10 +16,10 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.apps.md.model.OnlineTxn;
+import com.moneydance.modules.features.mdcsvimporter.CSVData;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
-import java.util.Iterator;
 
 public class CitiBankCanadaReader
    extends TransactionReader
@@ -28,23 +28,21 @@ public class CitiBankCanadaReader
    private static final String POSTING_DATE = "posting date";
    private static final String DESCRIPTION = "description";
    private static final String AMOUNT = "amount";
-   private CustomDateFormat dateFormat = new CustomDateFormat( "MM/DD/YYYY" );
+   private static final String DATE_FORMAT = "MM/DD/YYYY";
+   private static final String[] SUPPORTED_DATE_FORMATS = { DATE_FORMAT };
+   private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT );
 
-   public static boolean canParse( Iterator<String> columns )
-      throws IOException
+   @Override
+   public boolean canParse( CSVData data )
    {
-      try
-      {
-         return TRANSACTION_DATE.equals( columns.next() ) &&
-            POSTING_DATE.equals( columns.next() ) &&
-            DESCRIPTION.equals( columns.next() ) &&
-            AMOUNT.equals( columns.next() ) &&
-            !columns.hasNext();
-      }
-      catch ( Throwable x )
-      {
-         return false;
-      }
+      data.reset();
+
+      return data.nextLine() &&
+         data.nextField() && TRANSACTION_DATE.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && POSTING_DATE.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && DESCRIPTION.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && AMOUNT.equals( data.getField().toLowerCase() ) &&
+         !data.nextField();
    }
 
    @Override
@@ -57,18 +55,24 @@ public class CitiBankCanadaReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      String transactionDateString = reader.nextField();
-      if ( transactionDateString == null )
+      if ( !reader.nextField() )
       { // empty line
          return false;
       }
+      String transactionDateString = reader.getField();
       if ( transactionDateString.equalsIgnoreCase( "Date downloaded:" ) )
       { // skip the footer line
          return false;
       }
-      String postingDateString = reader.nextField();
-      String description = reader.nextField();
-      String amountString = reader.nextField();
+      
+      reader.nextField();
+      String postingDateString = reader.getField();
+
+      reader.nextField();
+      String description = reader.getField();
+
+      reader.nextField();
+      String amountString = reader.getField();
       if ( amountString == null )
       {
          throwException( "Invalid line." );
@@ -96,6 +100,33 @@ public class CitiBankCanadaReader
       txn.setDateInitiatedInt( transactionDate );
       txn.setDateAvailableInt( postingDate );
 
+      return true;
+   }
+
+   @Override
+   public String[] getSupportedDateFormats()
+   {
+      return SUPPORTED_DATE_FORMATS;
+   }
+
+   @Override
+   public String getDateFormat()
+   {
+      return DATE_FORMAT;
+   }
+
+   @Override
+   public void setDateFormat( String format )
+   {
+      if ( !DATE_FORMAT.equals( format ) )
+      {
+         throw new UnsupportedOperationException( "Not supported yet." );
+      }
+   }
+
+   @Override
+   protected boolean haveHeader()
+   {
       return true;
    }
 }
