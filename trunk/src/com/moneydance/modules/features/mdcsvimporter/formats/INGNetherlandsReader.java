@@ -16,10 +16,10 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.apps.md.model.OnlineTxn;
+import com.moneydance.modules.features.mdcsvimporter.CSVData;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
-import java.util.Iterator;
 
 public class INGNetherlandsReader
    extends TransactionReader
@@ -33,28 +33,26 @@ public class INGNetherlandsReader
    private static final String BEDRAG_EUR = "bedrag (eur)";
    private static final String MUTATIESORT = "mutatiesoort";
    private static final String MEDEDELINGEN = "mededelingen";
-   private CustomDateFormat dateFormat = new CustomDateFormat( "D-M-YYYY" );
+   private static final String DATE_FORMAT = "D-M-YYYY";
+   private static final String[] SUPPORTED_DATE_FORMATS = { DATE_FORMAT };
+   private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT );
 
-   public static boolean canParse( Iterator<String> columns )
-      throws IOException
+   @Override
+   public boolean canParse( CSVData data )
    {
-      try
-      {
-         return DATUM.equals( columns.next() ) &&
-            NAAM_OMSCHRIJVING.equals( columns.next() ) &&
-            REKENING.equals( columns.next() ) &&
-            TEGENREKENING.equals( columns.next() ) &&
-            CODE.equals( columns.next() ) &&
-            AF_BIJ.equals( columns.next() ) &&
-            BEDRAG_EUR.equals( columns.next() ) &&
-            MUTATIESORT.equals( columns.next() ) &&
-            MEDEDELINGEN.equals( columns.next() ) &&
-            !columns.hasNext();
-      }
-      catch ( Throwable x )
-      {
-         return false;
-      }
+      data.reset();
+
+      return data.nextLine() &&
+         data.nextField() && DATUM.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && NAAM_OMSCHRIJVING.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && REKENING.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && TEGENREKENING.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && CODE.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && AF_BIJ.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && BEDRAG_EUR.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && MUTATIESORT.equals( data.getField().toLowerCase() ) &&
+         data.nextField() && MEDEDELINGEN.equals( data.getField().toLowerCase() ) &&
+         !data.nextField();
    }
 
    @Override
@@ -67,19 +65,35 @@ public class INGNetherlandsReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      String datum = reader.nextField();
-      if ( datum == null )
+      if ( !reader.nextField() )
       { // empty line
          return false;
       }
-      String naam = reader.nextField();
-      String rekening = reader.nextField();
-      String tegenrekening = reader.nextField();
-      String code = reader.nextField();
-      String af_bij = reader.nextField();
-      String bedrag = reader.nextField();
-      String mutatiesort = reader.nextField();
-      String mededelingen = reader.nextField();
+      String datum = reader.getField();
+
+      reader.nextField();
+      String naam = reader.getField();
+
+      reader.nextField();
+      String rekening = reader.getField();
+
+      reader.nextField();
+      String tegenrekening = reader.getField();
+
+      reader.nextField();
+      String code = reader.getField();
+
+      reader.nextField();
+      String af_bij = reader.getField();
+
+      reader.nextField();
+      String bedrag = reader.getField();
+
+      reader.nextField();
+      String mutatiesort = reader.getField();
+
+      reader.nextField();
+      String mededelingen = reader.getField();
       if ( mededelingen == null )
       {
          throwException( "Invalid line." );
@@ -123,6 +137,33 @@ public class INGNetherlandsReader
       txn.setDateAvailableInt( date );
       txn.setPayeeName( naam );
 
+      return true;
+   }
+
+   @Override
+   public String[] getSupportedDateFormats()
+   {
+      return SUPPORTED_DATE_FORMATS;
+   }
+
+   @Override
+   public String getDateFormat()
+   {
+      return DATE_FORMAT;
+   }
+
+   @Override
+   public void setDateFormat( String format )
+   {
+      if ( !DATE_FORMAT.equals( format ) )
+      {
+         throw new UnsupportedOperationException( "Not supported yet." );
+      }
+   }
+
+   @Override
+   protected boolean haveHeader()
+   {
       return true;
    }
 }
