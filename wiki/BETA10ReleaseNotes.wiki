@@ -1,6 +1,6 @@
 #summary Release notes for BETA10 release.
 
-April 8, 2009.
+April 8, 2010.
 
 === Improvements ===
 
