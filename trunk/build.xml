@@ -93,7 +93,7 @@
         </java>
         <basename property="dist.jar.fileonly" file="${dist.jar}"/>
         <move file="s-${idstring}.mxt" tofile="${dist.jar}" overwrite="true"/>
-        <copy file="${dist.jar}" todir="/Users/miki/.moneydance/fmodules" overwrite="true"/>
+        <copy file="${dist.jar}" todir="${user.home}/.moneydance/fmodules" overwrite="true"/>
     </target>
 
     <target name="genkeys" depends="init">
