@@ -30,7 +30,7 @@ import javax.swing.JFrame;
 public class Main
    extends FeatureModule
 {
-   private static final int VERSION = 10;
+   private static final int VERSION = 11;
    private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Milutin Jovanović";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
