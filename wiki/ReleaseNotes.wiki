@@ -1,0 +1,32 @@
+#summary mdcsvimporter release notes.
+
+=mdcsvimporter Release Notes=
+
+==BETA11==
+
+April 14, 2010
+  * ADD: Added Wells Fargo import.
+
+==BETA10==
+
+April 8, 2010.
+  * ADD: User now given choice for file and date format, where applicable.
+  * FIX: Account list now includes all nested, and not just top level accounts.
+
+==BETA9==
+
+Version number skipped.
+
+==BETA8==
+
+August 26, 2009.
+  * FIX: Fixed transaction id generation for ING Netherlands.
+
+==BETA7==
+
+August 24, 2009.
+  * ADD: Added ING Netherlands import.
+  * ADD: Dialog settings are now saved and used next time dialog is opened.
+  * FIX: Fixed Main Menu problem on Mac OS X.
+  * FIX: Fixed date format detection problem.
+  * FIX: Ensured compatibility with Java 1.5.
