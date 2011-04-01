@@ -2,6 +2,11 @@
 
 =mdcsvimporter Release Notes=
 
+==BETA12==
+
+March 31, 2011
+  * ADD: Support for Moneydance 2010 and 2011.
+
 ==BETA11==
 
 April 14, 2010
