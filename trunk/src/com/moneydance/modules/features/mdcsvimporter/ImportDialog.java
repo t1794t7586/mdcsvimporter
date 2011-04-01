@@ -16,6 +16,8 @@ package com.moneydance.modules.features.mdcsvimporter;
 
 import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.RootAccount;
+import com.moneydance.apps.md.view.gui.MoneydanceGUI;
+import com.moneydance.apps.md.view.gui.OnlineManager;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -297,13 +299,18 @@ public class ImportDialog
 
        try
        {
-          reader.parse( csvData, (Account) comboAccount.getSelectedItem() );
+          Account account = (Account) comboAccount.getSelectedItem();
+          reader.parse( csvData, account );
+          com.moneydance.apps.md.controller.Main mainApp =
+             (com.moneydance.apps.md.controller.Main) main.getMainContext();
+          new OnlineManager( (MoneydanceGUI) mainApp.getUI() )
+             .processDownloadedTxns( account );
        }
        catch ( IOException x )
        {
           JOptionPane.showMessageDialog( rootPane, "There was a problem importing "
-             + " selected file, probably because the file format was wrong. Some items " +
-             "might have been added to your account.",
+             + " selected file, probably because the file format was wrong. Some items "
+             + "might have been added to your account.",
              "Error Importing File",
              JOptionPane.ERROR_MESSAGE );
           return;
