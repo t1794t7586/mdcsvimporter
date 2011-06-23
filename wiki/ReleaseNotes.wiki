@@ -1,4 +1,5 @@
 #summary mdcsvimporter release notes.
+#labels Featured
 
 =mdcsvimporter Release Notes=
 
