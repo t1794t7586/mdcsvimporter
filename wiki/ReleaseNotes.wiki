@@ -2,6 +2,11 @@
 
 =mdcsvimporter Release Notes=
 
+==BETA13==
+
+June 23, 2011
+  * FIX: Shortened description as a workaround to MoneyDance window resize issue.
+
 ==BETA12==
 
 March 31, 2011
