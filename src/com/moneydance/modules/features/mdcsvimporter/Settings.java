@@ -37,8 +37,8 @@ public final class Settings
 {
    private static File getFilename()
    {
-      File moneydanceHome = new File( System.getProperty( "user.home" ), ".moneydance" );
-      return new File( moneydanceHome, "mdcsvimporter.props" );
+      File moneydanceHome = new File(System.getProperty("user.home"), ".moneydance");
+      return new File(moneydanceHome, "mdcsvimporter.props");
    }
 
    private static Properties load()
@@ -46,229 +46,221 @@ public final class Settings
    {
       Properties retVal = new Properties();
       InputStream is;
-      try
-      {
-         is = new FileInputStream( getFilename() );
+      try {
+         is = new FileInputStream(getFilename());
       }
-      catch ( FileNotFoundException ex )
-      {
+      catch (FileNotFoundException ex) {
          return retVal; // no file is normal condition to start with empty props object
       }
-      try
-      {
-         retVal.load( is );
+      try {
+         retVal.load(is);
       }
-      finally
-      {
+      finally {
          is.close();
       }
       return retVal;
    }
 
-   private static void save( Properties props )
+   private static void save(Properties props)
       throws IOException
    {
-      OutputStream os = new FileOutputStream( getFilename() );
-      try
-      {
-         props.store( os, "MDCSVImporter - Moneydance CSV Importer" );
+      OutputStream os = new FileOutputStream(getFilename());
+      try {
+         props.store(os, "MDCSVImporter - Moneydance CSV Importer");
       }
-      finally
-      {
+      finally {
          os.close();
       }
    }
 
-   public static String get( String name )
+   public static String get(String name)
    {
-      try
-      {
-         return load().getProperty( name );
+      try {
+         return load().getProperty(name);
       }
-      catch ( IOException ex )
-      {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+      catch (IOException ex) {
+         Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
          return null;
       }
    }
-           
+
    public static HashMap<String, CustomReaderData> createReaderConfigsHM()
    {
-      HashMap<String, CustomReaderData> ReaderConfigsHM = new HashMap<String, CustomReaderData>();
-      
-      try
-      {
-        Properties props = load();
+      HashMap<String, CustomReaderData> ReaderConfigsHM =
+         new HashMap<String, CustomReaderData>();
 
-        for ( Enumeration enu = props.propertyNames(); enu.hasMoreElements(); )
-            {
+      try {
+         Properties props = load();
+
+         for (Enumeration enu = props.propertyNames(); enu.hasMoreElements();) {
             String key = (String) enu.nextElement();
-            System.out.println( "props key =" + key + "=" );
-            if ( key.startsWith( "reader:" ) && key.endsWith( ".Name" ) )
-                {
-                String readerName = key.replaceAll( "reader\\:(.*)\\..*", "reader:$1" );
-                System.err.println(  "readerName >" + readerName + "<" );
-                   
-                CustomReaderData customReaderData = new CustomReaderData();
-                customReaderData.setReaderName( props.getProperty( readerName + ".Name" ) );
-                customReaderData.setFieldSeparatorChar( Integer.parseInt( props.getProperty( readerName + ".FieldSeparator" ) ) );
-                customReaderData.setHeaderLines( Integer.parseInt( props.getProperty( readerName + ".HeaderLines" ) ) );
+            System.out.println("props key =" + key + "=");
+            if (key.startsWith("reader:") && key.endsWith(".Name")) {
+               String readerName = key.replaceAll("reader\\:(.*)\\..*", "reader:$1");
+               System.err.println("readerName >" + readerName + "<");
 
-                customReaderData.setDataTypesList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DataTypesList" ).split( "[\\[\\],]" ) ) ) );
-                customReaderData.setEmptyFlagsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".EmptyFlagsList" ).split( "[\\[\\],]" ) ) ) );
+               CustomReaderData customReaderData = new CustomReaderData();
+               customReaderData.setReaderName(props.getProperty(readerName + ".Name"));
+               customReaderData.setFieldSeparatorChar(Integer.parseInt(props.getProperty(readerName
+                  + ".FieldSeparator")));
+               customReaderData.setHeaderLines(Integer.parseInt(props.getProperty(readerName
+                  + ".HeaderLines")));
 
-                int max = customReaderData.getDataTypesList().size();
-                for ( int c = 1; c < max; c++ )
-                    {
-                    customReaderData.getDataTypesList().set( c - 1,customReaderData.getDataTypesList().get( c ).trim() );
-                    customReaderData.getEmptyFlagsList().set( c - 1,customReaderData.getEmptyFlagsList().get( c ).trim() );
-                    }
+               customReaderData.setDataTypesList(new ArrayList<String>(Arrays.asList(props.
+                  getProperty(readerName + ".DataTypesList").split("[\\[\\],]"))));
+               customReaderData.setEmptyFlagsList(new ArrayList<String>(Arrays.asList(props.
+                  getProperty(readerName + ".EmptyFlagsList").split("[\\[\\],]"))));
 
-                System.err.println( "props readerName =" + customReaderData.getReaderName() + "=" );
-                System.err.println( "props getFieldSeparatorChar() =" + customReaderData.getFieldSeparatorChar() + "=" );
-                System.err.println( "props getHeaderLines() =" + customReaderData.getHeaderLines() + "=" );
-                System.err.println( "props getDataTypesList() =" + customReaderData.getDataTypesList() + "=" );
-                System.err.println( "props getEmptyFlagsList() =" + customReaderData.getEmptyFlagsList() + "=" );
-                
-                ReaderConfigsHM.put( props.getProperty( readerName + ".Name" ), customReaderData );
-                }
+               int max = customReaderData.getDataTypesList().size();
+               for (int c = 1; c < max; c++) {
+                  customReaderData.getDataTypesList().set(c - 1, customReaderData.
+                     getDataTypesList().get(c).trim());
+                  customReaderData.getEmptyFlagsList().set(c - 1, customReaderData.
+                     getEmptyFlagsList().get(c).trim());
+               }
+
+               System.err.println("props readerName =" + customReaderData.getReaderName()
+                  + "=");
+               System.err.println("props getFieldSeparatorChar() =" + customReaderData.
+                  getFieldSeparatorChar() + "=");
+               System.err.println("props getHeaderLines() =" + customReaderData.
+                  getHeaderLines() + "=");
+               System.err.println("props getDataTypesList() =" + customReaderData.
+                  getDataTypesList() + "=");
+               System.err.println("props getEmptyFlagsList() =" + customReaderData.
+                  getEmptyFlagsList() + "=");
+
+               ReaderConfigsHM.put(props.getProperty(readerName + ".Name"),
+                  customReaderData);
             }
-          }
-      catch ( IOException ex )
-         {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
-         return null;
          }
-      
+      }
+      catch (IOException ex) {
+         Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
+         return null;
+      }
+
       return ReaderConfigsHM;
    }
 
-   public static String get( String name, String defaultValue )
+   public static String get(String name, String defaultValue)
    {
-      try
-      {
-         String retVal = load().getProperty( name );
-         if ( retVal == null )
-         {
+      try {
+         String retVal = load().getProperty(name);
+         if (retVal == null) {
             return defaultValue;
          }
          return retVal;
       }
-      catch ( IOException ex )
-      {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+      catch (IOException ex) {
+         Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
          return defaultValue;
       }
    }
 
-   public static void set( String name, String value )
+   public static void set(String name, String value)
    {
-      try
-      {
+      try {
          Properties props = load();
 
          // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
-         String oldValue = props.getProperty( name );
-         if ( (oldValue != null && oldValue.equals( value )) ||
-            (value != null && value.equals( oldValue )) )
-         {
+         String oldValue = props.getProperty(name);
+         if ((oldValue != null && oldValue.equals(value)) || (value != null && value.
+            equals(oldValue))) {
             return;
          }
 
-         props.setProperty( name, value );
-         save( props );
+         props.setProperty(name, value);
+         save(props);
       }
-      catch ( IOException ex )
-      {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+      catch (IOException ex) {
+         Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
 
-   public static void setOnly( Properties props, String name, String value )
+   public static void setOnly(Properties props, String name, String value)
    {
-         // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
-         String oldValue = props.getProperty( name );
-         if ( (oldValue != null && oldValue.equals( value )) ||
-            (value != null && value.equals( oldValue )) )
-         {
-            return;
-         }
+      // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
+      String oldValue = props.getProperty(name);
+      if ((oldValue != null && oldValue.equals(value)) || (value != null && value.equals(
+         oldValue))) {
+         return;
+      }
 
-         props.setProperty( name, value );
+      props.setProperty(name, value);
    }
 
-   public static boolean getBoolean( String name )
+   public static boolean getBoolean(String name)
    {
-      return getBoolean( name, false );
+      return getBoolean(name, false);
    }
 
-   public static boolean getBoolean( String name, boolean defaultValue )
+   public static boolean getBoolean(String name, boolean defaultValue)
    {
-      String value = get( name );
-      if ( value == null )
-      {
+      String value = get(name);
+      if (value == null) {
          return defaultValue;
       }
 
-      if ( value.equalsIgnoreCase( "true" ) || value.equalsIgnoreCase( "yes" ) ||
-         value.equalsIgnoreCase( "1" ) )
-      {
+      if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("yes") || value.
+         equalsIgnoreCase("1")) {
          return true;
       }
-      else
-      {
+      else {
          return false;
       }
    }
 
-   public static void setBoolean( String name, boolean value )
+   public static void setBoolean(String name, boolean value)
    {
-      set( name, value ? "true" : "false" );
+      set(name, value ? "true" : "false");
    }
 
-   public static void setYesNo( String name, boolean value )
+   public static void setYesNo(String name, boolean value)
    {
-      set( name, value ? "yes" : "no" );
+      set(name, value ? "yes" : "no");
    }
 
-   public static int getInteger( String name )
+   public static int getInteger(String name)
    {
-      return getInteger( name, 0 );
+      return getInteger(name, 0);
    }
 
-   public static int getInteger( String name, int defaultValue )
+   public static int getInteger(String name, int defaultValue)
    {
-      String value = get( name );
-      if ( value == null )
-      {
+      String value = get(name);
+      if (value == null) {
          return defaultValue;
       }
 
-      return Integer.parseInt( value );
+      return Integer.parseInt(value);
    }
 
-   public static void setInteger( String name, int value )
+   public static void setInteger(String name, int value)
    {
-      set( name, Integer.toString( value ) );
+      set(name, Integer.toString(value));
    }
 
-   public static void setCustomReaderConfig( CustomReaderData customReaderData )
+   public static void setCustomReaderConfig(CustomReaderData customReaderData)
    {
-      try
-      {
+      try {
          Properties props = load();
 
-         setOnly( props, "reader:" + customReaderData.getReaderName() + ".Name", customReaderData.getReaderName() );
-         setOnly( props, "reader:" + customReaderData.getReaderName() + ".HeaderLines", Integer.toString( customReaderData.getHeaderLines() ) );
-         setOnly( props, "reader:" + customReaderData.getReaderName() + ".FieldSeparator", Integer.toString( customReaderData.getFieldSeparatorChar() ) );
-         setOnly( props, "reader:" + customReaderData.getReaderName() + ".DataTypesList", customReaderData.getDataTypesList().toString() );
-         setOnly( props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList", customReaderData.getEmptyFlagsList().toString() );
+         setOnly(props, "reader:" + customReaderData.getReaderName() + ".Name",
+            customReaderData.getReaderName());
+         setOnly(props, "reader:" + customReaderData.getReaderName() + ".HeaderLines",
+            Integer.toString(customReaderData.getHeaderLines()));
+         setOnly(props, "reader:" + customReaderData.getReaderName() + ".FieldSeparator",
+            Integer.toString(customReaderData.getFieldSeparatorChar()));
+         setOnly(props, "reader:" + customReaderData.getReaderName() + ".DataTypesList",
+            customReaderData.getDataTypesList().toString());
+         setOnly(props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList",
+            customReaderData.getEmptyFlagsList().toString());
 
-         save( props );
+         save(props);
       }
-      catch ( IOException ex )
-      {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+      catch (IOException ex) {
+         Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
 }
