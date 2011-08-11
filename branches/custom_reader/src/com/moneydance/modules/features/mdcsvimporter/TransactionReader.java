@@ -19,6 +19,7 @@ import com.moneydance.apps.md.model.CurrencyType;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.apps.md.model.OnlineTxnList;
 import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
@@ -33,9 +34,12 @@ public abstract class TransactionReader
 {
    private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
    private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
-   private static SimpleCreditDebitReader simpleCreditDebitReader =
-      new SimpleCreditDebitReader();
+   private static SimpleCreditDebitReader simpleCreditDebitReader = new SimpleCreditDebitReader();
    private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
+   private static CustomReader customReader = new CustomReader();
+   
+   protected static CustomReaderDialog customReaderDialog = null;
+   
    protected CSVData reader;
    protected Account account;
    protected OnlineTxnList transactionList;
@@ -69,11 +73,30 @@ public abstract class TransactionReader
       this.currency = account.getCurrencyType();
 
       reader.reset();
-      if ( haveHeader() )
-      {
-         reader.nextLine(); // skip the header
-      }
 
+      System.err.println( "at parse getFieldSeparator() =" + (char)reader.getReader().getFieldSeparator() + "=" );
+
+      reader.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+      System.err.println( "at parse getFieldSeparator() after set =" + (char)reader.getReader().getFieldSeparator() + "=" );
+
+      //----- Skip Header Lines  -----
+        if ( this instanceof CustomReader )
+            {
+            int skipHeaderLines = customReaderDialog.getHeaderLines();
+            for ( int i = 0; i < skipHeaderLines; i++ )
+                {
+                //System.err.println(  "skip header for customReader" );
+                reader.nextLine();
+                }
+            }
+        else
+            {
+              if ( haveHeader() )
+                {
+                 reader.nextLine(); // skip the header
+                }
+            }
+      
       while ( reader.nextLine() )
       {
          OnlineTxn txn = transactionList.newTxn();
@@ -85,15 +108,44 @@ public abstract class TransactionReader
                txn.setAmount( -txn.getAmount() );
                txn.setTotalAmount( -txn.getAmount() );
             }
+            System.err.println( "will add transaction" );
             transactionList.addNewTxn( txn );
          }
       }
    }
 
-   public static TransactionReader[] getCompatibleReaders( CSVData data )
+   public void setCustomReaderDialog( CustomReaderDialog customReaderDialog )
+        {
+        this.customReaderDialog = customReaderDialog;
+        }
+   
+   public int getNumberOfCustomReaderFieldsUsed()
+        {
+        if ( this.customReaderDialog == null ) 
+            return 0;
+        else 
+            return this.customReaderDialog.getNumberOfCustomReaderFieldsUsed();
+        }
+   
+   public static TransactionReader[] getCompatibleReaders( CSVData data, String customerReaderName )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
 
+      System.err.println( "call cust read canParse()" );
+      if ( customerReaderName != null && ! customerReaderName.equals( "" ) )
+        {
+
+          System.err.println( "at canparse getFieldSeparator() =" + (char)data.getReader().getFieldSeparator() + "=" );
+
+          data.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+          System.err.println( "at canparse getFieldSeparator() after set =" + (char)data.getReader().getFieldSeparator() + "=" );
+
+          if ( customReader.canParse( data ) )
+              {
+             formats.add( customReader );
+            }
+        }
+      
       if ( citiBankCanadaReader.canParse( data ) )
       {
          formats.add( citiBankCanadaReader );
@@ -113,7 +165,7 @@ public abstract class TransactionReader
       {
          formats.add( wellsFargoReader );
       }
-
+              
       TransactionReader[] retVal = new TransactionReader[formats.size()];
       formats.toArray( retVal );
       return retVal;
@@ -126,5 +178,12 @@ public abstract class TransactionReader
    }
 
    protected abstract boolean haveHeader();
+   
+   /*
+   protected String convertParensToMinusSign( String amt )
+   {
+       return amt.replaceAll( "\(.*\)", "-\$1" );
+   }
+    */
 }
 

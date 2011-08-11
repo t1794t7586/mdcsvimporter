@@ -21,13 +21,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author miki
+ * @author miki and Stan Towianski
  */
 public final class Settings
 {
@@ -87,6 +91,57 @@ public final class Settings
          return null;
       }
    }
+           
+   public static HashMap<String, CustomReaderData> createReaderConfigsHM()
+   {
+      HashMap<String, CustomReaderData> ReaderConfigsHM = new HashMap<String, CustomReaderData>();
+      
+      try
+      {
+        Properties props = load();
+
+        for ( Enumeration enu = props.propertyNames(); enu.hasMoreElements(); )
+            {
+            String key = (String) enu.nextElement();
+            System.out.println( "props key =" + key + "=" );
+            if ( key.startsWith( "reader:" ) && key.endsWith( ".Name" ) )
+                {
+                String readerName = key.replaceAll( "reader\\:(.*)\\..*", "reader:$1" );
+                System.err.println(  "readerName >" + readerName + "<" );
+                   
+                CustomReaderData customReaderData = new CustomReaderData();
+                customReaderData.setReaderName( props.getProperty( readerName + ".Name" ) );
+                customReaderData.setFieldSeparatorChar( Integer.parseInt( props.getProperty( readerName + ".FieldSeparator" ) ) );
+                customReaderData.setHeaderLines( Integer.parseInt( props.getProperty( readerName + ".HeaderLines" ) ) );
+
+                customReaderData.setDataTypesList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DataTypesList" ).split( "[\\[\\],]" ) ) ) );
+                customReaderData.setEmptyFlagsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".EmptyFlagsList" ).split( "[\\[\\],]" ) ) ) );
+
+                int max = customReaderData.getDataTypesList().size();
+                for ( int c = 1; c < max; c++ )
+                    {
+                    customReaderData.getDataTypesList().set( c - 1,customReaderData.getDataTypesList().get( c ).trim() );
+                    customReaderData.getEmptyFlagsList().set( c - 1,customReaderData.getEmptyFlagsList().get( c ).trim() );
+                    }
+
+                System.err.println( "props readerName =" + customReaderData.getReaderName() + "=" );
+                System.err.println( "props getFieldSeparatorChar() =" + customReaderData.getFieldSeparatorChar() + "=" );
+                System.err.println( "props getHeaderLines() =" + customReaderData.getHeaderLines() + "=" );
+                System.err.println( "props getDataTypesList() =" + customReaderData.getDataTypesList() + "=" );
+                System.err.println( "props getEmptyFlagsList() =" + customReaderData.getEmptyFlagsList() + "=" );
+                
+                ReaderConfigsHM.put( props.getProperty( readerName + ".Name" ), customReaderData );
+                }
+            }
+          }
+      catch ( IOException ex )
+         {
+         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+         return null;
+         }
+      
+      return ReaderConfigsHM;
+   }
 
    public static String get( String name, String defaultValue )
    {
@@ -127,6 +182,19 @@ public final class Settings
       {
          Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
       }
+   }
+
+   public static void setOnly( Properties props, String name, String value )
+   {
+         // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
+         String oldValue = props.getProperty( name );
+         if ( (oldValue != null && oldValue.equals( value )) ||
+            (value != null && value.equals( oldValue )) )
+         {
+            return;
+         }
+
+         props.setProperty( name, value );
    }
 
    public static boolean getBoolean( String name )
@@ -182,5 +250,25 @@ public final class Settings
    public static void setInteger( String name, int value )
    {
       set( name, Integer.toString( value ) );
+   }
+
+   public static void setCustomReaderConfig( CustomReaderData customReaderData )
+   {
+      try
+      {
+         Properties props = load();
+
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".Name", customReaderData.getReaderName() );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".HeaderLines", Integer.toString( customReaderData.getHeaderLines() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".FieldSeparator", Integer.toString( customReaderData.getFieldSeparatorChar() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".DataTypesList", customReaderData.getDataTypesList().toString() );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList", customReaderData.getEmptyFlagsList().toString() );
+
+         save( props );
+      }
+      catch ( IOException ex )
+      {
+         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+      }
    }
 }

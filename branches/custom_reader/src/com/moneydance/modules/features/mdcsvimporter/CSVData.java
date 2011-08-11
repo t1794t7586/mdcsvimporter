@@ -27,9 +27,13 @@ public class CSVData
    private int currentLineIndex = -1;
    private int currentFieldIndex = -1;
 
-   public CSVData( CSVReader reader )
+   protected CSVReader reader;
+   
+   public CSVData( CSVReader readerArg )
       throws IOException
    {
+       this.reader = readerArg;
+       
       ArrayList<String> line = new ArrayList<String>();
       ArrayList<String[]> file = new ArrayList<String[]>();
 
@@ -82,6 +86,16 @@ public class CSVData
       return currentFieldIndex < data[currentLineIndex].length;
    }
 
+   public boolean hasZeroFields()
+   {
+      if ( currentLineIndex < 0 || currentLineIndex >= data.length )
+      {
+         return false;
+      }
+
+      return 0 < data[currentLineIndex].length;
+   }
+
    public String getField()
    {
       if ( currentLineIndex < 0 || currentLineIndex >= data.length )
@@ -95,4 +109,14 @@ public class CSVData
 
       return data[currentLineIndex][currentFieldIndex];
    }
+
+    public CSVReader getReader() {
+        return this.reader;
+    }
+
+    public void setReader(CSVReader reader) {
+        this.reader = reader;
+    }
+   
+   
 }
