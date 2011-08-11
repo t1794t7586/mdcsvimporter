@@ -190,6 +190,8 @@ public class CSVReader
 
       builder.setLength( 0 );
 
+      System.err.println( "nextField() fieldSeparator =" + (char)fieldSeparator + "=" );
+
       if ( isQuote( lastChar ) )
       {
          // quoted field
@@ -198,8 +200,11 @@ public class CSVReader
          {
             builder.appendCodePoint( lastChar );
             lastChar = reader.read();
+            //System.err.println( "lastChar =" + lastChar + "=" );
          }
-
+         //System.err.println( "end field" );
+         //System.err.println( "read field =" + builder.toString() + "=" );
+         
          if ( !isQuote( lastChar ) )
          {
             throw new IOException( "Unexpected end of line." );
@@ -247,6 +252,7 @@ public class CSVReader
 
    public void setFieldSeparator( int fieldSeparator )
    {
+       System.err.println( "CSVReader.setFieldSeparator =" + (char)fieldSeparator + "=" );
       this.fieldSeparator = fieldSeparator;
    }
 
