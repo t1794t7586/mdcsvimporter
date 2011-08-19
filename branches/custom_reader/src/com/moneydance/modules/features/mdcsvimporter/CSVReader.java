@@ -203,7 +203,7 @@ public class CSVReader
             //System.err.println( "lastChar =" + lastChar + "=" );
          }
          //System.err.println( "end field" );
-         //System.err.println( "read field =" + builder.toString() + "=" );
+         System.err.println( "read field =" + builder.toString() + "=" );
          
          if ( !isQuote( lastChar ) )
          {

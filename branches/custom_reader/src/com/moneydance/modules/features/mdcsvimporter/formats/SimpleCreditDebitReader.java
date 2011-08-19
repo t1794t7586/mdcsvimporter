@@ -16,6 +16,7 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
+import com.moneydance.modules.features.mdcsvimporter.CustomReaderDialog;
 import com.moneydance.modules.features.mdcsvimporter.DateGuesser;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;

@@ -4,6 +4,7 @@
  *
  * Created on Aug 3, 2011, 11:49:09 PM
  */
+
 package com.moneydance.modules.features.mdcsvimporter;
 
 import java.util.ArrayList;
@@ -15,343 +16,357 @@ import javax.swing.DefaultListModel;
  *
  * @author Stan Towianski
  */
-public class CustomReaderDialog
-   extends javax.swing.JDialog
-{
-   //javax.swing.JDialog parent = null;
-   ImportDialog parent = null;
-   String[] dataTypes = {"", "ignore", "-Payment-", "-Deposit-", "date", "check number",
-      "description", "memo"};
-   String[] allowEmptyFlag = {"", "Can Be Blank"};
+
+
+public class CustomReaderDialog extends javax.swing.JDialog {
+        
+        //javax.swing.JDialog parent = null;
+        ImportDialog parent = null;
+        
+        String [] dataTypes = { "", "ignore", "-Payment-", "-Deposit-", "date", "check number", "description", "memo" };
+        String [] allowEmptyFlag = { "", "Can Be Blank" };
 //        ArrayList<javax.swing.JComboBox> dataTypesList = new ArrayList<javax.swing.JComboBox>( 10 );
    //     ArrayList<javax.swing.JComboBox> emptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
-   ArrayList<String> dataTypesList = new ArrayList<String>(10);
-   ArrayList<String> emptyFlagsList = new ArrayList<String>(10);
-   HashMap<String, CustomReaderData> ReaderConfigsHM =
-      new HashMap<String, CustomReaderData>();
+        ArrayList<String> dataTypesList = new ArrayList<String>( 10 );
+        ArrayList<String> emptyFlagsList = new ArrayList<String>( 10 );
+        HashMap<String, CustomReaderData> ReaderConfigsHM = new HashMap<String, CustomReaderData>();
+        
+    /** Creates new form CustomerReaderDialog */
+    public CustomReaderDialog( ImportDialog parent, boolean modal) {
+        super(parent, modal);
+        this.parent = parent;
+        initComponents();
+    }
 
-   /** Creates new form CustomerReaderDialog */
-   public CustomReaderDialog(ImportDialog parent, boolean modal)
-   {
-      super(parent, modal);
-      this.parent = parent;
-      initComponents();
-   }
+    public boolean addReaderConfig()
+        {
+        message.setText( "" );
+        if ( ReaderConfigsHM.containsKey( readerName.getText() ) )
+            {
+            message.setText( "A reader already exists by the name '" + readerName.getText() + "'" );
+            return false;
+            }
+        
+        CustomReaderData customReaderData = new CustomReaderData();
+        customReaderData.setReaderName( readerName.getText() );
+        customReaderData.setDataTypesList( createNewDataTypesList() );
+        customReaderData.setEmptyFlagsList( createNewEmptyFlagsList() );
+        customReaderData.setFieldSeparatorChar( getFieldSeparatorChar() );
+        customReaderData.setHeaderLines( getHeaderLines() );
+        customReaderData.setDateFormatString( getDateFormatString() );
 
-   public boolean addReaderConfig()
-   {
-      message.setText("");
-      if (ReaderConfigsHM.containsKey(readerName.getText())) {
-         message.setText("A reader already exists by the name '" + readerName.getText()
-            + "'");
-         return false;
-      }
+        /*
+        System.out.println( "add datatype===================================" );
+        int i = 0;
+        for ( String dataType : customReaderData.getDataTypesList() )
+            {
+            System.out.println( "add datatype " + i + " =" + dataType + "=" );
+            i++;
+            }
+         */
+        
+        ReaderConfigsHM.put( readerName.getText(), customReaderData );
+        
+        DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
+        listModel.addElement( readerName.getText() );
+        
+        Settings.setCustomReaderConfig( customReaderData );
+        
+        this.parent.comboFileFormat1AddItem( readerName.getText() );
 
-      CustomReaderData customReaderData = new CustomReaderData();
-      customReaderData.setReaderName(readerName.getText());
-      customReaderData.setDataTypesList(createNewDataTypesList());
-      customReaderData.setEmptyFlagsList(createNewEmptyFlagsList());
-      customReaderData.setFieldSeparatorChar(getFieldSeparatorChar());
-      customReaderData.setHeaderLines(getHeaderLines());
+        return true;
+        }
+    
+    public boolean deleteReaderConfig()
+        {
+        message.setText( "" );
+        DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
+        int index = customReadersList.getSelectedIndex();
+        //System.err.println( " selected index =" + index + "   item =" + listModel.getElementAt( index ) + "=" );
+        
+        Settings.removeCustomReaderConfig( ReaderConfigsHM.get( listModel.getElementAt( index ) ) );
+        
+        ReaderConfigsHM.remove( listModel.getElementAt( index ) );
 
-      /*
-      System.out.println( "add datatype===================================" );
-      int i = 0;
-      for ( String dataType : customReaderData.getDataTypesList() )
-      {
-      System.out.println( "add datatype " + i + " =" + dataType + "=" );
-      i++;
-      }
-       */
+        listModel.remove( index );
+        clearReaderConfig();
+        
+        return true;
+        }
+    
+    public boolean getReaderConfig( String readerNameToGet )
+        {
+        message.setText( "" );
+        if ( ! ReaderConfigsHM.containsKey( readerNameToGet ) )
+            {
+            message.setText( "There is no reader by that name '" + readerNameToGet + "'" );
+            return false;
+            }
+        
+        CustomReaderData customReaderData = ReaderConfigsHM.get( readerNameToGet );
+        readerName.setText( readerNameToGet );
+        dataTypesList = customReaderData.getDataTypesList();
+        emptyFlagsList = customReaderData.getEmptyFlagsList();
+        setFieldSeparatorChar( customReaderData.getFieldSeparatorChar() );
+        setHeaderLines( customReaderData.getHeaderLines() );
+        setDateFormatString( customReaderData.getDateFormatString() );
 
-      ReaderConfigsHM.put(readerName.getText(), customReaderData);
+        System.out.println( "get dataTypesList arraylist =" + dataTypesList + "=" );
+        System.out.println( "get emptyFlagsList arraylist =" + emptyFlagsList + "=" );
 
-      DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
-      listModel.addElement(readerName.getText());
-
-      Settings.setCustomReaderConfig(customReaderData);
-
-      this.parent.comboFileFormat1AddItem(readerName.getText());
-
-      return true;
-   }
-
-   public boolean deleteReaderConfig()
-   {
-      message.setText("");
-      DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
-      int index = customReadersList.getSelectedIndex();
-      //System.err.println( " selected index =" + index + "   item =" + listModel.getElementAt( index ) + "=" );
-
-      ReaderConfigsHM.remove(listModel.getElementAt(index));
-
-      listModel.remove(index);
-      clearReaderConfig();
-      return true;
-   }
-
-   public boolean getReaderConfig(String readerNameToGet)
-   {
-      message.setText("");
-      if (!ReaderConfigsHM.containsKey(readerNameToGet)) {
-         message.setText("There is no reader by that name '" + readerNameToGet + "'");
-         return false;
-      }
-
-      CustomReaderData customReaderData = ReaderConfigsHM.get(readerNameToGet);
-      readerName.setText(readerNameToGet);
-      dataTypesList = customReaderData.getDataTypesList();
-      emptyFlagsList = customReaderData.getEmptyFlagsList();
-      setFieldSeparatorChar(customReaderData.getFieldSeparatorChar());
-      setHeaderLines(customReaderData.getHeaderLines());
-
-      System.out.println("get dataTypesList arraylist =" + dataTypesList + "=");
-      System.out.println("get emptyFlagsList arraylist =" + emptyFlagsList + "=");
-
-      /*
-      int i = 0;
-      //            System.out.println( "get datatype===================================" );
-      //            System.out.println( "get datatype===================================" );
-      for ( String dataType : dataTypesList )
-      {
-      //            System.out.println( "get datatype " + i + " =" + dataType + "=" );
-      i++;
-      }
-       */
-
+        /*
+        int i = 0;
 //            System.out.println( "get datatype===================================" );
-      dataType0.setSelectedItem(dataTypesList.get(0));
-      dataType1.setSelectedItem(dataTypesList.get(1));
-      dataType2.setSelectedItem(dataTypesList.get(2));
-      dataType3.setSelectedItem(dataTypesList.get(3));
-      dataType4.setSelectedItem(dataTypesList.get(4));
-      dataType5.setSelectedItem(dataTypesList.get(5));
-      dataType6.setSelectedItem(dataTypesList.get(6));
-      dataType7.setSelectedItem(dataTypesList.get(7));
-      dataType8.setSelectedItem(dataTypesList.get(8));
-      dataType9.setSelectedItem(dataTypesList.get(9));
+//            System.out.println( "get datatype===================================" );
+        for ( String dataType : dataTypesList )
+            {
+//            System.out.println( "get datatype " + i + " =" + dataType + "=" );
+            i++;
+            }
+         */
+        
+//            System.out.println( "get datatype===================================" );
+        dataType0.setSelectedItem( dataTypesList.get( 0 ) );
+        dataType1.setSelectedItem( dataTypesList.get( 1 ) );
+        dataType2.setSelectedItem( dataTypesList.get( 2 ) );
+        dataType3.setSelectedItem( dataTypesList.get( 3 ) );
+        dataType4.setSelectedItem( dataTypesList.get( 4 ) );
+        dataType5.setSelectedItem( dataTypesList.get( 5 ) );
+        dataType6.setSelectedItem( dataTypesList.get( 6 ) );
+        dataType7.setSelectedItem( dataTypesList.get( 7 ) );
+        dataType8.setSelectedItem( dataTypesList.get( 8 ) );
+        dataType9.setSelectedItem( dataTypesList.get( 9 ) );
 
-      /*
-      System.out.println( "get datatype===================================" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 0 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 1 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 2 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 3 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 4 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 5 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 6 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 7 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 8 ) + "=" );
-      System.out.println( "get datatype " + i + " =" + dataTypesList.get( 9 ) + "=" );
-       */
+        /*
+        System.out.println( "get datatype===================================" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 0 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 1 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 2 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 3 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 4 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 5 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 6 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 7 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 8 ) + "=" );
+        System.out.println( "get datatype " + i + " =" + dataTypesList.get( 9 ) + "=" );
+        */
+        
+        isNullable0.setSelectedItem( emptyFlagsList.get( 0 ) );
+        isNullable1.setSelectedItem( emptyFlagsList.get( 1 ) );
+        isNullable2.setSelectedItem( emptyFlagsList.get( 2 ) );
+        isNullable3.setSelectedItem( emptyFlagsList.get( 3 ) );
+        isNullable4.setSelectedItem( emptyFlagsList.get( 4 ) );
+        isNullable5.setSelectedItem( emptyFlagsList.get( 5 ) );
+        isNullable6.setSelectedItem( emptyFlagsList.get( 6 ) );
+        isNullable7.setSelectedItem( emptyFlagsList.get( 7 ) );
+        isNullable8.setSelectedItem( emptyFlagsList.get( 8 ) );
+        isNullable9.setSelectedItem( emptyFlagsList.get( 9 ) );
+        
+        System.err.println( "getNumberOfCustomReaderFieldsUsed() =" + getNumberOfCustomReaderFieldsUsed() );
+        return true;
+        }
+    
+    public void clearReaderConfig()
+        {
+        setFieldSeparatorChar( ',' );
+        setHeaderLines( 1 );
+        
+        dataType0.setSelectedIndex( 0 );
+        dataType1.setSelectedIndex( 0 );
+        dataType2.setSelectedIndex( 0 );
+        dataType3.setSelectedIndex( 0 );
+        dataType4.setSelectedIndex( 0 );
+        dataType5.setSelectedIndex( 0 );
+        dataType6.setSelectedIndex( 0 );
+        dataType7.setSelectedIndex( 0 );
+        dataType8.setSelectedIndex( 0 );
+        dataType9.setSelectedIndex( 0 );
+        
+        isNullable0.setSelectedIndex( 0 );
+        isNullable1.setSelectedIndex( 0 );
+        isNullable2.setSelectedIndex( 0 );
+        isNullable3.setSelectedIndex( 0 );
+        isNullable4.setSelectedIndex( 0 );
+        isNullable5.setSelectedIndex( 0 );
+        isNullable6.setSelectedIndex( 0 );
+        isNullable7.setSelectedIndex( 0 );
+        isNullable8.setSelectedIndex( 0 );
+        isNullable9.setSelectedIndex( 0 );
+        }
 
-      isNullable0.setSelectedItem(emptyFlagsList.get(0));
-      isNullable1.setSelectedItem(emptyFlagsList.get(1));
-      isNullable2.setSelectedItem(emptyFlagsList.get(2));
-      isNullable3.setSelectedItem(emptyFlagsList.get(3));
-      isNullable4.setSelectedItem(emptyFlagsList.get(4));
-      isNullable5.setSelectedItem(emptyFlagsList.get(5));
-      isNullable6.setSelectedItem(emptyFlagsList.get(6));
-      isNullable7.setSelectedItem(emptyFlagsList.get(7));
-      isNullable8.setSelectedItem(emptyFlagsList.get(8));
-      isNullable9.setSelectedItem(emptyFlagsList.get(9));
-
-      System.err.println("getNumberOfCustomReaderFieldsUsed() ="
-         + getNumberOfCustomReaderFieldsUsed());
-      return true;
-   }
-
-   public void clearReaderConfig()
-   {
-      setFieldSeparatorChar(',');
-      setHeaderLines(1);
-
-      dataType0.setSelectedIndex(0);
-      dataType1.setSelectedIndex(0);
-      dataType2.setSelectedIndex(0);
-      dataType3.setSelectedIndex(0);
-      dataType4.setSelectedIndex(0);
-      dataType5.setSelectedIndex(0);
-      dataType6.setSelectedIndex(0);
-      dataType7.setSelectedIndex(0);
-      dataType8.setSelectedIndex(0);
-      dataType9.setSelectedIndex(0);
-
-      isNullable0.setSelectedIndex(0);
-      isNullable1.setSelectedIndex(0);
-      isNullable2.setSelectedIndex(0);
-      isNullable3.setSelectedIndex(0);
-      isNullable4.setSelectedIndex(0);
-      isNullable5.setSelectedIndex(0);
-      isNullable6.setSelectedIndex(0);
-      isNullable7.setSelectedIndex(0);
-      isNullable8.setSelectedIndex(0);
-      isNullable9.setSelectedIndex(0);
-   }
-
-   public ArrayList<String> createNewDataTypesList()
-   {
-      ArrayList<String> newDataTypesList = new ArrayList<String>(10);
+    public ArrayList<String> createNewDataTypesList() 
+        {
+        ArrayList<String> newDataTypesList = new ArrayList<String>( 10 );
 //        Collections.copy( newDataTypesList, dataTypesList );
-
-      newDataTypesList.add(((String) dataType0.getSelectedItem()));
-      newDataTypesList.add(((String) dataType1.getSelectedItem()));
-      newDataTypesList.add(((String) dataType2.getSelectedItem()));
-      newDataTypesList.add(((String) dataType3.getSelectedItem()));
-      newDataTypesList.add(((String) dataType4.getSelectedItem()));
-      newDataTypesList.add(((String) dataType5.getSelectedItem()));
-      newDataTypesList.add(((String) dataType6.getSelectedItem()));
-      newDataTypesList.add(((String) dataType7.getSelectedItem()));
-      newDataTypesList.add(((String) dataType8.getSelectedItem()));
-      newDataTypesList.add(((String) dataType9.getSelectedItem()));
-
+        
+        newDataTypesList.add( ((String)dataType0.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType1.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType2.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType3.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType4.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType5.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType6.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType7.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType8.getSelectedItem()));
+        newDataTypesList.add( ((String)dataType9.getSelectedItem()));        
+                
 //        for ( int i = 0; i < 10; i ++ )
 //            {
 //            newDataTypesList.add( new String( dataTypesList.get( i ) ) );
 //            }
-      return newDataTypesList;
-   }
+        return newDataTypesList;
+        }
 
-   public ArrayList<String> createNewEmptyFlagsList()
-   {
-      ArrayList<String> newEmptyFlagsList = new ArrayList<String>(10);
-      newEmptyFlagsList.add(((String) isNullable0.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable1.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable2.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable3.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable4.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable5.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable6.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable7.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable8.getSelectedItem()));
-      newEmptyFlagsList.add(((String) isNullable9.getSelectedItem()));
-      return newEmptyFlagsList;
-   }
-   /*
-   public ArrayList<javax.swing.JComboBox> createNewEmptyFlagsList() 
-   {
-   ArrayList<javax.swing.JComboBox> newEmptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
-   for ( int i = 0; i < 10; i ++ )
-   {
-   javax.swing.JComboBox jcb = new javax.swing.JComboBox( new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-   jcb.setSelectedItem( emptyFlagsList.get( i ).getSelectedItem() );
-   newEmptyFlagsList.add( jcb );
-   }
-   return newEmptyFlagsList;
-   }
-    */
+    public ArrayList<String> createNewEmptyFlagsList() 
+        {
+        ArrayList<String> newEmptyFlagsList = new ArrayList<String>( 10 );
+        newEmptyFlagsList.add( ((String)isNullable0.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable1.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable2.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable3.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable4.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable5.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable6.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable7.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable8.getSelectedItem()));
+        newEmptyFlagsList.add( ((String)isNullable9.getSelectedItem()));        
+        return newEmptyFlagsList;
+        }
+    /*
+    public ArrayList<javax.swing.JComboBox> createNewEmptyFlagsList() 
+        {
+        ArrayList<javax.swing.JComboBox> newEmptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
+        for ( int i = 0; i < 10; i ++ )
+            {
+            javax.swing.JComboBox jcb = new javax.swing.JComboBox( new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
+            jcb.setSelectedItem( emptyFlagsList.get( i ).getSelectedItem() );
+            newEmptyFlagsList.add( jcb );
+            }
+        return newEmptyFlagsList;
+        }
+     */
+    
+    public String getDataTypesListSelectedItem( int index ) {
+        return (String) dataTypesList.get( index );
+    }
 
-   public String getDataTypesListSelectedItem(int index)
-   {
-      return (String) dataTypesList.get(index);
-   }
+    public String getEmptyFlagsListSelectedItem( int index ) {
+        return (String) emptyFlagsList.get( index );
+    }
 
-   public String getEmptyFlagsListSelectedItem(int index)
-   {
-      return (String) emptyFlagsList.get(index);
-   }
+    public String getDateFormatSelected() {
+        return (String) dateFormatCB.getSelectedItem();
+    }
 
-   public int getNumberOfCustomReaderFieldsUsed()
-   {
-      int c = 0;
-      int max = dataTypesList.size();
+    public int getNumberOfCustomReaderFieldsUsed()
+        {
+        int c = 0;
+        int max = dataTypesList.size();
+        
+        for (       ; c < max; c++ )
+            {
+            //System.err.println( "(String) dataTypesList.get(" + c + ") =" + (String) dataTypesList.get( c ) + "=" );
+            if ( ((String) dataTypesList.get( c )).equalsIgnoreCase( "" ) )
+                return c;
+            }
+        return c;
+        }
 
-      for (; c < max; c++) {
-         //System.err.println( "(String) dataTypesList.get(" + c + ") =" + (String) dataTypesList.get( c ) + "=" );
-         if (((String) dataTypesList.get(c)).equalsIgnoreCase("")) {
-            return c;
-         }
-      }
-      return c;
-   }
+    public void setHeaderLines( int xxx ) 
+        {
+        headerLines.setText( String.valueOf( xxx ) );
+        }
+    
+    public int getHeaderLines() {
+        int x = 0;
+        try
+            {
+            x = Integer.parseInt( headerLines.getText().trim() );
+            }
+        catch ( Exception ex )
+            {
+            ;
+            }
+        return x;
+    }
 
-   public void setHeaderLines(int xxx)
-   {
-      headerLines.setText(String.valueOf(xxx));
-   }
+    public void setFieldSeparatorChar( int xxx) {
+        fieldSeparatorChar.setText( String.valueOf( Character.toString( (char) xxx ) ) );
+    }
 
-   public int getHeaderLines()
-   {
-      int x = 0;
-      try {
-         x = Integer.parseInt(headerLines.getText().trim());
-      }
-      catch (Exception ex) {
-         ;
-      }
-      return x;
-   }
+    public int getFieldSeparatorChar() {
+        return fieldSeparatorChar.getText().charAt( 0 );
+    }
+    
+    public void setDateFormatString( String xxx) {
+        dateFormatCB.setSelectedItem( xxx );
+    }
 
-   public void setFieldSeparatorChar(int xxx)
-   {
-      fieldSeparatorChar.setText(String.valueOf(Character.toString((char) xxx)));
-   }
+    public String getDateFormatString() {
+        return (String) dateFormatCB.getSelectedItem();
+    }
+    
+    protected void init()
+        {
+        /*
+        dataType0.setSelectedItem( "date" );
+        dataType1.setSelectedItem( "amount" );
+        dataType2.setSelectedItem( "check number" );
+        dataType3 .setSelectedItem( "skip" );
+        dataType4.setSelectedItem( "description" );
+        dataType5.setSelectedItem( "memo" );
+        isNullable2.setSelectedItem( "Can Be Blank" );
+        isNullable4.setSelectedItem( "Can Be Blank" );
+        isNullable5.setSelectedItem( "Can Be Blank" );
+        */
+        
+        ReaderConfigsHM = Settings.createReaderConfigsHM();
 
-   public int getFieldSeparatorChar()
-   {
-      return fieldSeparatorChar.getText().charAt(0);
-   }
+        DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
 
-   protected void init()
-   {
-      /*
-      dataType0.setSelectedItem( "date" );
-      dataType1.setSelectedItem( "amount" );
-      dataType2.setSelectedItem( "check number" );
-      dataType3 .setSelectedItem( "skip" );
-      dataType4.setSelectedItem( "description" );
-      dataType5.setSelectedItem( "memo" );
-      isNullable2.setSelectedItem( "Can Be Blank" );
-      isNullable4.setSelectedItem( "Can Be Blank" );
-      isNullable5.setSelectedItem( "Can Be Blank" );
-       */
+        this.parent.comboFileFormat1AddItem( "" );
 
-      ReaderConfigsHM = Settings.createReaderConfigsHM();
-
-      DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
-
-      this.parent.comboFileFormat1AddItem("");
-
-      // For keys of a map
-      for (Iterator it = ReaderConfigsHM.keySet().iterator(); it.hasNext();) {
-         String readerName = (String) it.next();
-         System.out.println("fill out readerName =" + readerName + "=");
-         listModel.addElement(readerName);
-         if (this.parent != null) {
-            System.out.println("call add readerName to import dlg reader list ="
-               + readerName + "=");
-            this.parent.comboFileFormat1AddItem(readerName);
-         }
-      }
-
-      dataTypesList.add((String) dataType0.getSelectedItem());
-      dataTypesList.add((String) dataType1.getSelectedItem());
-      dataTypesList.add((String) dataType2.getSelectedItem());
-      dataTypesList.add((String) dataType3.getSelectedItem());
-      dataTypesList.add((String) dataType4.getSelectedItem());
-      dataTypesList.add((String) dataType5.getSelectedItem());
-      dataTypesList.add((String) dataType6.getSelectedItem());
-      dataTypesList.add((String) dataType7.getSelectedItem());
-      dataTypesList.add((String) dataType8.getSelectedItem());
-      dataTypesList.add((String) dataType9.getSelectedItem());
-      emptyFlagsList.add((String) isNullable0.getSelectedItem());
-      emptyFlagsList.add((String) isNullable1.getSelectedItem());
-      emptyFlagsList.add((String) isNullable2.getSelectedItem());
-      emptyFlagsList.add((String) isNullable3.getSelectedItem());
-      emptyFlagsList.add((String) isNullable4.getSelectedItem());
-      emptyFlagsList.add((String) isNullable5.getSelectedItem());
-      emptyFlagsList.add((String) isNullable6.getSelectedItem());
-      emptyFlagsList.add((String) isNullable7.getSelectedItem());
-      emptyFlagsList.add((String) isNullable8.getSelectedItem());
-      emptyFlagsList.add((String) isNullable9.getSelectedItem());
-   }
-
-   /** This method is called from within the constructor to
-    * initialize the form.
-    * WARNING: Do NOT modify this code. The content of this method is
-    * always regenerated by the Form Editor.
-    */
-   @SuppressWarnings("unchecked")
+        // For keys of a map
+        for ( Iterator it=ReaderConfigsHM.keySet().iterator(); it.hasNext(); ) 
+            {
+            String readerName = (String) it.next();
+            System.out.println( "fill out readerName =" + readerName + "=" );
+            listModel.addElement( readerName );
+            if ( this.parent != null )
+                {
+                System.out.println( "call add readerName to import dlg reader list =" + readerName + "=" );
+                this.parent.comboFileFormat1AddItem( readerName );
+                }
+            }
+        
+        dataTypesList.add( (String)dataType0.getSelectedItem() );
+        dataTypesList.add( (String)dataType1.getSelectedItem() );
+        dataTypesList.add( (String)dataType2.getSelectedItem() );
+        dataTypesList.add( (String)dataType3.getSelectedItem() );
+        dataTypesList.add( (String)dataType4.getSelectedItem() );
+        dataTypesList.add( (String)dataType5.getSelectedItem() );
+        dataTypesList.add( (String)dataType6.getSelectedItem() );
+        dataTypesList.add( (String)dataType7.getSelectedItem() );
+        dataTypesList.add( (String)dataType8.getSelectedItem() );
+        dataTypesList.add( (String)dataType9.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable0.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable1.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable2.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable3.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable4.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable5.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable6.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable7.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable8.getSelectedItem() );
+        emptyFlagsList.add( (String)isNullable9.getSelectedItem() );
+    }                                 
+    
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
@@ -395,16 +410,18 @@ public class CustomReaderDialog
         jScrollPane1 = new javax.swing.JScrollPane();
         customReadersList = new javax.swing.JList();
         jLabel14 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        addBtn = new javax.swing.JButton();
+        deleteBtn = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         message = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
+        doneBtn = new javax.swing.JButton();
         jLabel18 = new javax.swing.JLabel();
         fieldSeparatorChar = new javax.swing.JTextField();
-        jButton4 = new javax.swing.JButton();
+        resetFieldsBtn = new javax.swing.JButton();
+        jLabel19 = new javax.swing.JLabel();
+        dateFormatCB = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -678,27 +695,27 @@ public class CustomReaderDialog
         gridBagConstraints.gridy = 4;
         getContentPane().add(jLabel14, gridBagConstraints);
 
-        jButton1.setText("Add");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        addBtn.setText("Add");
+        addBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                addBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 16;
-        getContentPane().add(jButton1, gridBagConstraints);
+        getContentPane().add(addBtn, gridBagConstraints);
 
-        jButton2.setText("Delete");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        deleteBtn.setText("Delete");
+        deleteBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                deleteBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 16;
-        getContentPane().add(jButton2, gridBagConstraints);
+        getContentPane().add(deleteBtn, gridBagConstraints);
 
         jLabel15.setText("List of Readers:");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -726,20 +743,20 @@ public class CustomReaderDialog
         gridBagConstraints.gridy = 0;
         getContentPane().add(jLabel17, gridBagConstraints);
 
-        jButton3.setText("Done");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        doneBtn.setText("Done");
+        doneBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                doneBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 16;
-        getContentPane().add(jButton3, gridBagConstraints);
+        getContentPane().add(doneBtn, gridBagConstraints);
 
         jLabel18.setText("Field Separator:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 3;
         getContentPane().add(jLabel18, gridBagConstraints);
 
@@ -751,32 +768,49 @@ public class CustomReaderDialog
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(fieldSeparatorChar, gridBagConstraints);
 
-        jButton4.setText("Reset Fields");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
+        resetFieldsBtn.setText("Reset Fields");
+        resetFieldsBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
+                resetFieldsBtnActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
-        getContentPane().add(jButton4, gridBagConstraints);
+        getContentPane().add(resetFieldsBtn, gridBagConstraints);
 
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+        jLabel19.setText("Date Format:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        getContentPane().add(jLabel19, gridBagConstraints);
+
+        dateFormatCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
+            "MM/DD/YYYY"
+            , "DD/MM/YY"
+            , "YY/MM/DD"
+            , "YYYY-MM-DD" } ));
+gridBagConstraints = new java.awt.GridBagConstraints();
+gridBagConstraints.gridx = 2;
+gridBagConstraints.gridy = 3;
+getContentPane().add(dateFormatCB, gridBagConstraints);
+
+pack();
+}// </editor-fold>//GEN-END:initComponents
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
-       message.setText("");
+        message.setText( "" );
 
-       if (!ReaderConfigsHM.containsKey(readerName.getText())) {
-          message.setText("There is no reader by that name '" + readerName.getText() + "'");
-       }
-
+        if ( ! ReaderConfigsHM.containsKey( readerName.getText() ) )
+            {
+            message.setText( "There is no reader by that name '" + readerName.getText() + "'" );
+            }
+        
 //        int i = 0;
 //        for ( String dataType : dataTypesList )
 //            {
@@ -784,83 +818,85 @@ public class CustomReaderDialog
 //            i++;
 //            }
 
-       try {
-          int x = Integer.parseInt(headerLines.getText().trim());
-          if (x < 0) {
-             throw new Exception();
-          }
-       }
-       catch (Exception ex) {
-          message.setText("Number of Header Lines must be 0 or more");
-          return;
-       }
-
-       CustomReaderData customReaderData = ReaderConfigsHM.get(readerName.getText());
-
-       customReaderData.setReaderName(readerName.getText());
-       customReaderData.setDataTypesList(createNewDataTypesList());
-       customReaderData.setEmptyFlagsList(createNewEmptyFlagsList());
-       customReaderData.setFieldSeparatorChar(getFieldSeparatorChar());
-       customReaderData.setHeaderLines(getHeaderLines());
-
-       ReaderConfigsHM.put(readerName.getText(), customReaderData);
-
-       Settings.setCustomReaderConfig(customReaderData);
+        try
+            {
+            int x = Integer.parseInt( headerLines.getText().trim() );
+            if ( x < 0 )
+                throw new Exception();
+            }
+        catch ( Exception ex )
+            {
+            message.setText( "Number of Header Lines must be 0 or more" );
+            return;
+            }
+        
+        CustomReaderData customReaderData = ReaderConfigsHM.get( readerName.getText() );
+        
+        customReaderData.setReaderName( readerName.getText() );
+        customReaderData.setDataTypesList( createNewDataTypesList() );
+        customReaderData.setEmptyFlagsList( createNewEmptyFlagsList() );
+        customReaderData.setFieldSeparatorChar( getFieldSeparatorChar() );
+        customReaderData.setHeaderLines( getHeaderLines() );
+        customReaderData.setDateFormatString( getDateFormatString() );
+        
+        ReaderConfigsHM.put( readerName.getText(), customReaderData );
+        
+        Settings.setCustomReaderConfig( customReaderData );
     }//GEN-LAST:event_saveBtnActionPerformed
 
     private void headerLinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_headerLinesActionPerformed
-       // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_headerLinesActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-       this.parent.comboFileFormat1SetItem(readerName.getText());
-       this.setVisible(false);
-    }//GEN-LAST:event_jButton3ActionPerformed
+    private void doneBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneBtnActionPerformed
+        this.parent.comboFileFormat1SetItem( readerName.getText() );
+        System.out.println( "done button  (String) dateFormatCB.getSelectedItem() =" + (String) dateFormatCB.getSelectedItem() + "=" );
+        this.parent.comboDateFormatSetItem( (String) dateFormatCB.getSelectedItem() );
+        this.setVisible( false );
+    }//GEN-LAST:event_doneBtnActionPerformed
 
     private void fieldSeparatorCharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldSeparatorCharActionPerformed
-       // TODO add your handling code here:
+        // TODO add your handling code here:
     }//GEN-LAST:event_fieldSeparatorCharActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       addReaderConfig();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void addBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addBtnActionPerformed
+        addReaderConfig();
+    }//GEN-LAST:event_addBtnActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-       deleteReaderConfig();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        deleteReaderConfig();
+    }//GEN-LAST:event_deleteBtnActionPerformed
 
     private void customReadersListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_customReadersListMouseClicked
-       DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
-       int index = customReadersList.getSelectedIndex();
-       getReaderConfig((String) listModel.getElementAt(index));
+        DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
+        int index = customReadersList.getSelectedIndex();
+        getReaderConfig( (String) listModel.getElementAt( index ) );
     }//GEN-LAST:event_customReadersListMouseClicked
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-       clearReaderConfig();
-    }//GEN-LAST:event_jButton4ActionPerformed
+    private void resetFieldsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetFieldsBtnActionPerformed
+        clearReaderConfig();
+    }//GEN-LAST:event_resetFieldsBtnActionPerformed
 
-   /**
-    * @param args the command line arguments
-    */
-   public static void main(String args[])
-   {
-      java.awt.EventQueue.invokeLater(new Runnable()
-      {
-         public void run()
-         {
-            CustomReaderDialog dialog = new CustomReaderDialog(null, true);
-            dialog.addWindowListener(new java.awt.event.WindowAdapter()
-            {
-               public void windowClosing(java.awt.event.WindowEvent e)
-               {
-                  System.exit(0);
-               }
-            });
-            dialog.setVisible(true);
-         }
-      });
-   }
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            public void run() {
+                CustomReaderDialog dialog = new CustomReaderDialog( null, true );
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                dialog.setVisible(true);
+            }
+        });
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton addBtn;
     private javax.swing.JList customReadersList;
     private javax.swing.JComboBox dataType0;
     private javax.swing.JComboBox dataType1;
@@ -872,6 +908,9 @@ public class CustomReaderDialog
     private javax.swing.JComboBox dataType7;
     private javax.swing.JComboBox dataType8;
     private javax.swing.JComboBox dataType9;
+    private javax.swing.JComboBox dateFormatCB;
+    private javax.swing.JButton deleteBtn;
+    private javax.swing.JButton doneBtn;
     private javax.swing.JTextField fieldSeparatorChar;
     private javax.swing.JTextField headerLines;
     private javax.swing.JComboBox isNullable0;
@@ -884,10 +923,6 @@ public class CustomReaderDialog
     private javax.swing.JComboBox isNullable7;
     private javax.swing.JComboBox isNullable8;
     private javax.swing.JComboBox isNullable9;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -898,6 +933,7 @@ public class CustomReaderDialog
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -909,6 +945,7 @@ public class CustomReaderDialog
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel message;
     private javax.swing.JTextField readerName;
+    private javax.swing.JButton resetFieldsBtn;
     private javax.swing.JButton saveBtn;
     // End of variables declaration//GEN-END:variables
 }

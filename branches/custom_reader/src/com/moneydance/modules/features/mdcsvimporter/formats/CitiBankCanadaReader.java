@@ -17,6 +17,7 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
+import com.moneydance.modules.features.mdcsvimporter.CustomReaderDialog;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
