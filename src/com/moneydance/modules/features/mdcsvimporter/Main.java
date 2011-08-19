@@ -36,7 +36,7 @@ public class Main
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
       "Moneydance CSV Importer Plug-In version preBETA " + Integer.toString( VERSION ) +
-      "E OLD. This software is distributed under GNU Lesser General Public License (see " +
+      "F. This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
       "accepting terms of this license."
            ;
