@@ -27,7 +27,7 @@ public class CSVData
    private int currentLineIndex = -1;
    private int currentFieldIndex = -1;
 
-   protected CSVReader reader;
+   public CSVReader reader;
    
    public CSVData( CSVReader readerArg )
       throws IOException
