@@ -18,11 +18,7 @@ import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.CurrencyType;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.apps.md.model.OnlineTxnList;
-import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -32,12 +28,8 @@ import java.util.ArrayList;
  */
 public abstract class TransactionReader
 {
-   private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
-   private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
-   private static SimpleCreditDebitReader simpleCreditDebitReader = new SimpleCreditDebitReader();
-   private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
-   private static CustomReader customReader = new CustomReader();
-   
+   private boolean customReaderFlag = false;
+
    protected static CustomReaderDialog customReaderDialog = null;
    
    protected CSVData reader;
@@ -132,11 +124,24 @@ public abstract class TransactionReader
             return this.customReaderDialog.getNumberOfCustomReaderFieldsUsed();
         }
    
-   public static TransactionReader[] getCompatibleReaders( CSVData data, String customerReaderName, ImportDialog importDialog )
+   public static TransactionReader[] getCompatibleReaders( CSVData data, ImportDialog importDialog )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
 
-      System.err.println( "call cust read canParse()" );
+      System.err.println( "getCompatibleReaders() call cust read canParse()" );
+      
+      for ( String key : Settings.getReaderHM().keySet() )
+            {
+            TransactionReader transactionReader = Settings.getReaderHM().get( key );
+            System.err.println( "at canparse for transReader =" + key + "=" );
+            if ( transactionReader.canParse( data ) )
+                  {
+                  System.err.println( "at canparse WORKS for =" + key + "=" );
+                  formats.add( transactionReader );
+                  }
+            }
+      
+      /*
       if ( customerReaderName != null && ! customerReaderName.equals( "" ) )
         {
 
@@ -175,7 +180,8 @@ public abstract class TransactionReader
       {
          formats.add( wellsFargoReader );
       }
-              
+       */
+      
       TransactionReader[] retVal = new TransactionReader[formats.size()];
       formats.toArray( retVal );
       return retVal;
@@ -195,5 +201,13 @@ public abstract class TransactionReader
        return amt.replaceAll( "\(.*\)", "-\$1" );
    }
     */
+
+    public boolean isCustomReaderFlag() {
+        return customReaderFlag;
+    }
+
+    public void setCustomReaderFlag(boolean customReaderFlag) {
+        this.customReaderFlag = customReaderFlag;
+    }
 }
 

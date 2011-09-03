@@ -67,4 +67,18 @@ public class CustomReaderData {
         this.dateFormatString = dateFormatString;
     }
     
+    public int getNumberOfCustomReaderFieldsUsed()
+        {
+        int c = 0;
+        int max = dataTypesList.size();
+        
+        for (       ; c < max; c++ )
+            {
+            //System.err.println( "(String) dataTypesList.get(" + c + ") =" + (String) dataTypesList.get( c ) + "=" );
+            if ( ((String) dataTypesList.get( c )).equalsIgnoreCase( "" ) )
+                return c;
+            }
+        return c;
+        }
+
 }

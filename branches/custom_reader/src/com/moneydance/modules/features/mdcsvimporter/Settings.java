@@ -14,6 +14,7 @@
  */
 package com.moneydance.modules.features.mdcsvimporter;
 
+import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,7 +35,10 @@ import java.util.logging.Logger;
  * @author miki and Stan Towianski
  */
 public final class Settings
-{
+{    
+    static HashMap<String, CustomReaderData> ReaderConfigsHM = null;
+    static HashMap<String, TransactionReader> ReaderHM = null;
+
    private static File getFilename()
    {
       File moneydanceHome = new File( System.getProperty( "user.home" ), ".moneydance" );
@@ -94,8 +98,9 @@ public final class Settings
            
    public static HashMap<String, CustomReaderData> createReaderConfigsHM()
    {
-      HashMap<String, CustomReaderData> ReaderConfigsHM = new HashMap<String, CustomReaderData>();
-      
+      ReaderConfigsHM = new HashMap<String, CustomReaderData>();
+      ReaderHM = new HashMap<String, TransactionReader>();
+
       try
       {
         Properties props = load();
@@ -134,6 +139,9 @@ public final class Settings
                 System.err.println( "props getEmptyFlagsList() =" + customReaderData.getEmptyFlagsList() + "=" );
                 
                 ReaderConfigsHM.put( props.getProperty( readerName + ".Name" ), customReaderData );
+                
+                CustomReader customReader = new CustomReader( customReaderData );
+                ReaderHM.put( props.getProperty( readerName + ".Name" ), customReader );
                 }
             }
           }
@@ -145,6 +153,10 @@ public final class Settings
       
       return ReaderConfigsHM;
    }
+
+    public static HashMap<String, TransactionReader> getReaderHM() {
+        return ReaderHM;
+    }
 
    public static String get( String name, String defaultValue )
    {
