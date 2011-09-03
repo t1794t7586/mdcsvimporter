@@ -119,6 +119,7 @@ public class ImportDialog
    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         jLabel3 = new javax.swing.JLabel();
         lblSelectFile = new javax.swing.JLabel();
@@ -134,8 +135,6 @@ public class ImportDialog
         comboFileFormat = new javax.swing.JComboBox();
         lblDateFormat = new javax.swing.JLabel();
         comboDateFormat = new javax.swing.JComboBox();
-        customReaderCB = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
 
         jLabel3.setText("jLabel3");
@@ -144,10 +143,29 @@ public class ImportDialog
         setTitle("Import CSV File");
         setName("importDialog"); // NOI18N
         setResizable(false);
+        getContentPane().setLayout(new java.awt.GridBagLayout());
 
         lblSelectFile.setText("Select CSV File:");
+        lblSelectFile.setPreferredSize(new java.awt.Dimension(120, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        getContentPane().add(lblSelectFile, gridBagConstraints);
 
-        textFilename.setPreferredSize(new java.awt.Dimension(130, 24));
+        textFilename.setMaximumSize(new java.awt.Dimension(180, 24));
+        textFilename.setMinimumSize(new java.awt.Dimension(180, 24));
+        textFilename.setPreferredSize(new java.awt.Dimension(180, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 0.1;
+        gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
+        getContentPane().add(textFilename, gridBagConstraints);
 
         btnBrowse.setText("...");
         btnBrowse.addActionListener(new java.awt.event.ActionListener() {
@@ -155,9 +173,23 @@ public class ImportDialog
                 btnBrowseActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
+        getContentPane().add(btnBrowse, gridBagConstraints);
 
         checkDeleteFile.setText("Securely erase file after processing.");
         checkDeleteFile.setToolTipText("If checked, the specified file will be securely erased (first overwritten, then deleted) after successful processing.");
+        checkDeleteFile.setPreferredSize(new java.awt.Dimension(250, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 12, 10, 0);
+        getContentPane().add(checkDeleteFile, gridBagConstraints);
 
         btnClose.setText("Close");
         btnClose.addActionListener(new java.awt.event.ActionListener() {
@@ -165,6 +197,12 @@ public class ImportDialog
                 btnCloseActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
+        getContentPane().add(btnClose, gridBagConstraints);
 
         btnProcess.setText("Process");
         btnProcess.setEnabled(false);
@@ -173,143 +211,123 @@ public class ImportDialog
                 btnProcessActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        getContentPane().add(btnProcess, gridBagConstraints);
 
         lblAccount.setText("Select Account:");
+        lblAccount.setPreferredSize(new java.awt.Dimension(120, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        getContentPane().add(lblAccount, gridBagConstraints);
 
         comboAccount.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboAccount.setMaximumSize(new java.awt.Dimension(180, 24));
+        comboAccount.setMinimumSize(new java.awt.Dimension(180, 24));
+        comboAccount.setPreferredSize(new java.awt.Dimension(180, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
+        getContentPane().add(comboAccount, gridBagConstraints);
 
         lblMessage.setForeground(new java.awt.Color(255, 0, 51));
         lblMessage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblMessage.setText(" ");
         lblMessage.setOpaque(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.ipady = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        getContentPane().add(lblMessage, gridBagConstraints);
 
         lblFileFormat.setText("File Format:");
+        lblFileFormat.setPreferredSize(new java.awt.Dimension(120, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        getContentPane().add(lblFileFormat, gridBagConstraints);
 
         comboFileFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboFileFormat.setMaximumSize(new java.awt.Dimension(180, 24));
+        comboFileFormat.setMinimumSize(new java.awt.Dimension(180, 24));
+        comboFileFormat.setPreferredSize(new java.awt.Dimension(180, 24));
         comboFileFormat.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 fileFormatChanged(evt);
             }
         });
+        comboFileFormat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboFileFormatActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
+        getContentPane().add(comboFileFormat, gridBagConstraints);
 
         lblDateFormat.setText("Date Format:");
+        lblDateFormat.setPreferredSize(new java.awt.Dimension(120, 24));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
+        getContentPane().add(lblDateFormat, gridBagConstraints);
 
         comboDateFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboDateFormat.setMaximumSize(new java.awt.Dimension(180, 24));
+        comboDateFormat.setMinimumSize(new java.awt.Dimension(180, 24));
+        comboDateFormat.setPreferredSize(new java.awt.Dimension(180, 24));
         comboDateFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboDateFormatActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
+        getContentPane().add(comboDateFormat, gridBagConstraints);
 
-        customReaderCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] {  }));
-        customReaderCB.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                fileFormatChanged(evt);
-            }
-        });
-        customReaderCB.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customReaderCBActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("Use Custom Reader: ");
-
-        jButton1.setText(" ...");
+        jButton1.setText("Maintain Custom Readers");
         jButton1.setMaximumSize(new java.awt.Dimension(43, 25));
         jButton1.setMinimumSize(new java.awt.Dimension(43, 25));
-        jButton1.setPreferredSize(new java.awt.Dimension(43, 25));
+        jButton1.setPreferredSize(new java.awt.Dimension(200, 25));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(btnProcess)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(btnClose)
-                                .add(12, 12, 12))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(layout.createSequentialGroup()
-                                        .add(jLabel1)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                        .add(customReaderCB, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 206, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                        .add(lblSelectFile)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(textFilename, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 248, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jButton1, 0, 0, Short.MAX_VALUE)
-                                    .add(btnBrowse, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                        .add(127, 127, 127))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(lblDateFormat)
-                            .add(layout.createSequentialGroup()
-                                .add(checkDeleteFile)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 255, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(lblMessage, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
-                            .add(layout.createSequentialGroup()
-                                .add(lblAccount)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(comboAccount, 0, 395, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(lblFileFormat)
-                                .add(30, 30, 30)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(comboFileFormat, 0, 397, Short.MAX_VALUE)
-                                    .add(comboDateFormat, 0, 397, Short.MAX_VALUE))))
-                        .add(45, 45, 45))))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(20, 20, 20)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(customReaderCB)
-                        .add(jLabel1))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(btnBrowse, 0, 0, Short.MAX_VALUE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(textFilename, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(lblSelectFile)))
-                .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(comboFileFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lblFileFormat))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblDateFormat)
-                    .add(comboDateFormat, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblAccount)
-                    .add(comboAccount, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(checkDeleteFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(lblMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(20, 20, 20)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(btnClose)
-                    .add(btnProcess))
-                .addContainerGap())
-        );
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
+        getContentPane().add(jButton1, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -464,13 +482,24 @@ public class ImportDialog
         customReaderDialog.setVisible( true );
     }//GEN-LAST:event_jButton1ActionPerformed
 
-private void customReaderCBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customReaderCBActionPerformed
-        customReaderDialog.getReaderConfig( (String) customReaderCB.getSelectedItem() );
-}//GEN-LAST:event_customReaderCBActionPerformed
-
 private void comboDateFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDateFormatActionPerformed
     //customReaderDialog.setDateFormat( (String)comboDateFormat.getSelectedItem() );
 }//GEN-LAST:event_comboDateFormatActionPerformed
+
+private void comboFileFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFileFormatActionPerformed
+    if ( comboFileFormat.getSelectedItem() instanceof String )
+        {
+        System.err.println( "comboFileFormat is string =" + (String) comboFileFormat.getSelectedItem() + "=" );
+        return;
+        }
+    
+    TransactionReader transReader = (TransactionReader) comboFileFormat.getSelectedItem();
+    if ( transReader!= null && transReader.isCustomReaderFlag() )
+        {
+        System.err.println( "Have a custom reader to read config for!" );
+        customReaderDialog.getReaderConfig( ((TransactionReader) comboFileFormat.getSelectedItem()).toString() );
+        }
+}//GEN-LAST:event_comboFileFormatActionPerformed
 
     
     /**
@@ -500,9 +529,7 @@ private void comboDateFormatActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JComboBox comboAccount;
     private javax.swing.JComboBox comboDateFormat;
     private javax.swing.JComboBox comboFileFormat;
-    private javax.swing.JComboBox customReaderCB;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel lblAccount;
     private javax.swing.JLabel lblDateFormat;
@@ -512,15 +539,17 @@ private void comboDateFormatActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JTextField textFilename;
     // End of variables declaration//GEN-END:variables
 
-    public void comboFileFormat1AddItem( String xxx )
+    public void comboFileFormat1AddItem( TransactionReader customReader )
         {
-        System.err.println( "importDialog() add reader item =" + xxx + "=" );
-        customReaderCB.addItem( xxx );
+        System.err.println( "importDialog() add reader item =" + customReader.toString() + "=" );
+        //customReaderCB.addItem( xxx );
+        comboFileFormat.addItem( customReader );
         }
     
     public void comboFileFormat1SetItem( String xxx )
         {
-        customReaderCB.setSelectedItem( xxx );
+        //customReaderCB.setSelectedItem( xxx );
+        comboFileFormat.setSelectedItem( xxx );
         }
     
     public void comboDateFormatSetItem( String xxx )
@@ -546,7 +575,7 @@ private void comboDateFormatActionPerformed(java.awt.event.ActionEvent evt) {//G
       }
    }
 
-   private void fileChanged()
+   protected void fileChanged()
    {
       String message = null;
       boolean error = false;
@@ -582,7 +611,7 @@ private void comboDateFormatActionPerformed(java.awt.event.ActionEvent evt) {//G
         TransactionReader.customReaderDialog = customReaderDialog;
         
          TransactionReader[] fileFormats =
-            TransactionReader.getCompatibleReaders( csvData, (String) customReaderCB.getSelectedItem(), this );
+            TransactionReader.getCompatibleReaders( csvData, this );
 
          comboFileFormat.removeAllItems();
          for ( TransactionReader reader : fileFormats )

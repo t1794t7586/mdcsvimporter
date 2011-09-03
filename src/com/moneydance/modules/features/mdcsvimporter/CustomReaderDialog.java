@@ -7,6 +7,11 @@
 
 package com.moneydance.modules.features.mdcsvimporter;
 
+import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
+import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +35,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         ArrayList<String> dataTypesList = new ArrayList<String>( 10 );
         ArrayList<String> emptyFlagsList = new ArrayList<String>( 10 );
         HashMap<String, CustomReaderData> ReaderConfigsHM = new HashMap<String, CustomReaderData>();
-        
+        HashMap<String, TransactionReader> ReaderHM = new HashMap<String, TransactionReader>();
+
+       private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
+       private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
+       private static SimpleCreditDebitReader simpleCreditDebitReader = new SimpleCreditDebitReader();
+       private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
+
+
     /** Creates new form CustomerReaderDialog */
     public CustomReaderDialog( ImportDialog parent, boolean modal) {
         super(parent, modal);
@@ -65,14 +77,16 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
          */
         
+        CustomReader customReader = new CustomReader( customReaderData );
         ReaderConfigsHM.put( readerName.getText(), customReaderData );
+        ReaderHM.put( readerName.getText(), customReader );
         
         DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
         listModel.addElement( readerName.getText() );
         
         Settings.setCustomReaderConfig( customReaderData );
         
-        this.parent.comboFileFormat1AddItem( readerName.getText() );
+        this.parent.comboFileFormat1AddItem( customReader );
 
         return true;
         }
@@ -87,6 +101,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         Settings.removeCustomReaderConfig( ReaderConfigsHM.get( listModel.getElementAt( index ) ) );
         
         ReaderConfigsHM.remove( listModel.getElementAt( index ) );
+        ReaderHM.remove( listModel.getElementAt( index ) );
 
         listModel.remove( index );
         clearReaderConfig();
@@ -321,21 +336,37 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         */
         
         ReaderConfigsHM = Settings.createReaderConfigsHM();
+        ReaderHM = Settings.getReaderHM();  // not great, but for now the call above must be first because it sets the value for this one to read also.
 
+        ReaderConfigsHM.put( "citiBankCanadaReader", null );
+        ReaderHM.put( "citiBankCanadaReader", citiBankCanadaReader );
+        
+        ReaderConfigsHM.put( "ingNetherlandsReader", null );
+        ReaderHM.put( "ingNetherlandsReader", ingNetherlandsReader );
+        
+        ReaderConfigsHM.put( "simpleCreditDebitReader", null );
+        ReaderHM.put( "simpleCreditDebitReader", simpleCreditDebitReader );
+        
+        ReaderConfigsHM.put( "wellsFargoReader", null );
+        ReaderHM.put( "wellsFargoReader", wellsFargoReader );
+        
         DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
 
-        this.parent.comboFileFormat1AddItem( "" );
+// ???        this.parent.comboFileFormat1AddItem( "" );
 
         // For keys of a map
-        for ( Iterator it=ReaderConfigsHM.keySet().iterator(); it.hasNext(); ) 
+        for ( Iterator it=ReaderHM.keySet().iterator(); it.hasNext(); ) 
             {
             String readerName = (String) it.next();
             System.out.println( "fill out readerName =" + readerName + "=" );
-            listModel.addElement( readerName );
+            if ( ReaderHM.get( readerName ).isCustomReaderFlag() )
+                {
+                listModel.addElement( readerName );
+                }
             if ( this.parent != null )
                 {
                 System.out.println( "call add readerName to import dlg reader list =" + readerName + "=" );
-                this.parent.comboFileFormat1AddItem( readerName );
+                this.parent.comboFileFormat1AddItem( ReaderHM.get( readerName ) );
                 }
             }
         
@@ -840,6 +871,9 @@ pack();
         customReaderData.setDateFormatString( getDateFormatString() );
         
         ReaderConfigsHM.put( readerName.getText(), customReaderData );
+        // *** I could get and replace the existing one but just do this for now until things work  ! ! !
+        CustomReader customReader = new CustomReader( customReaderData );
+        ReaderHM.put( readerName.getText(), customReader );
         
         Settings.setCustomReaderConfig( customReaderData );
     }//GEN-LAST:event_saveBtnActionPerformed
@@ -853,6 +887,7 @@ pack();
         System.out.println( "done button  (String) dateFormatCB.getSelectedItem() =" + (String) dateFormatCB.getSelectedItem() + "=" );
         this.parent.comboDateFormatSetItem( (String) dateFormatCB.getSelectedItem() );
         this.setVisible( false );
+        parent.fileChanged();
     }//GEN-LAST:event_doneBtnActionPerformed
 
     private void fieldSeparatorCharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldSeparatorCharActionPerformed

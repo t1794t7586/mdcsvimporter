@@ -16,6 +16,7 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
+import com.moneydance.modules.features.mdcsvimporter.CustomReaderData;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
@@ -25,8 +26,7 @@ import java.io.IOException;
  *
  * @author Stan Towianski     August 2011
  */
-public class CustomReader
-   extends TransactionReader
+public class CustomReader extends TransactionReader
 {
    private static final String DATE_FORMAT_US = "MM/DD/YYYY";
    private static final String DATE_FORMAT_EU = "DD/MM/YY";
@@ -44,12 +44,20 @@ public class CustomReader
    };
    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT_US );
    
+   private CustomReaderData customReaderData = null;
+   
+   public CustomReader( CustomReaderData customReaderData )
+        {
+        this.customReaderData = customReaderData;
+        setCustomReaderFlag( true );
+        }
+   
    @Override
    public boolean canParse( CSVData data )
         {
         data.reset();
 
-        int skipHeaderLines = customReaderDialog.getHeaderLines();
+        int skipHeaderLines = customReaderData.getHeaderLines();
         for ( int i = 0; i < skipHeaderLines; i++ )
             {
             data.nextLine();
@@ -66,13 +74,13 @@ public class CustomReader
             }
 
          int fieldIndex = 0;
-         int maxFieldIndex = customReaderDialog.getNumberOfCustomReaderFieldsUsed();
+         int maxFieldIndex = customReaderData.getNumberOfCustomReaderFieldsUsed();
          System.err.println(  "maxFieldIndex =" + maxFieldIndex );
          
          for (           ; retVal && fieldIndex < maxFieldIndex; fieldIndex ++ )
              {
-             String dataTypeExpecting = customReaderDialog.getDataTypesListSelectedItem( fieldIndex );
-            System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  fieldIndex = " + fieldIndex );
+             String dataTypeExpecting = customReaderData.getDataTypesList().get( fieldIndex );
+             System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  fieldIndex = " + fieldIndex );
 
              data.nextField();
 //             if ( ! data.nextField() )
@@ -89,7 +97,7 @@ public class CustomReader
                 }
              else if ( ( fieldString == null || fieldString.equals( "" ) ) )
                 {
-                if ( ! customReaderDialog.getEmptyFlagsListSelectedItem( fieldIndex ).equals( "Can Be Blank" ) )
+                if ( ! customReaderData.getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
                     {
                     System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
                     retVal = false;
@@ -122,7 +130,30 @@ public class CustomReader
 
                 try
                      {
-                        StringUtils.parseDoubleWithException( fieldString, '.' );
+                        //StringUtils.parseDoubleWithException( fieldString, '.' );
+                        String tmp = fieldString.replace( '$', '0' );
+                        System.err.println(  "check modified amountString 1 >" + tmp + "<" );
+                        tmp = tmp.replace( '-', '0' );
+                        System.err.println(  "check modified amountString 2 >" + tmp + "<" );
+                        tmp = tmp.replaceAll( " ", "" );
+                        System.err.println(  "check modified amountString 3 >" + tmp + "<" );
+                        tmp = tmp.replaceAll( ",", "" );
+                        System.err.println(  "check modified amountString 4 >" + tmp + "<" );
+                        tmp = tmp.replaceAll( "\\.", "" );
+                        System.err.println(  "check modified amountString 5 >" + tmp + "<" );
+                        tmp = tmp.replaceAll( "\\d", "" );
+                        System.err.println(  "check modified amountString 6 >" + tmp + "<" );
+                        //Number number = NumberFormat.getNumberInstance().parse( tmp );
+                        if ( tmp.equals( "" ) ) //number instanceof Double || number instanceof Long )
+                            {
+                            System.err.println(  "ok number" );
+                            ;
+                            }
+                        else
+                            {
+                            retVal = false;
+                            break;
+                            }
                      }
                      catch ( Exception x )
                      {
@@ -147,7 +178,7 @@ public class CustomReader
    @Override
    public String getFormatName()
    {
-      return "Custom Reader";
+      return customReaderData.getReaderName();
    }
 
    /*
@@ -161,7 +192,7 @@ public class CustomReader
      int date = 0;
      String description = "";
      int fieldIndex = 0;
-     int maxFieldIndex = customReaderDialog.getNumberOfCustomReaderFieldsUsed();
+     int maxFieldIndex = customReaderData.getNumberOfCustomReaderFieldsUsed();
      System.err.println(  "maxFieldIndex =" + maxFieldIndex );
 
      System.err.println(  "----------------------" );
@@ -173,18 +204,19 @@ public class CustomReader
 
      for (           ; fieldIndex < maxFieldIndex; fieldIndex ++ )
          {
-         String dataTypeExpecting = customReaderDialog.getDataTypesListSelectedItem( fieldIndex );
-         System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  fieldIndex = " + fieldIndex );
+         String dataTypeExpecting = customReaderData.getDataTypesList().get( fieldIndex );
+         System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  EmptyFlagsList = " + customReaderData.getEmptyFlagsList().get( fieldIndex ) + "=" );
 
          reader.nextField();
          String fieldString = reader.getField();
+         System.err.println(  "fieldString =" + fieldString + "=  fieldIndex = " + fieldIndex );
 
          if ( dataTypeExpecting.equalsIgnoreCase( "ignore" ) )
             {
             continue;
             }
          else if ( ( fieldString == null || fieldString.equals( "" ) )
-                    && ! customReaderDialog.getEmptyFlagsListSelectedItem( fieldIndex ).equals( "Can Be Blank" ) )
+                    && ! customReaderData.getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
             {
             System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
             throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
@@ -269,17 +301,17 @@ public class CustomReader
    @Override
    public String getDateFormat()
    {
-   System.err.println(  "customReader getDateFormat() =" + dateFormatStringSelected + "<" );
+   System.err.println(  "customReader getDateFormat() >" + dateFormatStringSelected + "<" );
    return dateFormatStringSelected;
    }
 
    @Override
    public void setDateFormat( String format )
    {
-   dateFormatStringSelected = customReaderDialog.getDateFormatSelected();
+   dateFormatStringSelected = customReaderData.getDateFormatString();
    System.err.println(  "customReader setDateFormat() =" + dateFormatStringSelected + "<" );
-   System.err.println(  "customReader customReaderDialog.getDateFormatSelected() =" + customReaderDialog.getDateFormatSelected() + "<" );
-   dateFormat = new CustomDateFormat( customReaderDialog.getDateFormatSelected() );
+   System.err.println(  "customReader customReaderDialog.getDateFormatSelected() >" + customReaderData.getDateFormatString() + "<" );
+   dateFormat = new CustomDateFormat( customReaderData.getDateFormatString() );
    
       /*
       if ( !DATE_FORMAT_US.equals( format ) )
@@ -306,4 +338,14 @@ public class CustomReader
    {
       return true;
    }
+
+    public CustomReaderData getCustomReaderData() {
+        return customReaderData;
+    }
+
+    public void setCustomReaderData(CustomReaderData customReaderData) {
+        this.customReaderData = customReaderData;
+    }
+   
+   
 }
