@@ -345,7 +345,7 @@ public class ImportDialog
           @Override
           public boolean accept( File f )
           {
-             return f.isDirectory() || f.getName().endsWith( ".csv" );
+             return f.isDirectory() || f.getName().toUpperCase().endsWith( ".CSV" );
           }
 
           @Override
