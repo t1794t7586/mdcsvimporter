@@ -19,20 +19,23 @@ import com.moneydance.apps.md.model.CurrencyType;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.apps.md.model.OnlineTxnList;
 import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
 /**
  *
- * @author miki
+ * @author miki and Stan Towianski
  */
 public abstract class TransactionReader
 {
    private boolean customReaderFlag = false;
-
+   private CustomReaderData customReaderData = null;
+   
    protected static CustomReaderDialog customReaderDialog = null;
    
-   protected CSVData reader;
+   protected CSVData csvData;
    protected Account account;
    protected OnlineTxnList transactionList;
    protected CurrencyType currency;
@@ -60,40 +63,48 @@ public abstract class TransactionReader
       throw new IOException( message );
    }
 
-   public final void parse( CSVData reader, Account account )
+   public final void parse( CSVData csvDataArg, Account account )
       throws IOException
    {
-      this.reader = reader;
+      this.csvData = csvDataArg;
       this.account = account;
       this.transactionList = account.getDownloadedTxns();
       this.currency = account.getCurrencyType();
 
-      reader.reset();
+      //csvData.reset();
+        if ( this instanceof CustomReader )
+            {
+            csvData.parseIntoLines( customReaderData.getFieldSeparatorChar() );
+            }
+        else
+            {
+            csvData.parseIntoLines( 0 );
+            }
 
-      System.err.println( "at parse getFieldSeparator() =" + (char)reader.getReader().getFieldSeparator() + "=" );
-
-      reader.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
-      System.err.println( "at parse getFieldSeparator() after set =" + (char)reader.getReader().getFieldSeparator() + "=" );
+      //System.err.println( "at parse getFieldSeparator() =" + (char)csvData.getReader().getFieldSeparator() + "=" );
+      //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+      //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
 
       //----- Skip Header Lines  -----
         if ( this instanceof CustomReader )
             {
-            int skipHeaderLines = customReaderDialog.getHeaderLines();
+//            int skipHeaderLines = customReaderDialog.getHeaderLines();
+            int skipHeaderLines = getCustomReaderData().getHeaderLines();
             for ( int i = 0; i < skipHeaderLines; i++ )
                 {
-                //System.err.println(  "skip header for customReader" );
-                reader.nextLine();
+                System.err.println(  "skip header for customReader" );
+                csvData.nextLine();
                 }
             }
         else
             {
               if ( haveHeader() )
                 {
-                 reader.nextLine(); // skip the header
+                 csvData.nextLine(); // skip the header
                 }
             }
       
-      while ( reader.nextLine() )
+      while ( csvData.nextLine() )
       {
          OnlineTxn txn = transactionList.newTxn();
          if ( parseNext( txn ) )
@@ -124,7 +135,7 @@ public abstract class TransactionReader
             return this.customReaderDialog.getNumberOfCustomReaderFieldsUsed();
         }
    
-   public static TransactionReader[] getCompatibleReaders( CSVData data, ImportDialog importDialog )
+   public static TransactionReader[] getCompatibleReaders( File selectedFile, ImportDialog importDialog )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
 
@@ -134,11 +145,27 @@ public abstract class TransactionReader
             {
             TransactionReader transactionReader = Settings.getReaderHM().get( key );
             System.err.println( "at canparse for transReader =" + key + "=" );
-            if ( transactionReader.canParse( data ) )
-                  {
-                  System.err.println( "at canparse WORKS for =" + key + "=" );
-                  formats.add( transactionReader );
-                  }
+            
+             try
+             {
+                CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
+                CSVData csvData = new CSVData( csvReader );
+            
+                if ( transactionReader.canParse( csvData ) )
+                      {
+                      System.err.println( "------- at canparse WORKS for =" + key + "=" );
+                      formats.add( transactionReader );
+                      }
+                else
+                      {
+                      System.err.println( "------- at canparse not work for =" + key + "=" );
+                      }
+                csvReader.close();
+             }
+             catch ( Throwable x )
+             {
+                  System.err.println( "at canparse error reading file !" );
+             }
             }
       
       /*
@@ -209,5 +236,14 @@ public abstract class TransactionReader
     public void setCustomReaderFlag(boolean customReaderFlag) {
         this.customReaderFlag = customReaderFlag;
     }
+
+    public CustomReaderData getCustomReaderData() {
+        return customReaderData;
+    }
+
+    public void setCustomReaderData(CustomReaderData customReaderData) {
+        this.customReaderData = customReaderData;
+    }
+
 }
 

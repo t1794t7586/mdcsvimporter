@@ -21,6 +21,8 @@ import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -44,42 +46,63 @@ public class CustomReader extends TransactionReader
    };
    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT_US );
    
-   private CustomReaderData customReaderData = null;
-   
    public CustomReader( CustomReaderData customReaderData )
         {
-        this.customReaderData = customReaderData;
+        setCustomReaderData( customReaderData );
         setCustomReaderFlag( true );
         }
+   
    
    @Override
    public boolean canParse( CSVData data )
         {
-        data.reset();
+         System.err.println(  "\n---------   entered customerReader().canParse() as type =" + getFormatName() + "=  -------------" );
+        try {
+            data.parseIntoLines( getCustomReaderData().getFieldSeparatorChar() );
+            } 
+        catch (IOException ex) 
+            {
+            //Logger.getLogger(CustomReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
 
-        int skipHeaderLines = customReaderData.getHeaderLines();
+      //if ( data.getReader() == null )
+       //   System.err.println( "data.getReader() == null" );
+          
+      //System.err.println( "at parse getFieldSeparator() =" + (char)csvData.getReader().getFieldSeparator() + "=" );
+      //csvData.getReader().setFieldSeparator( getCustomReaderData().getFieldSeparatorChar() );
+      //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
+        
+        int skipHeaderLines = getCustomReaderData().getHeaderLines();
         for ( int i = 0; i < skipHeaderLines; i++ )
             {
+            System.err.println( "skip header line" );
             data.nextLine();
             }
       
       boolean retVal = true;
+      int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
       
       while ( retVal && data.nextLine() )
          {
-         System.err.println(  "----------------------" );
+         System.err.println(  "------- next line ---------------" );
          if ( ! data.hasZeroFields() )
             {
             continue; // skip empty lines
             }
 
+         if ( ! data.hasEnoughFieldsPerCurrentLine( maxFieldIndex - 1 ) )
+            {
+            System.err.println(  "Have too few fields. Needed >= " + ( maxFieldIndex - 2 ) );
+            retVal = false;
+            }
+
          int fieldIndex = 0;
-         int maxFieldIndex = customReaderData.getNumberOfCustomReaderFieldsUsed();
          System.err.println(  "maxFieldIndex =" + maxFieldIndex );
          
          for (           ; retVal && fieldIndex < maxFieldIndex; fieldIndex ++ )
              {
-             String dataTypeExpecting = customReaderData.getDataTypesList().get( fieldIndex );
+             String dataTypeExpecting = getCustomReaderData().getDataTypesList().get( fieldIndex );
              System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  fieldIndex = " + fieldIndex );
 
              data.nextField();
@@ -97,7 +120,7 @@ public class CustomReader extends TransactionReader
                 }
              else if ( ( fieldString == null || fieldString.equals( "" ) ) )
                 {
-                if ( ! customReaderData.getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
+                if ( ! getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
                     {
                     System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
                     retVal = false;
@@ -132,15 +155,15 @@ public class CustomReader extends TransactionReader
                      {
                         //StringUtils.parseDoubleWithException( fieldString, '.' );
                         String tmp = fieldString.replace( '$', '0' );
-                        System.err.println(  "check modified amountString 1 >" + tmp + "<" );
+                        //System.err.println(  "check modified amountString 1 >" + tmp + "<" );
                         tmp = tmp.replace( '-', '0' );
-                        System.err.println(  "check modified amountString 2 >" + tmp + "<" );
+                        //System.err.println(  "check modified amountString 2 >" + tmp + "<" );
                         tmp = tmp.replaceAll( " ", "" );
-                        System.err.println(  "check modified amountString 3 >" + tmp + "<" );
+                        //System.err.println(  "check modified amountString 3 >" + tmp + "<" );
                         tmp = tmp.replaceAll( ",", "" );
-                        System.err.println(  "check modified amountString 4 >" + tmp + "<" );
+                        //System.err.println(  "check modified amountString 4 >" + tmp + "<" );
                         tmp = tmp.replaceAll( "\\.", "" );
-                        System.err.println(  "check modified amountString 5 >" + tmp + "<" );
+                        //System.err.println(  "check modified amountString 5 >" + tmp + "<" );
                         tmp = tmp.replaceAll( "\\d", "" );
                         System.err.println(  "check modified amountString 6 >" + tmp + "<" );
                         //Number number = NumberFormat.getNumberInstance().parse( tmp );
@@ -178,7 +201,7 @@ public class CustomReader extends TransactionReader
    @Override
    public String getFormatName()
    {
-      return customReaderData.getReaderName();
+      return getCustomReaderData().getReaderName();
    }
 
    /*
@@ -192,11 +215,11 @@ public class CustomReader extends TransactionReader
      int date = 0;
      String description = "";
      int fieldIndex = 0;
-     int maxFieldIndex = customReaderData.getNumberOfCustomReaderFieldsUsed();
+     int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
      System.err.println(  "maxFieldIndex =" + maxFieldIndex );
 
      System.err.println(  "----------------------" );
-     if ( ! reader.hasZeroFields() )
+     if ( ! csvData.hasZeroFields() )
         {
         System.err.println(  "skip empty line" );
         return false; // skip empty lines
@@ -204,11 +227,11 @@ public class CustomReader extends TransactionReader
 
      for (           ; fieldIndex < maxFieldIndex; fieldIndex ++ )
          {
-         String dataTypeExpecting = customReaderData.getDataTypesList().get( fieldIndex );
-         System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  EmptyFlagsList = " + customReaderData.getEmptyFlagsList().get( fieldIndex ) + "=" );
+         String dataTypeExpecting = getCustomReaderData().getDataTypesList().get( fieldIndex );
+         System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  EmptyFlagsList = " + getCustomReaderData().getEmptyFlagsList().get( fieldIndex ) + "=" );
 
-         reader.nextField();
-         String fieldString = reader.getField();
+         csvData.nextField();
+         String fieldString = csvData.getField();
          System.err.println(  "fieldString =" + fieldString + "=  fieldIndex = " + fieldIndex );
 
          if ( dataTypeExpecting.equalsIgnoreCase( "ignore" ) )
@@ -216,7 +239,7 @@ public class CustomReader extends TransactionReader
             continue;
             }
          else if ( ( fieldString == null || fieldString.equals( "" ) )
-                    && ! customReaderData.getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
+                    && ! getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
             {
             System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
             throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
@@ -233,7 +256,7 @@ public class CustomReader extends TransactionReader
             txn.setDateInitiatedInt( date );
             txn.setDateAvailableInt( date );
           /*
-             if ( !date.equals( dateFormat.format( dateFormat.parseInt( reader.getField() ) ) ) )
+             if ( !date.equals( dateFormat.format( dateFormat.parseInt( csvData.getField() ) ) ) )
              {
                 retVal = false;
                 break;
@@ -308,10 +331,10 @@ public class CustomReader extends TransactionReader
    @Override
    public void setDateFormat( String format )
    {
-   dateFormatStringSelected = customReaderData.getDateFormatString();
+   dateFormatStringSelected = getCustomReaderData().getDateFormatString();
    System.err.println(  "customReader setDateFormat() =" + dateFormatStringSelected + "<" );
-   System.err.println(  "customReader customReaderDialog.getDateFormatSelected() >" + customReaderData.getDateFormatString() + "<" );
-   dateFormat = new CustomDateFormat( customReaderData.getDateFormatString() );
+   System.err.println(  "customReader customReaderDialog.getDateFormatSelected() >" + getCustomReaderData().getDateFormatString() + "<" );
+   dateFormat = new CustomDateFormat( getCustomReaderData().getDateFormatString() );
    
       /*
       if ( !DATE_FORMAT_US.equals( format ) )
@@ -337,15 +360,6 @@ public class CustomReader extends TransactionReader
    protected boolean haveHeader()
    {
       return true;
-   }
-
-    public CustomReaderData getCustomReaderData() {
-        return customReaderData;
-    }
-
-    public void setCustomReaderData(CustomReaderData customReaderData) {
-        this.customReaderData = customReaderData;
-    }
-   
+   }   
    
 }

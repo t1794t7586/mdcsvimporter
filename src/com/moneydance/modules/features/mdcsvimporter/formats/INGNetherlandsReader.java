@@ -17,7 +17,6 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
-import com.moneydance.modules.features.mdcsvimporter.CustomReaderDialog;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
@@ -41,7 +40,15 @@ public class INGNetherlandsReader
    @Override
    public boolean canParse( CSVData data )
    {
-      data.reset();
+      //data.reset();
+        try {
+            data.parseIntoLines( 0 );
+            } 
+        catch ( IOException ex ) 
+            {
+            //Logger.getLogger(CustomReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
 
       return data.nextLine() &&
          data.nextField() && DATUM.equals( data.getField().toLowerCase() ) &&
@@ -66,35 +73,35 @@ public class INGNetherlandsReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      if ( !reader.nextField() )
+      if ( !csvData.nextField() )
       { // empty line
          return false;
       }
-      String datum = reader.getField();
+      String datum = csvData.getField();
 
-      reader.nextField();
-      String naam = reader.getField();
+      csvData.nextField();
+      String naam = csvData.getField();
 
-      reader.nextField();
-      String rekening = reader.getField();
+      csvData.nextField();
+      String rekening = csvData.getField();
 
-      reader.nextField();
-      String tegenrekening = reader.getField();
+      csvData.nextField();
+      String tegenrekening = csvData.getField();
 
-      reader.nextField();
-      String code = reader.getField();
+      csvData.nextField();
+      String code = csvData.getField();
 
-      reader.nextField();
-      String af_bij = reader.getField();
+      csvData.nextField();
+      String af_bij = csvData.getField();
 
-      reader.nextField();
-      String bedrag = reader.getField();
+      csvData.nextField();
+      String bedrag = csvData.getField();
 
-      reader.nextField();
-      String mutatiesort = reader.getField();
+      csvData.nextField();
+      String mutatiesort = csvData.getField();
 
-      reader.nextField();
-      String mededelingen = reader.getField();
+      csvData.nextField();
+      String mededelingen = csvData.getField();
       if ( mededelingen == null )
       {
          throwException( "Invalid line." );
