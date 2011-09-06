@@ -16,7 +16,6 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
-import com.moneydance.modules.features.mdcsvimporter.CustomReaderDialog;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
@@ -39,7 +38,15 @@ public class WellsFargoReader
    @Override
    public boolean canParse( CSVData data )
    {
-      data.reset();
+      //data.reset();
+        try {
+            data.parseIntoLines( 0 );
+            } 
+        catch ( IOException ex ) 
+            {
+            //Logger.getLogger(CustomReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
 
       boolean retVal = true;
 
@@ -97,22 +104,22 @@ public class WellsFargoReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      reader.nextField();
-      String dateString = reader.getField();
+      csvData.nextField();
+      String dateString = csvData.getField();
       if ( dateString == null || dateString.length() == 0 )
       { // skip empty lines
          return false;
       }
 
-      reader.nextField();
-      String amountString = reader.getField();
+      csvData.nextField();
+      String amountString = csvData.getField();
 
-      reader.nextField(); // skip '*'
+      csvData.nextField(); // skip '*'
 
-      reader.nextField(); // skip unknown number
+      csvData.nextField(); // skip unknown number
 
-      reader.nextField();
-      String description = reader.getField();
+      csvData.nextField();
+      String description = csvData.getField();
 
       long amount = 0;
       try

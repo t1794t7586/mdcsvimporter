@@ -20,6 +20,7 @@ import java.io.Reader;
 /**
  *
  * @author miki
+ * modified by: Stan Towianski
  */
 public class CSVReader
 {
@@ -183,14 +184,15 @@ public class CSVReader
    public String nextField()
       throws IOException
    {
+      //System.err.println( "nextField() fieldSeparator =" + (char)fieldSeparator + "=" );
+
       if ( isEol( lastChar ) || isEof( lastChar ) )
       {
+         //System.err.println( "nextField() return null for Eol or Eof" );
          return null;
       }
 
       builder.setLength( 0 );
-
-      System.err.println( "nextField() fieldSeparator =" + (char)fieldSeparator + "=" );
 
       if ( isQuote( lastChar ) )
       {
@@ -203,7 +205,7 @@ public class CSVReader
             //System.err.println( "lastChar =" + lastChar + "=" );
          }
          //System.err.println( "end field" );
-         System.err.println( "read field =" + builder.toString() + "=" );
+         //System.err.println( "read field =" + builder.toString() + "=" );
          
          if ( !isQuote( lastChar ) )
          {
@@ -242,17 +244,19 @@ public class CSVReader
 
       if ( trimFields )
       {
+         //System.err.println( "CSVReader return nextField trim =" + builder.toString().trim() + "=" );
          return builder.toString().trim();
       }
       else
       {
+         //System.err.println( "CSVReader return nextField =" + builder.toString() + "=" );
          return builder.toString();
       }
    }
 
    public void setFieldSeparator( int fieldSeparator )
    {
-       System.err.println( "CSVReader.setFieldSeparator =" + (char)fieldSeparator + "=" );
+      //System.err.println( "CSVReader.setFieldSeparator =" + (char)fieldSeparator + "=" );
       this.fieldSeparator = fieldSeparator;
    }
 

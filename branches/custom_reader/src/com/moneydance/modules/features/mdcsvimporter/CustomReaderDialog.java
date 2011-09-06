@@ -126,6 +126,9 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         setHeaderLines( customReaderData.getHeaderLines() );
         setDateFormatString( customReaderData.getDateFormatString() );
 
+        DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
+        customReadersList.setSelectedValue( readerNameToGet, true );
+
         System.out.println( "get dataTypesList arraylist =" + dataTypesList + "=" );
         System.out.println( "get emptyFlagsList arraylist =" + emptyFlagsList + "=" );
 
@@ -883,11 +886,14 @@ pack();
     }//GEN-LAST:event_headerLinesActionPerformed
 
     private void doneBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doneBtnActionPerformed
-        this.parent.comboFileFormat1SetItem( readerName.getText() );
-        System.out.println( "done button  (String) dateFormatCB.getSelectedItem() =" + (String) dateFormatCB.getSelectedItem() + "=" );
-        this.parent.comboDateFormatSetItem( (String) dateFormatCB.getSelectedItem() );
         this.setVisible( false );
+        parent.setSkipDuringInit( true );
         parent.fileChanged();
+        this.parent.comboFileFormat1SetItem( ReaderHM.get( readerName.getText() ) );
+        parent.setSkipDuringInit( false );
+        //System.out.println( "done button  (String) dateFormatCB.getSelectedItem() =" + (String) dateFormatCB.getSelectedItem() + "=" );
+        this.parent.comboDateFormatSetItem( (String) dateFormatCB.getSelectedItem() );
+
     }//GEN-LAST:event_doneBtnActionPerformed
 
     private void fieldSeparatorCharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fieldSeparatorCharActionPerformed
