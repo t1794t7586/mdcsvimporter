@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author miki
+ * @author miki and Stan Towianski
  */
 public class CSVData
 {
@@ -30,20 +30,36 @@ public class CSVData
    public CSVReader reader;
    
    public CSVData( CSVReader readerArg )
-      throws IOException
    {
        this.reader = readerArg;
-       
+   }
+
+   public void reset()
+   {
+      currentLineIndex = -1;
+      currentFieldIndex = -1;
+   }
+
+   public void parseIntoLines( int fieldSeparator )
+      throws IOException
+   {
       ArrayList<String> line = new ArrayList<String>();
       ArrayList<String[]> file = new ArrayList<String[]>();
 
+      if ( fieldSeparator > 0 )
+        {
+        reader.setFieldSeparator( fieldSeparator );
+        }
+      
       while ( reader.nextLine() )
       {
          for ( String s = reader.nextField(); s != null; s = reader.nextField() )
-         {
+            {
+            //System.err.println( "         line.add string =" + s + "=" );
             line.add( s );
-         }
+            }
 
+         //System.err.println( "         line.size() =" + line.size() + "=" );
          String[] newLine = new String[ line.size() ];
          line.toArray( newLine );
          file.add( newLine );
@@ -52,12 +68,10 @@ public class CSVData
 
       data = new String[file.size()][];
       file.toArray( data );
-   }
-
-   public void reset()
-   {
+      //System.err.println( "         lines total =" + file.size() + "=" );
+      
       currentLineIndex = -1;
-      currentFieldIndex = -1;
+      currentFieldIndex = -1;      
    }
 
    public boolean nextLine()
@@ -68,13 +82,22 @@ public class CSVData
          currentFieldIndex = -1;
       }
 
+      //System.err.println(  "nextLine() ----  currentLineIndex =" + currentLineIndex + "=    data.length =" + data.length + "   ans =" + (currentLineIndex < data.length ? "true" : "false" ) );
       return currentLineIndex < data.length;
+   }
+
+   public boolean hasEnoughFieldsPerCurrentLine( int neededFields )
+   {
+      //System.err.println(  "fieldsPerCurrentLine()   data[currentLineIndex].length + 1 =" + (data[currentLineIndex].length + 1)  );
+      return data[currentLineIndex].length + 1 >= neededFields;
    }
 
    public boolean nextField()
    {
+      //System.err.println(  "nextField() ----  currentLineIndex =" + currentLineIndex + "=    data.length =" + data.length );
       if ( currentLineIndex < 0 || currentLineIndex >= data.length )
       {
+      //System.err.println(  "nextField() ----  return false" );
          return false;
       }
 
@@ -83,16 +106,20 @@ public class CSVData
          ++currentFieldIndex;
       }
 
+      //System.err.println(  "nextField()2 ----  currentLineIndex =" + currentLineIndex + "=    data.length =" + data.length + "   ans =" + (currentFieldIndex < data[currentLineIndex].length ? "true" : "false" ) );
       return currentFieldIndex < data[currentLineIndex].length;
    }
 
    public boolean hasZeroFields()
    {
+      //System.err.println(  "hasZeroFields() ----  currentLineIndex =" + currentLineIndex + "=    data.length =" + data.length );
       if ( currentLineIndex < 0 || currentLineIndex >= data.length )
       {
+      //System.err.println(  "hasZeroFields() ----  return false" );
          return false;
       }
 
+      //System.err.println(  "hasZeroFields()2 ----  currentLineIndex =" + currentLineIndex + "=    data.length =" + data.length + "   ans =" + (0 < data[currentLineIndex].length ? "true" : "false" ) );
       return 0 < data[currentLineIndex].length;
    }
 
