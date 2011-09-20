@@ -57,29 +57,38 @@ public class CSVDataTest
       doTest1( csvdata );
    }
 
-   private void doTest1( CSVData reader )
+   private void doTest1( CSVData csvData )
       throws IOException
    {
-      assertFalse( reader.nextField() );
-      assertTrue( reader.nextLine() );
-      assertTrue( reader.nextField() );
-      assertEquals( reader.getField(), "Column 1" );
-      assertTrue( reader.nextField() );
-      assertEquals( reader.getField(), "Column 2" );
-      assertFalse( reader.nextField() );
-      assertTrue( reader.nextLine() );
-      assertTrue( reader.nextField() );
-      assertEquals( reader.getField(), "value 11" );
-      assertTrue( reader.nextField() );
-      assertEquals( reader.getField(), "value 12" );
-      assertFalse( reader.nextField() );
-      assertTrue( reader.nextLine() );
-      assertTrue( reader.nextField() );
-      assertEquals( reader.getField(), "value 21" );
-      assertTrue( reader.nextField() );
-      assertEquals( reader.getField(), "value 22" );
-      assertFalse( reader.nextField() );
-      assertFalse( reader.nextLine() );
-      assertFalse( reader.nextField() );
+//        if ( this instanceof CustomReader )
+//            {
+//            csvData.parseIntoLines( customReaderData.getFieldSeparatorChar() );
+//            }
+//        else
+//            {
+            csvData.parseIntoLines( 0 );
+//            }
+
+      assertFalse( csvData.nextField() );
+      assertTrue( csvData.nextLine() );
+      assertTrue( csvData.nextField() );
+      assertEquals( csvData.getField(), "Column 1" );
+      assertTrue( csvData.nextField() );
+      assertEquals( csvData.getField(), "Column 2" );
+      assertFalse( csvData.nextField() );
+      assertTrue( csvData.nextLine() );
+      assertTrue( csvData.nextField() );
+      assertEquals( csvData.getField(), "value 11" );
+      assertTrue( csvData.nextField() );
+      assertEquals( csvData.getField(), "value 12" );
+      assertFalse( csvData.nextField() );
+      assertTrue( csvData.nextLine() );
+      assertTrue( csvData.nextField() );
+      assertEquals( csvData.getField(), "value 21" );
+      assertTrue( csvData.nextField() );
+      assertEquals( csvData.getField(), "value 22" );
+      assertFalse( csvData.nextField() );
+      assertFalse( csvData.nextLine() );
+      assertFalse( csvData.nextField() );
    }
 }
