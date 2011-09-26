@@ -14,15 +14,17 @@
  */
 package com.moneydance.modules.features.mdcsvimporter.formats;
 
+import com.moneydance.apps.md.model.AbstractTxn;
+import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.OnlineTxn;
+import com.moneydance.apps.md.model.ParentTxn;
+import com.moneydance.apps.md.model.SplitTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
 import com.moneydance.modules.features.mdcsvimporter.CustomReaderData;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -293,6 +295,11 @@ public class CustomReader extends TransactionReader
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( "check number" ) )
             {
+            if ( fieldString != null )
+                {
+                    // NOTE: I had to do this because I could set ck # = 004567 but get() returns 4567 so matching would not work. Stan
+                fieldString = fieldString.replaceAll( "^0*(.*)", "$1" );
+                }
             System.err.println(  "check number >" + fieldString + "<" );
             txn.setCheckNum( fieldString );
             }
@@ -309,8 +316,8 @@ public class CustomReader extends TransactionReader
             }
          } // end for
 
-      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description );
-      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + "<" );
+      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() );
+      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + "<" );
 
       return true;
    }

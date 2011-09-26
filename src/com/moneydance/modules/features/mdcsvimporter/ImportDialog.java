@@ -397,11 +397,12 @@ public class ImportDialog
        //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
 
           Account account = (Account) comboAccount.getSelectedItem();
+          RootAccount rootAccount = main.getRootAccount();
 //          if ( reader instanceof CustomReader )
 //            {
 //            reader.
 //            }
-          transReader.parse( csvData, account );
+          transReader.parse( csvData, account, rootAccount );
           csvReader.close();
           com.moneydance.apps.md.controller.Main mainApp =
              (com.moneydance.apps.md.controller.Main) main.getMainContext();
