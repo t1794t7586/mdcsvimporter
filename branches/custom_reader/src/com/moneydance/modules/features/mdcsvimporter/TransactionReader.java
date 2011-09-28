@@ -25,13 +25,14 @@ import com.moneydance.apps.md.model.ParentTxn;
 import com.moneydance.apps.md.model.SplitTxn;
 
 import com.moneydance.apps.md.model.TxnSet;
-import com.moneydance.modules.features.mdcsvimporter.ImportDialog;
 import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 /**
@@ -110,6 +111,10 @@ public abstract class TransactionReader
        * 
        */
       
+      // Create a pattern to match comments
+      Pattern ckNumPat = Pattern.compile( "^.*\\\"chknum\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
+      String origCheckNumber = null;
+      
       //int k = 0;
       for ( AbstractTxn atxn : tset )
           {
@@ -119,7 +124,44 @@ public abstract class TransactionReader
             
               // Here I am manually recreating the FiTxnId that I set on imported txn's because I could not figure
               // out how to simply read it.
-            String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" + atxn.getDescription() + ":" + atxn.getCheckNumber();
+              
+            
+            //String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" + atxn.getDescription() + ":" + atxn.getCheckNumber();
+
+              /*
+  <TAG>
+   <KEY>ol.orig-txn</KEY>
+   <VAL>{&#10;  "dtinit-int" = "20110824"&#10;  "name" = "whatever desc"&#10;  "amt" = "-9824"&#10;  "fitxnid" = "20110824:-98.24:whatever desc"&#10;  "dtpstd-int" = "20110824"&#10;  "dtavail-int" = "20110824"&#10;  "invst.totalamt" = "-9824"&#10;  "chknum" = "001234"&#10;  "ptype" = "1"&#10;}&#10;</VAL>
+  </TAG>
+              */
+              
+              String origtxn = atxn.getTag( "ol.orig-txn" );
+              //String origCheckNumber = origtxn.replaceAll( ".*\\\"chknum\\\" = \\\"(.*?)\\\"\\\n.*", "$1" );
+
+              //System.out.println( "\norigtxn ="+origtxn + "=" );
+
+              // Run some matches
+              if ( origtxn != null )
+                  {
+                  Matcher m = ckNumPat.matcher( origtxn );
+                  if ( m.find() )
+                      origCheckNumber = m.group( 1 );
+                  else
+                      origCheckNumber = "";
+                  //System.out.println("Found orig check num ="+m.group( 1 ) + "=" );
+                  }
+              else
+                  {
+                  origCheckNumber = "";
+                  }
+              
+            // This new way compare using the ORIGINAL payee and memo fields so if the user changes them, it will still match. Stan
+            String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" 
+                               + (atxn.getTag( "ol.orig-payee" ) == null ? "" : atxn.getTag( "ol.orig-payee" )) + ":" 
+                               + origCheckNumber
+                               + (atxn.getTag( "ol.orig-memo" ) == null ? "" : atxn.getTag( "ol.orig-memo" )) + ":" 
+                                      ;            
+            
             //System.err.println( "tmp string [" + "k" + "] =" + tmp + "=" );
             tsetMatcherKey.add( tmp );
             

@@ -216,6 +216,7 @@ public class CustomReader extends TransactionReader
      long amount = 0;
      int date = 0;
      String description = "";
+     String origCheckNumber = "";
      int fieldIndex = 0;
      int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
      System.err.println(  "maxFieldIndex =" + maxFieldIndex );
@@ -295,11 +296,14 @@ public class CustomReader extends TransactionReader
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( "check number" ) )
             {
+            //origCheckNumber = fieldString;
+            /*  changed matching to use original check number which contained leading 0's so go back to using that. Stan
             if ( fieldString != null )
                 {
                     // NOTE: I had to do this because I could set ck # = 004567 but get() returns 4567 so matching would not work. Stan
                 fieldString = fieldString.replaceAll( "^0*(.*)", "$1" );
                 }
+                 */
             System.err.println(  "check number >" + fieldString + "<" );
             txn.setCheckNum( fieldString );
             }
@@ -316,8 +320,8 @@ public class CustomReader extends TransactionReader
             }
          } // end for
 
-      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() );
-      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + "<" );
+      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
+      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
 
       return true;
    }
