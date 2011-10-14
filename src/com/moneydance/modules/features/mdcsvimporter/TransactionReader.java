@@ -14,33 +14,48 @@
  */
 package com.moneydance.modules.features.mdcsvimporter;
 
+import com.moneydance.apps.md.model.TransactionSet;
 import com.moneydance.apps.md.model.Account;
+import com.moneydance.apps.md.model.RootAccount;
 import com.moneydance.apps.md.model.CurrencyType;
+import com.moneydance.apps.md.model.AbstractTxn;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.apps.md.model.OnlineTxnList;
-import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
+import com.moneydance.apps.md.model.ParentTxn;
+import com.moneydance.apps.md.model.SplitTxn;
+
+import com.moneydance.apps.md.model.TxnSet;
+import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
+import com.moneydance.util.StreamTable;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 
 /**
  *
- * @author miki
+ * @author miki and Stan Towianski
  */
 public abstract class TransactionReader
 {
-   private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
-   private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
-   private static SimpleCreditDebitReader simpleCreditDebitReader =
-      new SimpleCreditDebitReader();
-   private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
-   protected CSVData reader;
+   private boolean customReaderFlag = false;
+   private CustomReaderData customReaderData = null;
+   
+   protected static ImportDialog importDialog = null;
+   protected static CustomReaderDialog customReaderDialog = null;
+   
+   protected CSVData csvData;
    protected Account account;
    protected OnlineTxnList transactionList;
+   protected TransactionSet txnSet;
    protected CurrencyType currency;
-
+   protected HashSet tsetMatcherKey = new HashSet<String>();
+   protected int defProtocolId = 999;  // per Sean at MD
+   
    protected abstract boolean canParse( CSVData data );
 
    protected abstract boolean parseNext( OnlineTxn txn )
@@ -54,46 +69,337 @@ public abstract class TransactionReader
 
    public abstract void setDateFormat( String format );
 
+   //public abstract int getFieldSeparator();
+
+   //public abstract void setFieldSeparator( int xxx );
+
    protected final void throwException( String message )
       throws IOException
    {
       throw new IOException( message );
    }
 
-   public final void parse( CSVData reader, Account account )
+   public final void parse( CSVData csvDataArg, Account account, RootAccount rootAccount )
       throws IOException
    {
-      this.reader = reader;
+      System.err.println(  "\n---------   entered TransactionReader().parse()  -------------" );
+
+      this.csvData = csvDataArg;
       this.account = account;
       this.transactionList = account.getDownloadedTxns();
+//      this.transactionList = new OnlineTxnList( new StreamTable() );
+      this.txnSet = rootAccount.getTransactionSet();
+      this.tsetMatcherKey = new HashSet();
       this.currency = account.getCurrencyType();
+      long totalProcessed = 0;
+      long totalAccepted = 0;
+      long totalRejected = 0;
+      long totalDuplicates = 0;
+      
+      System.err.println(  "\n---------   beg: make set of existing account transactions  -------------" );
+      //System.err.println(  "number of trans list =" +this.txnSet.getTransactionsForAccount( account ).getSize()  );
+      System.err.println(  "number of trans list =" +this.txnSet.getAllTxns().getSize()  );
+      // cannot get just for account because I am putting them into a temp/empty account !
+      //Enumeration<AbstractTxn> tenums = this.txnSet.getTransactionsForAccount( account ).getAllTxns();
+      TxnSet tset = this.txnSet.getAllTxns();
+      System.err.println(  "tset.getSize() =" +tset.getSize()  );
+      
+      /*
+     while ( tenums.hasMoreElements() ) 
+            {
+            AbstractTxn key = tenums.nextElement();
+            System.err.println( "key.getDescription() =" + key.getDescription() + "=   key.getFiTxnId( 0 )" + key.getFiTxnId( 0 ) + "=" );
+            tsetMatcherKey.add( key.getFiTxnId( 0 ) );
+            }
+       * 
+       */
+      
+      // Create a pattern to match comments
+      Pattern ckNumPat = Pattern.compile( "^.*\\\"chknum\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
+      String origCheckNumber = null;
+      
+      //int k = 0;
+      for ( AbstractTxn atxn : tset )
+          {
+            //System.err.println( "key.getDescription() =" + atxn.getDescription() + "=   atxn.getFiTxnId( 1 ) =" + atxn.getFiTxnId( 1 ) + "=" );
+            //System.err.println( "atxn.getFiTxnId( 1 ) [" + k + "] =" + atxn.getFiTxnId( 1 ) + "=   atxn.getFiTxnId( 0 ) [" + k + "] =" + atxn.getFiTxnId( 0 ) + "=" );
+            //tsetMatcherKey.add( atxn.getFiTxnId( 1 ) );
+            
+              // Here I am manually recreating the FiTxnId that I set on imported txn's because I could not figure
+              // out how to simply read it.
+              
+            
+            //String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" + atxn.getDescription() + ":" + atxn.getCheckNumber();
 
-      reader.reset();
-      if ( haveHeader() )
-      {
-         reader.nextLine(); // skip the header
-      }
+              /*
+  <TAG>
+   <KEY>ol.orig-txn</KEY>
+   <VAL>{&#10;  "dtinit-int" = "20110824"&#10;  "name" = "whatever desc"&#10;  "amt" = "-9824"&#10;  "fitxnid" = "20110824:-98.24:whatever desc"&#10;  "dtpstd-int" = "20110824"&#10;  "dtavail-int" = "20110824"&#10;  "invst.totalamt" = "-9824"&#10;  "chknum" = "001234"&#10;  "ptype" = "1"&#10;}&#10;</VAL>
+  </TAG>
+              */
+              
+              String origtxn = atxn.getTag( "ol.orig-txn" );
+              //String origCheckNumber = origtxn.replaceAll( ".*\\\"chknum\\\" = \\\"(.*?)\\\"\\\n.*", "$1" );
 
-      while ( reader.nextLine() )
-      {
-         OnlineTxn txn = transactionList.newTxn();
-         if ( parseNext( txn ) )
-         {
+              //System.out.println( "\norigtxn ="+origtxn + "=" );
+
+              // Run some matches
+              if ( origtxn != null )
+                  {
+                  Matcher m = ckNumPat.matcher( origtxn );
+                  if ( m.find() )
+                      origCheckNumber = m.group( 1 );
+                  else
+                      origCheckNumber = "";
+                  //System.out.println("Found orig check num ="+m.group( 1 ) + "=" );
+                  }
+              else
+                  {
+                  origCheckNumber = "";
+                  }
+              
+            // This new way compare using the ORIGINAL payee and memo fields so if the user changes them, it will still match. Stan
+            String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" 
+                               + (atxn.getTag( "ol.orig-payee" ) == null ? "" : atxn.getTag( "ol.orig-payee" )) + ":" 
+                               + origCheckNumber
+                               + (atxn.getTag( "ol.orig-memo" ) == null ? "" : atxn.getTag( "ol.orig-memo" )) + ":" 
+                                      ;            
+            
+            //System.err.println( "tmp string [" + "k" + "] =" + tmp + "=" );
+            tsetMatcherKey.add( tmp );
+            
+            //k++;
+            //if ( k > 9 )
+             //   break;
+          }
+      System.err.println(  "\n---------   end: make set of existing account transactions  -------------" );
+      
+      //csvData.reset();
+        if ( this instanceof CustomReader )
+            {
+            csvData.parseIntoLines( customReaderData.getFieldSeparatorChar() );
+            }
+        else
+            {
+            csvData.parseIntoLines( 0 );
+            }
+
+      //System.err.println( "at parse getFieldSeparator() =" + (char)csvData.getReader().getFieldSeparator() + "=" );
+      //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+      //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
+
+      //----- Skip Header Lines  -----
+        if ( this instanceof CustomReader )
+            {
+//            int skipHeaderLines = customReaderDialog.getHeaderLines();
+            int skipHeaderLines = getCustomReaderData().getHeaderLines();
+            for ( int i = 0; i < skipHeaderLines; i++ )
+                {
+                System.err.println(  "skip header for customReader" );
+                csvData.nextLine();
+                }
+            }
+        else
+            {
+              if ( haveHeader() )
+                {
+                 csvData.nextLine(); // skip the header
+                }
+            }
+      
+      while ( csvData.nextLine() )
+          {
+          totalProcessed ++;
+          OnlineTxn txn = transactionList.newTxn();
+          if ( parseNext( txn ) )
+            {
             txn.setProtocolType( OnlineTxn.PROTO_TYPE_OFX );
             if ( account.balanceIsNegated() )
-            {
-               txn.setAmount( -txn.getAmount() );
-               txn.setTotalAmount( -txn.getAmount() );
-            }
-            transactionList.addNewTxn( txn );
+                {
+                txn.setAmount( -txn.getAmount() );
+                txn.setTotalAmount( -txn.getAmount() );
+                }
+            
+            if ( ! tsetMatcherKey.contains( txn.getFITxnId( ) ) )
+                {
+                System.err.println( "will add transaction with txn.getFITxnId( ) =" + txn.getFITxnId( ) + "=   txn.getFIID()" + txn.getFIID() );
+                System.err.println( "importDialog =" + importDialog + "=" );
+                
+                /*  NOTE: This is to convert the online txn to an regular txn. This would let me set categories and tags 
+                 * on incoming txn's,  but it automatically sets the category to the default account one and I like it
+                 * better using the onlineTxn where it prompts the user to select a category for imported txn's. Stan
+                 */
+                if ( importDialog.isSelectedOnlineImportTypeRB() )
+                    {
+                    transactionList.addNewTxn( txn );
+                    }
+                else
+                    {
+                    ParentTxn pTxn = onlineToParentTxn( account, rootAccount, txn );
+                    txnSet.addNewTxn( pTxn );
+                    }
+                totalAccepted ++;
+                }
+            else
+                {
+                System.err.println( "will NOT add Duplicate transaction with txn.getFITxnId( ) =" + txn.getFITxnId( ) + "=" );
+                totalDuplicates ++;
+                }
+              }
+          else
+              {
+              totalRejected++;
+             }
          }
-      }
+      
+      JOptionPane.showMessageDialog( importDialog, "Total Records Process: " + totalProcessed
+                                                                            + "\nRecords Imported: " + totalAccepted
+                                                                            + "\nDuplicates Skipped: " + totalDuplicates
+                                                                            + "\nRejected Records: " + totalRejected
+                                                        );
+      
+      
+      /** NOTE: This is what I would like to do but I do not understand enough about this
+       * transactionList and why you create a newTxn() and then later call addNewTxn().
+       * newTxn seems to be some kind of 'service' as opposed to a regular object???   Stan
+       */
+      /*
+      int ans = JOptionPane.showConfirmDialog( importDialog, "Total Records Processed: " + totalProcessed
+                                                                            + "\nNew Records: " + totalAccepted
+                                                                            + "\nDuplicate Records: " + totalDuplicates
+                                                                            + "\nRejected Records: " + totalRejected
+                                                                            + "\n\nDo you want to import the New records ?"
+                                                                    , "Results", JOptionPane.YES_NO_OPTION );
+      System.err.println( "ans =" + ans + "=    JOptionPane.YES_OPTION =" + JOptionPane.YES_OPTION + "=    JOptionPane.NO_OPTION =" + JOptionPane.NO_OPTION + "=" );
+      if ( ans == JOptionPane.YES_OPTION )
+          {
+              
+          OnlineTxnList transactionListCurrent = account.getDownloadedTxns();
+          int max = transactionList.getTxnCount();
+          System.err.println( "getTxnCount()/max =" + max + "=" );
+          
+          for ( int j = 0; j < max; j ++ )
+              {
+              System.err.println( "transactionList.getTxn( " + j + " ) =" + transactionList.getTxn( j ) + "=" );
+              transactionListCurrent.addNewTxn( transactionList.getTxn( j ) );
+              }
+               
+               
+          JOptionPane.showMessageDialog( importDialog, totalAccepted + " records were added" );
+          }
+      else
+          {
+          JOptionPane.showMessageDialog( importDialog, "No records were added" );
+          }
+      */
+      
+      /*
+      int max = transactionList.getTxnCount();
+          
+          for ( int j = 0; j < max; j ++ )
+              {
+              transactionList.removeTxn( j );
+              }
+       * 
+       */
    }
+   
+   /*
+    * Note: Create a ParentTxn from a filled out OnlineTxn
+    */
+ //  @ Override
+   protected ParentTxn onlineToParentTxn( Account account, RootAccount rootAccount, OnlineTxn oTxn )
+      throws IOException
+   {
+        Account category = null;
 
-   public static TransactionReader[] getCompatibleReaders( CSVData data )
+        ParentTxn pTxn = new ParentTxn( oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt()
+                                                          , oTxn.getCheckNum(), account, oTxn.getName(), oTxn.getMemo()
+                                                          , -1, AbstractTxn.STATUS_UNRECONCILED );
+        
+        SplitTxn sptxn = new SplitTxn( pTxn, oTxn.getAmount(), oTxn.getAmount(), 1.0
+                                                     , com.moneydance.apps.md.model.AccountUtil.getDefaultCategoryForAcct(account)  /* category */
+                                                     , pTxn.getDescription(), -1, AbstractTxn.STATUS_UNRECONCILED );
+        
+        sptxn.setIsNew( true );
+        pTxn.addSplit( sptxn );
+        
+        pTxn.setIsNew( true );
+        
+        pTxn.setFiTxnId( defProtocolId, oTxn.getFITxnId( ) );
+        sptxn.setFiTxnId( defProtocolId, oTxn.getFITxnId( ) );
+        
+        return pTxn;
+    }
+  
+   public void setCustomReaderDialog( CustomReaderDialog customReaderDialog )
+        {
+            System.err.println( "custreader set custreaderdialog" );
+        this.customReaderDialog = customReaderDialog;
+        }
+   
+   public int getNumberOfCustomReaderFieldsUsed()
+        {
+        if ( this.customReaderDialog == null ) 
+            return 0;
+        else 
+            return this.customReaderDialog.getNumberOfCustomReaderFieldsUsed();
+        }
+   
+   public static TransactionReader[] getCompatibleReaders( File selectedFile, ImportDialog importDialogArg )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
+      importDialog = importDialogArg;
+      
+      System.err.println( "getCompatibleReaders() call cust read canParse()" );
+      
+      for ( String key : Settings.getReaderHM().keySet() )
+            {
+            TransactionReader transactionReader = Settings.getReaderHM().get( key );
+            System.err.println( "at canparse for transReader =" + key + "=" );
+            
+             try
+             {
+                CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
+                CSVData csvData = new CSVData( csvReader );
+            
+                if ( transactionReader.canParse( csvData ) )
+                      {
+                      System.err.println( "------- at canparse WORKS for =" + key + "=" );
+                      formats.add( transactionReader );
+                      }
+                else
+                      {
+                      System.err.println( "------- at canparse not work for =" + key + "=" );
+                      }
+                csvReader.close();
+             }
+             catch ( Throwable x )
+             {
+                  System.err.println( "at canparse error reading file !" );
+             }
+            }
+      
+      /*
+      if ( customerReaderName != null && ! customerReaderName.equals( "" ) )
+        {
 
+          System.err.println( "at canparse getFieldSeparator() =" + (char)data.getReader().getFieldSeparator() + "=" );
+
+          //data.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+          //System.err.println( "at canparse getFieldSeparator() after set =" + (char)data.getReader().getFieldSeparator() + "=" );
+
+//s          System.err.println( "at canparse getFieldSeparator() after set =" + (char)data.getReader().getFieldSeparator() + "=" );
+
+          customReader.setDateFormat( importDialog.comboDateFormatGetItem() );
+          System.err.println( "at canparse importDialog.comboDateFormatGetItem() after set =" + importDialog.comboDateFormatGetItem() + "=" );
+          
+          if ( customReader.canParse( data ) )
+              {
+             formats.add( customReader );
+            }
+        }
+      
       if ( citiBankCanadaReader.canParse( data ) )
       {
          formats.add( citiBankCanadaReader );
@@ -113,7 +419,8 @@ public abstract class TransactionReader
       {
          formats.add( wellsFargoReader );
       }
-
+       */
+      
       TransactionReader[] retVal = new TransactionReader[formats.size()];
       formats.toArray( retVal );
       return retVal;
@@ -126,5 +433,29 @@ public abstract class TransactionReader
    }
 
    protected abstract boolean haveHeader();
+   
+   /*
+   protected String convertParensToMinusSign( String amt )
+   {
+       return amt.replaceAll( "\(.*\)", "-\$1" );
+   }
+    */
+
+    public boolean isCustomReaderFlag() {
+        return customReaderFlag;
+    }
+
+    public void setCustomReaderFlag(boolean customReaderFlag) {
+        this.customReaderFlag = customReaderFlag;
+    }
+
+    public CustomReaderData getCustomReaderData() {
+        return customReaderData;
+    }
+
+    public void setCustomReaderData(CustomReaderData customReaderData) {
+        this.customReaderData = customReaderData;
+    }
+
 }
 
