@@ -40,7 +40,15 @@ public class SimpleCreditDebitReader
    @Override
    public boolean canParse( CSVData data )
    {
-      data.reset();
+      //data.reset();
+        try {
+            data.parseIntoLines( 0 );
+            } 
+        catch ( IOException ex ) 
+            {
+            //Logger.getLogger(CustomReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
 
       boolean retVal = data.nextLine() &&
          data.nextField() && DATE.equals( data.getField().toLowerCase() ) &&
@@ -82,21 +90,21 @@ public class SimpleCreditDebitReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      reader.nextField();
-      String dateString = reader.getField();
+      csvData.nextField();
+      String dateString = csvData.getField();
       if ( dateString == null || dateString.length() == 0 )
       { // empty line
          return false;
       }
 
-      reader.nextField();
-      String description = reader.getField();
+      csvData.nextField();
+      String description = csvData.getField();
 
-      reader.nextField();
-      String credit = reader.getField();
+      csvData.nextField();
+      String credit = csvData.getField();
 
-      reader.nextField();
-      String debit = reader.getField();
+      csvData.nextField();
+      String debit = csvData.getField();
       if ( credit == null && debit == null )
       {
          throwException( "Invalid line." );

@@ -35,7 +35,15 @@ public class CitiBankCanadaReader
    @Override
    public boolean canParse( CSVData data )
    {
-      data.reset();
+      //data.reset();
+        try {
+            data.parseIntoLines( 0 );
+            } 
+        catch ( IOException ex ) 
+            {
+            //Logger.getLogger(CustomReader.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+            }
 
       return data.nextLine() &&
          data.nextField() && TRANSACTION_DATE.equals( data.getField().toLowerCase() ) &&
@@ -55,24 +63,24 @@ public class CitiBankCanadaReader
    protected boolean parseNext( OnlineTxn txn )
       throws IOException
    {
-      if ( !reader.nextField() )
+      if ( !csvData.nextField() )
       { // empty line
          return false;
       }
-      String transactionDateString = reader.getField();
+      String transactionDateString = csvData.getField();
       if ( transactionDateString.equalsIgnoreCase( "Date downloaded:" ) )
       { // skip the footer line
          return false;
       }
       
-      reader.nextField();
-      String postingDateString = reader.getField();
+      csvData.nextField();
+      String postingDateString = csvData.getField();
 
-      reader.nextField();
-      String description = reader.getField();
+      csvData.nextField();
+      String description = csvData.getField();
 
-      reader.nextField();
-      String amountString = reader.getField();
+      csvData.nextField();
+      String amountString = csvData.getField();
       if ( amountString == null )
       {
          throwException( "Invalid line." );

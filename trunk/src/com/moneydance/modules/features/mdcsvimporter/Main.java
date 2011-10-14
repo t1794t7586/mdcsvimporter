@@ -30,15 +30,16 @@ import javax.swing.JFrame;
 public class Main
    extends FeatureModule
 {
-   private static final int VERSION = 13;
+   private static final int VERSION = 15;
    private static final String NAME = "CSV Importer";
-   private static final String VENDOR = "Milutin Jovanović";
+   private static final String VENDOR = "Milutin Jovanović, Stan Towianski";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
       "Moneydance CSV Importer Plug-In version BETA " + Integer.toString( VERSION ) +
-      ". This software is distributed under GNU Lesser General Public License (see " +
+      ".2. This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
-      "accepting terms of this license.";
+      "accepting terms of this license."
+           ;
    private static Image image;
 
    {
@@ -56,7 +57,18 @@ public class Main
    public Main()
    {
    }
+   
+   /*
+    public static void main(String args[]) 
+    {
+       String amt = "($157.86)";
+       System.out.println( "converted amount =" + amt.replaceAll( "\\((.*)\\)", "-$1" ) );
 
+       amt = "$123.86";
+       System.out.println( "converted amount =" + amt.replaceAll( "\\((.*)\\)", "-$1" ) );
+   }
+    */
+   
    @Override
    public void init()
    {
