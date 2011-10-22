@@ -19,6 +19,7 @@ import com.moneydance.apps.md.controller.FeatureModuleContext;
 import com.moneydance.apps.md.model.RootAccount;
 import java.awt.Image;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -36,7 +37,7 @@ public class Main
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
       "Moneydance CSV Importer Plug-In version BETA " + Integer.toString( VERSION ) +
-      ".2. This software is distributed under GNU Lesser General Public License (see " +
+      ".3. This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
       "accepting terms of this license."
            ;
@@ -131,18 +132,50 @@ public class Main
    public void invoke( String uri )
    {
       StringTokenizer tokenizer = new StringTokenizer( uri, ":" );
-
-      int count = tokenizer.countTokens();
-      String url = count + " tokens(";
+      HashMap argsHM = new HashMap();
+      
+      //filename="file":fileformat="file format":dateformat="date format":importaccount="my account"
+        
+      //int count = tokenizer.countTokens();
+      //String url = count + " tokens(";
       while ( tokenizer.hasMoreTokens() )
-      {
-         url = url.concat( tokenizer.nextToken() );
-      }
-      url += ")";
+          {
+         //url = url.concat( tokenizer.nextToken() );
+          String [] pcs = tokenizer.nextToken().split( "=" );
+          if ( pcs.length > 1 )
+              {
+              if ( pcs[1].startsWith( "\"" ) )
+                  {
+                  argsHM.put( pcs[0],  pcs[1].substring( 1, pcs[1].length() - 1 ) );
+                  }
+              else
+                  {
+                  argsHM.put( pcs[0],  pcs[1] );
+                  }
+              }
+          else
+              {
+              argsHM.put( pcs[0],  null );
+              }
+          
+          }
+    
+      /*
+    argsHM.put( "filename", "" );
+    argsHM.put( "fileformat", "Discover Card" );
+    //argsHM.put( "dateformat", "MM/DD/YYYY" );
+    argsHM.put( "importaccount", "IMPORT BANK" );
+      */
+      
+      //url += ")";
 
-      ImportDialog dialog = new ImportDialog( this );
+      ImportDialog dialog = new ImportDialog( this, argsHM );
       dialog.setLocationRelativeTo( null );
-      dialog.setVisible( true );
+      
+      if ( ! dialog.isAutoProcessedAFile() )
+          {
+          dialog.setVisible( true );
+          }
    }
 
    @Override

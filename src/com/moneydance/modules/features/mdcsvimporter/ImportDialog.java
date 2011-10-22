@@ -23,13 +23,12 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
-import javax.swing.JRadioButton;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -42,20 +41,23 @@ public class ImportDialog
    private File selectedFile;
    private CSVData csvData;
    private Main main;
+   private HashMap runArgsHM;
    private CustomReaderDialog customReaderDialog = new CustomReaderDialog( this, true );
    private boolean skipDuringInit = true;
+   private boolean autoProcessedAFile = false;
    
    public ImportDialog()
    {
    }
    
-   public ImportDialog( Main main )
+   public ImportDialog( Main main, HashMap runArgsHM )
    {
       super( main.getMoneydanceWindow(), true );
       initComponents();
+      this.runArgsHM = runArgsHM;
+      autoProcessedAFile = false;
 
       customReaderDialog.init();
-      skipDuringInit = false;
       customReaderDialog.setLocationRelativeTo( getRootPane() );
       
       textFilename.getDocument().addDocumentListener( new DocumentListener()
@@ -81,8 +83,123 @@ public class ImportDialog
 
       checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
 
-      fileChanged();
-   }
+      if ( runArgsHM.containsKey( "filename" ) )
+        {
+        boolean errorInRunArgs = false;
+        selectedFile = new File( (String) runArgsHM.get( "filename" ) );
+        if ( ! selectedFile.exists() )
+            {
+            JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nfile \'" 
+                                                                    + (String) runArgsHM.get( "filename" ) + "\' does not exist.", "Error", JOptionPane.ERROR_MESSAGE );
+            errorInRunArgs = true;
+            }
+        else
+            {
+            textFilename.setText( selectedFile.getPath() );
+            fileChanged();
+            }
+        
+          if ( runArgsHM.containsKey( "fileformat" ) )
+            {
+            if ( runArgsHM.containsKey( "fileformat" ) )
+                {
+                //if ( customReaderDialog.getReaderConfig( (String) runArgsHM.get( "fileformat" ) ) )
+                TransactionReader reqTransReader = customReaderDialog.getTransactionReader( (String) runArgsHM.get( "fileformat" ) );
+                if ( reqTransReader != null )
+                    {
+                    DefaultComboBoxModel dcbm = (DefaultComboBoxModel) comboFileFormat.getModel();
+                    int idx = dcbm.getIndexOf( reqTransReader );
+                    
+                    if ( idx >= 0 )
+                        {
+                        comboFileFormat.setSelectedItem( reqTransReader );
+                        processFileFormatChanged( reqTransReader );  // call it myself so I know when it is done.
+                        if ( runArgsHM.containsKey( "dateformat" ) )
+                            {
+                            System.err.println( "runArgs would set dateformat now !! " );
+                            dcbm = (DefaultComboBoxModel) comboDateFormat.getModel();
+                            idx = dcbm.getIndexOf( (String) runArgsHM.get( "dateformat" ) );
+
+                            if ( idx >= 0 )
+                                {
+                                comboDateFormat.setSelectedItem( (String) runArgsHM.get( "dateformat" ) );
+                                }
+                            else
+                                {
+                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe dateformat you chose \'" 
+                                                                                        + (String) runArgsHM.get( "dateformat" ) + "\' is not valid for the fileformat used.", "Error", JOptionPane.ERROR_MESSAGE );
+                                errorInRunArgs = true;
+                                }
+                            //customReaderDialog.setDateFormatString(null);
+
+                            /*
+                             transReader.setDateFormat( (String) comboDateFormat.getSelectedItem() );
+
+                             CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
+                             CSVData csvData = new CSVData( csvReader );            
+
+                           //System.err.println( "btnProcessActionPerformed  customReaderDialog.getFieldSeparatorChar() =" + (char)customReaderDialog.getFieldSeparatorChar() + "=" );
+                           //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+
+                                        Account account = (Account) comboAccount.getSelectedItem();
+                                        comboAccount.sets
+                                    */
+                            }
+                        
+                        if ( runArgsHM.containsKey( "importaccount" ) )
+                            {
+                            System.err.println( "runArgs would set importaccount now !! " );
+                            dcbm = (DefaultComboBoxModel) comboAccount.getModel();
+                            int max = comboAccount.getItemCount();
+                            Account foundAccount = null;
+                                    
+                            for ( idx = max - 1; idx >= 0; idx-- )
+                                {
+                                System.err.println( "getAcountName() =" + ((Account) dcbm.getElementAt( idx )).getAccountName()
+                                                + "=   importaccount =" + (String) runArgsHM.get( "importaccount" ) + "=" );
+                                if ( ((Account) dcbm.getElementAt( idx )).getAccountName().equalsIgnoreCase( (String) runArgsHM.get( "importaccount" ) ) )
+                                    {
+                                    foundAccount = (Account) dcbm.getElementAt( idx );
+                                    break;
+                                    }        
+                                }
+
+                            if ( idx >= 0 )
+                                {
+                                comboAccount.setSelectedItem( foundAccount );
+                                }
+                            else
+                                {
+                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe importaccount you chose \'" 
+                                                                                        + (String) runArgsHM.get( "importaccount" ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
+                                errorInRunArgs = true;
+                                }
+                            }
+                        
+                        if ( ! errorInRunArgs )
+                            {
+                            btnProcessActionPerformed( null );
+                            autoProcessedAFile = true;
+                            }
+                        }
+                    else
+                        {
+                        JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe fileformat you chose \'" 
+                                                                                + (String) runArgsHM.get( "fileformat" ) + "\' is not valid for the file you gave.", "Error", JOptionPane.ERROR_MESSAGE );
+                        errorInRunArgs = true;
+                        }
+                    }
+                else
+                    {
+                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nof invalid fileformat argument \'" 
+                                                                            + (String) runArgsHM.get( "fileformat" ) + "\'.", "Error", JOptionPane.ERROR_MESSAGE );
+                    errorInRunArgs = true;
+                    }
+                }
+            }
+        }
+     skipDuringInit = false;
+    }
 
    private void fillAccountCombo( Main main )
    {
@@ -125,7 +242,49 @@ public class ImportDialog
         System.err.println( "onlineImportTypeRB.isSelected() =" + onlineImportTypeRB.isSelected() + "=" );
         return onlineImportTypeRB.isSelected();
     }
+
+    public boolean isAutoProcessedAFile() {
+        return autoProcessedAFile;
+    }
    
+    private void processFileFormatChanged( TransactionReader transReader )
+    {                                       
+      System.err.println( "processFileFormatChanged()  --------------- " );
+
+          if ( transReader != null )
+            {
+            if ( transReader.isCustomReaderFlag() )
+                {
+                System.err.println( "Have a custom reader. Read config for =" + transReader.toString() + "=" );
+                customReaderDialog.getReaderConfig( transReader.toString() );
+                }
+
+             String[] formats = transReader.getSupportedDateFormats();
+
+             comboDateFormat.removeAllItems();
+             for ( String s : formats )
+                {
+                comboDateFormat.addItem( s );
+                }
+
+             if ( formats.length == 0 )
+                {
+                comboDateFormat.addItem( "Date format not recognized" );
+                comboDateFormat.setEnabled( false );
+                }
+             else if ( formats.length == 1 )
+                {
+                comboDateFormat.setSelectedIndex( 0 );
+                comboDateFormat.setEnabled( false );
+                }
+             else
+                {
+                comboDateFormat.setEnabled( true );
+                System.err.println( "importDialog() customReaderDialog set Date Format Selected  =" + customReaderDialog.getDateFormatSelected() + "=" );
+                comboDateFormat.setSelectedItem( customReaderDialog.getDateFormatSelected() );
+                }
+          }
+    }
 
    /** This method is called from within the constructor to
     * initialize the form.
@@ -512,7 +671,7 @@ public class ImportDialog
 
     private void fileFormatChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_fileFormatChanged
     {//GEN-HEADEREND:event_fileFormatChanged
-      System.err.println( "fileFormatChanged()  event  ---------------" );
+      System.err.println( "fileFormatChanged()  event  --------------- " + evt );
       if ( skipDuringInit )
             {
             System.err.println( "fileFormatChanged()  skipDuringInit  ---------------" );
@@ -521,7 +680,7 @@ public class ImportDialog
       
       if ( evt.getStateChange() == ItemEvent.SELECTED )
        {
-      System.err.println( "fileFormatChanged()  event == ItemEvent.SELECTED  ---------------" );
+       System.err.println( "fileFormatChanged()  event == ItemEvent.SELECTED  ---------------" );
         if ( comboFileFormat.getSelectedItem() instanceof String )
                 {
                 System.err.println( "comboFileFormat is string =" + (String) comboFileFormat.getSelectedItem() + "=" );
@@ -538,39 +697,7 @@ public class ImportDialog
                 transReader = null;
                 }
           
-          if ( transReader != null )
-            {
-            if ( transReader.isCustomReaderFlag() )
-                {
-                System.err.println( "Have a custom reader. Read config for =" + transReader.toString() + "=" );
-                customReaderDialog.getReaderConfig( transReader.toString() );
-                }
-
-             String[] formats = transReader.getSupportedDateFormats();
-
-             comboDateFormat.removeAllItems();
-             for ( String s : formats )
-                {
-                comboDateFormat.addItem( s );
-                }
-
-             if ( formats.length == 0 )
-                {
-                comboDateFormat.addItem( "Date format not recognized" );
-                comboDateFormat.setEnabled( false );
-                }
-             else if ( formats.length == 1 )
-                {
-                comboDateFormat.setSelectedIndex( 0 );
-                comboDateFormat.setEnabled( false );
-                }
-             else
-                {
-                comboDateFormat.setEnabled( true );
-                System.err.println( "importDialog() customReaderDialog set Date Format Selected  =" + customReaderDialog.getDateFormatSelected() + "=" );
-                comboDateFormat.setSelectedItem( customReaderDialog.getDateFormatSelected() );
-                }
-          }
+          processFileFormatChanged( transReader );
        }
         
     }//GEN-LAST:event_fileFormatChanged
@@ -747,7 +874,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
        * */
       
       // detect file format
-      if ( !error )
+      if ( ! error )
       {
         TransactionReader.customReaderDialog = customReaderDialog;
         

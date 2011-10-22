@@ -231,10 +231,12 @@ public abstract class TransactionReader
                  */
                 if ( importDialog.isSelectedOnlineImportTypeRB() )
                     {
+                    System.err.println( "add new onlineTxn" );
                     transactionList.addNewTxn( txn );
                     }
                 else
                     {
+                    System.err.println( "add new parentTxn/splitTxn" );
                     ParentTxn pTxn = onlineToParentTxn( account, rootAccount, txn );
                     txnSet.addNewTxn( pTxn );
                     }
@@ -248,6 +250,7 @@ public abstract class TransactionReader
               }
           else
               {
+              csvData.printCurrentLine();
               totalRejected++;
              }
          }
