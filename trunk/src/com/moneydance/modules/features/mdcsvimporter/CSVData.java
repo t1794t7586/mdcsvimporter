@@ -137,6 +137,26 @@ public class CSVData
       return data[currentLineIndex][currentFieldIndex];
    }
 
+
+   public String printCurrentLine()
+   {
+      if ( currentLineIndex < 0 || currentLineIndex >= data.length )
+          {
+          System.err.append( "currentLineIndex out of range =" + currentLineIndex );
+          return null;
+          }
+
+      System.err.append( "\n curr line >" );
+       for ( int i = 0; i < data[currentLineIndex].length; i ++ )
+           {
+           if ( i > 0 )
+                System.err.append( "|" );
+           System.err.append( data[currentLineIndex][currentFieldIndex] );
+           }
+       System.err.append( "<" );
+       return null;
+   }
+
     public CSVReader getReader() {
         return this.reader;
     }

@@ -109,6 +109,17 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         return true;
         }
     
+    public TransactionReader getTransactionReader( String readerNameToGet )
+        {
+        message.setText( "" );
+        if ( ! ReaderHM.containsKey( readerNameToGet ) )
+            {
+            message.setText( "There is no reader by that name '" + readerNameToGet + "'" );
+            return null;
+            }
+        return ReaderHM.get( readerNameToGet );
+        }
+    
     public boolean getReaderConfig( String readerNameToGet )
         {
         message.setText( "" );
