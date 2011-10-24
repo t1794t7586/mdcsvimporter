@@ -12,7 +12,9 @@
   </NonVisualComponents>
   <Properties>
     <Property name="defaultCloseOperation" type="int" value="2"/>
-    <Property name="title" type="java.lang.String" value="Import CSV File"/>
+    <Property name="title" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+      <Connection code="&quot;Import CSV File: &quot; + main.VERSION_STRING" type="code"/>
+    </Property>
     <Property name="name" type="java.lang.String" value="importDialog" noResource="true"/>
     <Property name="resizable" type="boolean" value="false"/>
   </Properties>

@@ -82,7 +82,11 @@ public class ImportDialog
       fillAccountCombo( main );
 
       checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
+      onlineImportTypeRB.setSelected( Settings.getBoolean( "importtype.online.radiobutton" ) );
 
+
+      //-------   This whole section if for passing in arguments to do auto processing.   -------
+      
       if ( runArgsHM.containsKey( "filename" ) )
         {
         boolean errorInRunArgs = false;
@@ -98,6 +102,29 @@ public class ImportDialog
             textFilename.setText( selectedFile.getPath() );
             fileChanged();
             }
+                        
+            if ( runArgsHM.containsKey( "importtype" ) )
+                {
+                if ( "ONLINE".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
+                    {
+                    onlineImportTypeRB.setSelected( true );
+                    }
+                else if ( "REGULAR".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
+                    {
+                    regularImportTypeRB.setSelected( true );
+                    }
+                else
+                    {
+                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe importtype you chose \'" 
+                                                                            + (String) runArgsHM.get( "importtype" ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
+                    errorInRunArgs = true;
+                    }
+                }
+        
+            if ( runArgsHM.containsKey( "deletecsvfileflag" ) )
+                {
+                checkDeleteFile.setSelected( true );
+                }
         
           if ( runArgsHM.containsKey( "fileformat" ) )
             {
@@ -130,20 +157,6 @@ public class ImportDialog
                                                                                         + (String) runArgsHM.get( "dateformat" ) + "\' is not valid for the fileformat used.", "Error", JOptionPane.ERROR_MESSAGE );
                                 errorInRunArgs = true;
                                 }
-                            //customReaderDialog.setDateFormatString(null);
-
-                            /*
-                             transReader.setDateFormat( (String) comboDateFormat.getSelectedItem() );
-
-                             CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
-                             CSVData csvData = new CSVData( csvReader );            
-
-                           //System.err.println( "btnProcessActionPerformed  customReaderDialog.getFieldSeparatorChar() =" + (char)customReaderDialog.getFieldSeparatorChar() + "=" );
-                           //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
-
-                                        Account account = (Account) comboAccount.getSelectedItem();
-                                        comboAccount.sets
-                                    */
                             }
                         
                         if ( runArgsHM.containsKey( "importaccount" ) )
@@ -175,6 +188,12 @@ public class ImportDialog
                                 errorInRunArgs = true;
                                 }
                             }
+                        else
+                            {
+                            JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because"
+                                                                                    + "\nyou must pass an importaccount argument.", "Error", JOptionPane.ERROR_MESSAGE );
+                            errorInRunArgs = true;
+                            }
                         
                         if ( ! errorInRunArgs )
                             {
@@ -195,8 +214,8 @@ public class ImportDialog
                                                                             + (String) runArgsHM.get( "fileformat" ) + "\'.", "Error", JOptionPane.ERROR_MESSAGE );
                     errorInRunArgs = true;
                     }
-                }
-            }
+                }  // endif fileformat
+            }  // endif fileformat
         }
      skipDuringInit = false;
     }
@@ -322,7 +341,7 @@ public class ImportDialog
         jLabel3.setText("jLabel3");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Import CSV File");
+        setTitle("Import CSV File: " + main.VERSION_STRING);
         setName("importDialog"); // NOI18N
         setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
@@ -603,6 +622,7 @@ public class ImportDialog
     {//GEN-HEADEREND:event_btnProcessActionPerformed
         System.err.println( "Process button entered" );
        Settings.setYesNo( "delete.file", checkDeleteFile.isSelected() );
+       Settings.setYesNo( "importtype.online.radiobutton", onlineImportTypeRB.isSelected() );
        Settings.setInteger( "selected.account", comboAccount.getSelectedIndex() );
 
         try

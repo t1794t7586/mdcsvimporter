@@ -32,12 +32,13 @@ public class Main
    extends FeatureModule
 {
    private static final int VERSION = 15;
+   protected static final String VERSION_STRING = "Beta 15.4";
    private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Milutin Jovanović, Stan Towianski";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
-      "Moneydance CSV Importer Plug-In version BETA " + Integer.toString( VERSION ) +
-      ".3. This software is distributed under GNU Lesser General Public License (see " +
+      "Moneydance CSV Importer Plug-In version " + VERSION_STRING +
+      ". This software is distributed under GNU Lesser General Public License (see " +
       "http://www.gnu.org/licenses/ for details). If you continue, you acknowledge " +
       "accepting terms of this license."
            ;
@@ -131,10 +132,29 @@ public class Main
    @Override
    public void invoke( String uri )
    {
-      StringTokenizer tokenizer = new StringTokenizer( uri, ":" );
+       /*
+       uri = "filename=/home/aaa/Downloads/aa-test.csv"
+                + "&fileformat=Discover Card"
+                + "&importaccount=IMPORT BANK"
+                + "&deletecsvfileflag"
+                + "&importtype=online"
+                        ;
+        */
+
+      /*
+    argsHM.put( "filename", "/home/aaa/Downloads/aa-test.csv" );
+    argsHM.put( "fileformat", "Discover Card" );
+    //argsHM.put( "dateformat", "MM/DD/YYYY" );
+    argsHM.put( "importaccount", "IMPORT BANK" );
+    argsHM.put( "importtype", "online" );
+    argsHM.put( "deletecsvfileflag", null );
+      */
+
+      StringTokenizer tokenizer = new StringTokenizer( uri, "&" );
       HashMap argsHM = new HashMap();
       
-      //filename="file":fileformat="file format":dateformat="date format":importaccount="my account"
+      //filename="file"&fileformat="file format"&dateformat="date format"&importaccount="my account"
+      //deletecsvfileflag&importtype="online|regular"
         
       //int count = tokenizer.countTokens();
       //String url = count + " tokens(";
@@ -146,29 +166,19 @@ public class Main
               {
               if ( pcs[1].startsWith( "\"" ) )
                   {
-                  argsHM.put( pcs[0],  pcs[1].substring( 1, pcs[1].length() - 1 ) );
+                  argsHM.put( pcs[0].toLowerCase(),  pcs[1].substring( 1, pcs[1].length() - 1 ) );
                   }
               else
                   {
-                  argsHM.put( pcs[0],  pcs[1] );
+                  argsHM.put( pcs[0].toLowerCase(),  pcs[1] );
                   }
               }
           else
               {
-              argsHM.put( pcs[0],  null );
+              argsHM.put( pcs[0].toLowerCase(),  null );
               }
-          
           }
     
-      /*
-    argsHM.put( "filename", "" );
-    argsHM.put( "fileformat", "Discover Card" );
-    //argsHM.put( "dateformat", "MM/DD/YYYY" );
-    argsHM.put( "importaccount", "IMPORT BANK" );
-      */
-      
-      //url += ")";
-
       ImportDialog dialog = new ImportDialog( this, argsHM );
       dialog.setLocationRelativeTo( null );
       
