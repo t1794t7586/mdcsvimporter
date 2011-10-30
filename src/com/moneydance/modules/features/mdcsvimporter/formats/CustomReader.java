@@ -330,8 +330,9 @@ public class CustomReader extends TransactionReader
             }
          } // end for
 
-      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
-      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
+     // MOVED to TransactionReader so everyone creates it the same way.
+//      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
+//      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
 
       return true;
    }
