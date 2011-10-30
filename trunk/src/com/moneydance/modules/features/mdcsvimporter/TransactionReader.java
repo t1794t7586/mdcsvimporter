@@ -54,6 +54,8 @@ public abstract class TransactionReader
    protected TransactionSet txnSet;
    protected CurrencyType currency;
    protected HashSet tsetMatcherKey = new HashSet<String>();
+   protected HashSet tsetFITxnIdMatcherKey = new HashSet<String>();
+   //protected HashSet onlineMatcherKey = new HashSet<String>();
    protected int defProtocolId = 999;  // per Sean at MD
    
    protected abstract boolean canParse( CSVData data );
@@ -79,6 +81,113 @@ public abstract class TransactionReader
       throw new IOException( message );
    }
 
+   public final String calcFITxnIdAbstract( AbstractTxn atxn )
+      throws IOException
+       {
+       //System.err.println(  "\n---------   entered TransactionReader().calcFITxnId( AbstractTxn )  -------------" );
+            //System.err.println( "key.getDescription() =" + atxn.getDescription() + "=   atxn.getFiTxnId( 1 ) =" + atxn.getFiTxnId( 1 ) + "=" );
+            //System.err.println( "atxn.getFiTxnId( 1 ) [" + k + "] =" + atxn.getFiTxnId( 1 ) + "=   atxn.getFiTxnId( 0 ) [" + k + "] =" + atxn.getFiTxnId( 0 ) + "=" );
+            //tsetMatcherKey.add( atxn.getFiTxnId( 1 ) );
+            
+              // Here I am manually recreating the FiTxnId that I set on imported txn's because I could not figure
+              // out how to simply read it.
+              
+            
+            //String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" + atxn.getDescription() + ":" + atxn.getCheckNumber();
+
+      // Create a pattern to match comments
+      Pattern ckNumPat = Pattern.compile( "^.*\\\"chknum\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
+      Pattern amtPat = Pattern.compile( "^.*\\\"amt\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
+      String amt = null;
+      String origCheckNumber = null;
+      String desc = null;
+      
+       /*
+  <TAG>
+   <KEY>ol.orig-txn</KEY>
+   <VAL>{&#10;  "dtinit-int" = "20110824"&#10;  "name" = "whatever desc"&#10;  "amt" = "-9824"&#10;  "fitxnid" = "20110824:-98.24:whatever desc"&#10;  "dtpstd-int" = "20110824"&#10;  "dtavail-int" = "20110824"&#10;  "invst.totalamt" = "-9824"&#10;  "chknum" = "001234"&#10;  "ptype" = "1"&#10;}&#10;</VAL>
+  </TAG>
+              */
+              
+      String origtxn = atxn.getTag( "ol.orig-txn" );
+      //String origCheckNumber = origtxn.replaceAll( ".*\\\"chknum\\\" = \\\"(.*?)\\\"\\\n.*", "$1" );
+
+      //System.out.println( "\norigtxn ="+origtxn + "=" );
+
+      // Run some matches
+      if ( origtxn != null )
+          {
+          Matcher m = ckNumPat.matcher( origtxn );
+          if ( m.find() )
+                {
+                origCheckNumber = m.group( 1 );
+                //System.out.println("Found orig check num ="+m.group( 1 ) + "=" );
+                }
+          else
+                {
+                origCheckNumber = atxn.getCheckNumber();
+                //System.out.println("have orig-txn but no check num so use getchecknum() ="+origCheckNumber + "=" );
+                }
+          
+          m = amtPat.matcher( origtxn );
+          if ( m.find() )
+                {
+                long lamt = Long.valueOf( m.group( 1 ) ).longValue();
+                amt = currency.format( lamt, '.' );
+                //System.out.println("Found orig amt ="+m.group( 1 ) + "= formatted =" + amt );
+                }
+          else
+                {
+                amt = currency.format( atxn.getValue(), '.' );
+                //System.out.println("have orig-txn but no check num so use getchecknum() ="+origCheckNumber + "=" );
+                }
+          }
+      else
+          {
+          origCheckNumber = atxn.getCheckNumber();
+          //System.out.println("no orig check num so use getchecknum() ="+origCheckNumber + "=" );
+          amt = currency.format( atxn.getValue(), '.' );
+          }
+
+        //long value = atxn.getParentTxn().getValue();
+        
+        if ( atxn.getTag( "ol.orig-payee" ) == null )
+            {
+            desc = atxn.getDescription();
+            }
+        else
+            {
+            desc = atxn.getTag( "ol.orig-payee" );
+            }
+
+        // This new way compare using the ORIGINAL payee and memo fields so if the user changes them, it will still match. Stan
+        String tmp = atxn.getDateInt() + ":" + amt
+                           + ":" + desc
+                           + ":" + (origCheckNumber == null ? "" : origCheckNumber.replaceAll( "^0*(.*)", "$1" ) )    // strip leading 0's
+                           + ":" + (atxn.getTag( "ol.orig-memo" ) == null ? "" : atxn.getTag( "ol.orig-memo" ))
+                                  ;            
+
+        //System.err.println( "calc abstract FITxnld >" + tmp + "<" );
+        return tmp;
+       }
+
+
+   public final String calcFITxnId( OnlineTxn onlinetxn )
+      throws IOException
+       {
+       //System.err.println(  "\n---------   entered TransactionReader().calcFITxnId( onlinetxn )  -------------" );
+       //      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
+
+        String tmp = onlinetxn.getDateInitiatedInt() + ":" + currency.format( onlinetxn.getAmount(), '.' )
+                           + ":" + (onlinetxn.getName() == null ? "" : onlinetxn.getName() )    // used payeeName once
+                           + ":" + (onlinetxn.getCheckNum() == null ? "" : onlinetxn.getCheckNum().replaceAll( "^0*(.*)", "$1" ) )    // strip leading 0's
+                           + ":" + (onlinetxn.getMemo() == null ? "" : onlinetxn.getMemo() )
+                                  ;            
+
+       //System.err.println(  "calc online FITxnld >" + tmp + "<" );
+       return tmp;
+       }
+   
    public final void parse( CSVData csvDataArg, Account account, RootAccount rootAccount )
       throws IOException
    {
@@ -90,6 +199,8 @@ public abstract class TransactionReader
 //      this.transactionList = new OnlineTxnList( new StreamTable() );
       this.txnSet = rootAccount.getTransactionSet();
       this.tsetMatcherKey = new HashSet();
+      //this.onlineMatcherKey = new HashSet();
+      this.tsetFITxnIdMatcherKey = new HashSet();
       this.currency = account.getCurrencyType();
       long totalProcessed = 0;
       long totalAccepted = 0;
@@ -102,7 +213,7 @@ public abstract class TransactionReader
       // cannot get just for account because I am putting them into a temp/empty account !
       //Enumeration<AbstractTxn> tenums = this.txnSet.getTransactionsForAccount( account ).getAllTxns();
       TxnSet tset = this.txnSet.getAllTxns();
-      System.err.println(  "tset.getSize() =" +tset.getSize()  );
+      System.err.println(  "tset.getSize() =" +tset.getSize() + "   online txns.getSize() =" + transactionList.getTxnCount() );
       
       /*
      while ( tenums.hasMoreElements() ) 
@@ -114,65 +225,37 @@ public abstract class TransactionReader
        * 
        */
       
-      // Create a pattern to match comments
-      Pattern ckNumPat = Pattern.compile( "^.*\\\"chknum\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
-      String origCheckNumber = null;
-      
-      //int k = 0;
+      int k = 0;
       for ( AbstractTxn atxn : tset )
           {
-            //System.err.println( "key.getDescription() =" + atxn.getDescription() + "=   atxn.getFiTxnId( 1 ) =" + atxn.getFiTxnId( 1 ) + "=" );
-            //System.err.println( "atxn.getFiTxnId( 1 ) [" + k + "] =" + atxn.getFiTxnId( 1 ) + "=   atxn.getFiTxnId( 0 ) [" + k + "] =" + atxn.getFiTxnId( 0 ) + "=" );
-            //tsetMatcherKey.add( atxn.getFiTxnId( 1 ) );
+            String tmp = calcFITxnIdAbstract( atxn );
             
-              // Here I am manually recreating the FiTxnId that I set on imported txn's because I could not figure
-              // out how to simply read it.
-              
-            
-            //String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" + atxn.getDescription() + ":" + atxn.getCheckNumber();
-
-              /*
-  <TAG>
-   <KEY>ol.orig-txn</KEY>
-   <VAL>{&#10;  "dtinit-int" = "20110824"&#10;  "name" = "whatever desc"&#10;  "amt" = "-9824"&#10;  "fitxnid" = "20110824:-98.24:whatever desc"&#10;  "dtpstd-int" = "20110824"&#10;  "dtavail-int" = "20110824"&#10;  "invst.totalamt" = "-9824"&#10;  "chknum" = "001234"&#10;  "ptype" = "1"&#10;}&#10;</VAL>
-  </TAG>
-              */
-              
-              String origtxn = atxn.getTag( "ol.orig-txn" );
-              //String origCheckNumber = origtxn.replaceAll( ".*\\\"chknum\\\" = \\\"(.*?)\\\"\\\n.*", "$1" );
-
-              //System.out.println( "\norigtxn ="+origtxn + "=" );
-
-              // Run some matches
-              if ( origtxn != null )
-                  {
-                  Matcher m = ckNumPat.matcher( origtxn );
-                  if ( m.find() )
-                      origCheckNumber = m.group( 1 );
-                  else
-                      origCheckNumber = "";
-                  //System.out.println("Found orig check num ="+m.group( 1 ) + "=" );
-                  }
-              else
-                  {
-                  origCheckNumber = "";
-                  }
-              
-            // This new way compare using the ORIGINAL payee and memo fields so if the user changes them, it will still match. Stan
-            String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" 
-                               + (atxn.getTag( "ol.orig-payee" ) == null ? "" : atxn.getTag( "ol.orig-payee" )) + ":" 
-                               + origCheckNumber
-                               + (atxn.getTag( "ol.orig-memo" ) == null ? "" : atxn.getTag( "ol.orig-memo" )) + ":" 
-                                      ;            
-            
-            //System.err.println( "tmp string [" + "k" + "] =" + tmp + "=" );
+            //System.err.println( "tmp string [" + k + "] =" + tmp + "=" );
             tsetMatcherKey.add( tmp );
+            tsetFITxnIdMatcherKey.add( atxn.getFiTxnId( OnlineTxn.PROTO_TYPE_OFX ) );
+            tsetFITxnIdMatcherKey.add( atxn.getFiTxnId( defProtocolId ) );
             
-            //k++;
+            k++;
             //if ( k > 9 )
              //   break;
           }
       System.err.println(  "\n---------   end: make set of existing account transactions  -------------" );
+      
+      /*   THIS DOES NOT SEEM TO HAVE ENTRIES SO i AM LEAVING IT OUT
+      int max = transactionList.getTxnCount();
+      for ( k = 0; k < max; k++ ) // OnlineTxn onlinetxn : transactionList )
+          {
+          OnlineTxn onlinetxn = transactionList.getTxn( k );
+            String tmp = calcFITxnId( onlinetxn );
+            
+            //System.err.println( "tmp string [" + k + "] =" + tmp + "=" );
+            onlineMatcherKey.add( tmp );
+            
+            //if ( k > 9 )
+             //   break;
+          }
+      System.err.println(  "\n---------   end: make set of existing account online transactions  -------------" );
+      */
       
       //csvData.reset();
         if ( this instanceof CustomReader )
@@ -214,16 +297,33 @@ public abstract class TransactionReader
           if ( parseNext( txn ) )
             {
             txn.setProtocolType( OnlineTxn.PROTO_TYPE_OFX );
+
+            /*
+            if ( ! importDialog.isSelectedOnlineImportTypeRB() )
+                {
+                // Flip signs for regular txn's
+                txn.setAmount( -txn.getAmount() );
+                txn.setTotalAmount( -txn.getAmount() );
+                }
+            */
             if ( account.balanceIsNegated() )
                 {
                 txn.setAmount( -txn.getAmount() );
                 txn.setTotalAmount( -txn.getAmount() );
                 }
             
-            if ( ! tsetMatcherKey.contains( txn.getFITxnId( ) ) )
+            //System.err.println( "call to calc fitxnid - should be online type" );
+            String onlineMatchKey = calcFITxnId( txn );
+            txn.setFITxnId( onlineMatchKey );
+            
+            // ! onlineMatcherKey.contains( onlineMatchKey )  &&
+            if ( ! tsetMatcherKey.contains( onlineMatchKey )  &&
+                 ! tsetFITxnIdMatcherKey.contains( onlineMatchKey )
+                    )
                 {
-                System.err.println( "will add transaction with txn.getFITxnId( ) =" + txn.getFITxnId( ) + "=   txn.getFIID()" + txn.getFIID() );
-                System.err.println( "importDialog =" + importDialog + "=" );
+                System.err.println( "will add transaction with txn.getFITxnId( ) =" + txn.getFITxnId( ) + "=   txn.getFIID() =" + txn.getFIID() + "=" );
+                //                     + "\n                              or onlineMatchKey =" + onlineMatchKey + "=" );
+                //System.err.println( "importDialog =" + importDialog + "=" );
                 
                 /*  NOTE: This is to convert the online txn to an regular txn. This would let me set categories and tags 
                  * on incoming txn's,  but it automatically sets the category to the default account one and I like it
@@ -316,8 +416,10 @@ public abstract class TransactionReader
    {
         Account category = null;
 
+        String ckNum = oTxn.getCheckNum().replaceAll( "^0*(.*)", "$1" );
+
         ParentTxn pTxn = new ParentTxn( oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt()
-                                                          , oTxn.getCheckNum(), account, oTxn.getName(), oTxn.getMemo()
+                                                          , ckNum, account, oTxn.getName(), oTxn.getMemo()
                                                           , -1, AbstractTxn.STATUS_UNRECONCILED );
         
         SplitTxn sptxn = new SplitTxn( pTxn, oTxn.getAmount(), oTxn.getAmount(), 1.0

@@ -23,6 +23,7 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
@@ -38,11 +39,29 @@ import javax.swing.JOptionPane;
 public class ImportDialog
    extends javax.swing.JDialog
 {
+   private OnlineManager onlineMgr = null;
    private File selectedFile;
    private CSVData csvData;
    private Main main;
    private HashMap runArgsHM;
+   protected final static String RUN_ARGS_FILE = "file";
+   protected final static String RUN_ARGS_FILEFORMAT = "fileformat";
+   protected final static String RUN_ARGS_IMPORTACCOUNT = "importaccount";
+   protected final static String RUN_ARGS_PROCESSFLAG = "processflag";
+   protected final static String RUN_ARGS_JUNIT = "junitflag";
+   
+   protected final static int RUN_ARGS_ERRORCODE_INVALID_FILE = 1;
+   protected final static int RUN_ARGS_ERRORCODE_INVALID_IMPORTTYPE = 2;
+   protected final static int RUN_ARGS_ERRORCODE_INVALID_DATEFORMAT_FOR_FILEFORMAT = 3;
+   protected final static int RUN_ARGS_ERRORCODE_INVALID_IMPORTACCOUNT = 4;
+   protected final static int RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT_FOR_FILE = 5;
+   protected final static int RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT = 6;
+   protected final static int RUN_ARGS_ERRORCODE_REQUIRES_FILE = 7;
+   protected final static int RUN_ARGS_ERRORCODE_REQUIRES_FILEFORMAT = 8;
+   protected final static int RUN_ARGS_ERRORCODE_REQUIRES_IMPORTACCOUNT = 9;
+   
    private CustomReaderDialog customReaderDialog = new CustomReaderDialog( this, true );
+   private ArrayList<Integer> errCodeList = new ArrayList<Integer>();
    private boolean skipDuringInit = true;
    private boolean autoProcessedAFile = false;
    
@@ -79,22 +98,39 @@ public class ImportDialog
       } );
 
       this.main = main;
-      fillAccountCombo( main );
+      
+      com.moneydance.apps.md.controller.Main mainApp =
+             (com.moneydance.apps.md.controller.Main) main.getMainContext();
+      
+      onlineMgr = new OnlineManager( (MoneydanceGUI) mainApp.getUI() );
+      
+      if ( main.getMainContext() != null )
+        {
+        fillAccountCombo( main );
+        }
 
       checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
       onlineImportTypeRB.setSelected( Settings.getBoolean( "importtype.online.radiobutton" ) );
+              
+     skipDuringInit = false;
+    }
 
-
-      //-------   This whole section if for passing in arguments to do auto processing.   -------
-      
-      if ( runArgsHM.containsKey( "filename" ) )
+   protected ArrayList<Integer> processRunArguments()
+       {
+       errCodeList = new ArrayList<Integer>();
+       boolean errorInRunArgs = false;
+       
+      if ( runArgsHM.containsKey( RUN_ARGS_FILE ) )
         {
-        boolean errorInRunArgs = false;
-        selectedFile = new File( (String) runArgsHM.get( "filename" ) );
+        selectedFile = new File( (String) runArgsHM.get( RUN_ARGS_FILE ) );
         if ( ! selectedFile.exists() )
             {
-            JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nfile \'" 
-                                                                    + (String) runArgsHM.get( "filename" ) + "\' does not exist.", "Error", JOptionPane.ERROR_MESSAGE );
+            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                {
+                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nfile \'" 
+                                                                        + (String) runArgsHM.get( RUN_ARGS_FILE ) + "\' does not exist.", "Error", JOptionPane.ERROR_MESSAGE );
+                }
+            errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_FILE );
             errorInRunArgs = true;
             }
         else
@@ -103,122 +139,168 @@ public class ImportDialog
             fileChanged();
             }
                         
-            if ( runArgsHM.containsKey( "importtype" ) )
-                {
-                if ( "ONLINE".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
-                    {
-                    onlineImportTypeRB.setSelected( true );
-                    }
-                else if ( "REGULAR".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
-                    {
-                    regularImportTypeRB.setSelected( true );
-                    }
-                else
-                    {
-                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe importtype you chose \'" 
-                                                                            + (String) runArgsHM.get( "importtype" ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
-                    errorInRunArgs = true;
-                    }
-                }
-        
-            if ( runArgsHM.containsKey( "deletecsvfileflag" ) )
-                {
-                checkDeleteFile.setSelected( true );
-                }
-        
-          if ( runArgsHM.containsKey( "fileformat" ) )
+        if ( runArgsHM.containsKey( "importtype" ) )
             {
-            if ( runArgsHM.containsKey( "fileformat" ) )
+            if ( "ONLINE".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
                 {
-                //if ( customReaderDialog.getReaderConfig( (String) runArgsHM.get( "fileformat" ) ) )
-                TransactionReader reqTransReader = customReaderDialog.getTransactionReader( (String) runArgsHM.get( "fileformat" ) );
-                if ( reqTransReader != null )
+                onlineImportTypeRB.setSelected( true );
+                }
+            else if ( "REGULAR".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
+                {
+                regularImportTypeRB.setSelected( true );
+                }
+            else
+                {
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
                     {
-                    DefaultComboBoxModel dcbm = (DefaultComboBoxModel) comboFileFormat.getModel();
-                    int idx = dcbm.getIndexOf( reqTransReader );
-                    
-                    if ( idx >= 0 )
+                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'importtype\' you chose \'" 
+                                                                            + (String) runArgsHM.get( "importtype" ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
+                    }
+                errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_IMPORTTYPE );
+                errorInRunArgs = true;
+                }
+            }
+        
+        if ( runArgsHM.containsKey( "deletecsvfileflag" ) )
+            {
+            checkDeleteFile.setSelected( true );
+            }
+        
+        if ( runArgsHM.containsKey( RUN_ARGS_FILEFORMAT ) )
+            {
+            //if ( customReaderDialog.getReaderConfig( (String) runArgsHM.get( RUN_ARGS_FILEFORMAT ) ) )
+            TransactionReader reqTransReader = customReaderDialog.getTransactionReader( (String) runArgsHM.get( RUN_ARGS_FILEFORMAT ) );
+            if ( reqTransReader != null )
+                {
+                DefaultComboBoxModel dcbm = (DefaultComboBoxModel) comboFileFormat.getModel();
+                int idx = dcbm.getIndexOf( reqTransReader );
+
+                if ( idx >= 0 )
+                    {
+                    comboFileFormat.setSelectedItem( reqTransReader );
+                    processFileFormatChanged( reqTransReader );  // call it myself so I know when it is done.
+                    if ( runArgsHM.containsKey( "dateformat" ) )
                         {
-                        comboFileFormat.setSelectedItem( reqTransReader );
-                        processFileFormatChanged( reqTransReader );  // call it myself so I know when it is done.
-                        if ( runArgsHM.containsKey( "dateformat" ) )
-                            {
-                            System.err.println( "runArgs would set dateformat now !! " );
-                            dcbm = (DefaultComboBoxModel) comboDateFormat.getModel();
-                            idx = dcbm.getIndexOf( (String) runArgsHM.get( "dateformat" ) );
+                        dcbm = (DefaultComboBoxModel) comboDateFormat.getModel();
+                        idx = dcbm.getIndexOf( (String) runArgsHM.get( "dateformat" ) );
 
-                            if ( idx >= 0 )
-                                {
-                                comboDateFormat.setSelectedItem( (String) runArgsHM.get( "dateformat" ) );
-                                }
-                            else
-                                {
-                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe dateformat you chose \'" 
-                                                                                        + (String) runArgsHM.get( "dateformat" ) + "\' is not valid for the fileformat used.", "Error", JOptionPane.ERROR_MESSAGE );
-                                errorInRunArgs = true;
-                                }
-                            }
-                        
-                        if ( runArgsHM.containsKey( "importaccount" ) )
+                        if ( idx >= 0 )
                             {
-                            System.err.println( "runArgs would set importaccount now !! " );
-                            dcbm = (DefaultComboBoxModel) comboAccount.getModel();
-                            int max = comboAccount.getItemCount();
-                            Account foundAccount = null;
-                                    
-                            for ( idx = max - 1; idx >= 0; idx-- )
-                                {
-                                System.err.println( "getAcountName() =" + ((Account) dcbm.getElementAt( idx )).getAccountName()
-                                                + "=   importaccount =" + (String) runArgsHM.get( "importaccount" ) + "=" );
-                                if ( ((Account) dcbm.getElementAt( idx )).getAccountName().equalsIgnoreCase( (String) runArgsHM.get( "importaccount" ) ) )
-                                    {
-                                    foundAccount = (Account) dcbm.getElementAt( idx );
-                                    break;
-                                    }        
-                                }
-
-                            if ( idx >= 0 )
-                                {
-                                comboAccount.setSelectedItem( foundAccount );
-                                }
-                            else
-                                {
-                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe importaccount you chose \'" 
-                                                                                        + (String) runArgsHM.get( "importaccount" ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
-                                errorInRunArgs = true;
-                                }
+                            comboDateFormat.setSelectedItem( (String) runArgsHM.get( "dateformat" ) );
                             }
                         else
                             {
-                            JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because"
-                                                                                    + "\nyou must pass an importaccount argument.", "Error", JOptionPane.ERROR_MESSAGE );
+                            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                                {
+                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'dateformat\' you chose \'" 
+                                                                                    + (String) runArgsHM.get( "dateformat" ) + "\' is not valid for the \'fileformat\' used.", "Error", JOptionPane.ERROR_MESSAGE );
+                                }
+                            errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_DATEFORMAT_FOR_FILEFORMAT );
                             errorInRunArgs = true;
                             }
-                        
-                        if ( ! errorInRunArgs )
-                            {
-                            btnProcessActionPerformed( null );
-                            autoProcessedAFile = true;
-                            }
                         }
-                    else
+
+                    if ( runArgsHM.containsKey( RUN_ARGS_IMPORTACCOUNT ) )
                         {
-                        JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe fileformat you chose \'" 
-                                                                                + (String) runArgsHM.get( "fileformat" ) + "\' is not valid for the file you gave.", "Error", JOptionPane.ERROR_MESSAGE );
-                        errorInRunArgs = true;
+                        dcbm = (DefaultComboBoxModel) comboAccount.getModel();
+                        int max = comboAccount.getItemCount();
+                        System.err.println( "runArgs at importaccount max =" + max );
+                        Account foundAccount = null;
+
+                        for ( idx = max - 1; idx >= 0; idx-- )
+                            {
+                            System.err.println( "getAcountName() =" + ((Account) dcbm.getElementAt( idx )).getAccountName()
+                                            + "=   importaccount =" + (String) runArgsHM.get( RUN_ARGS_IMPORTACCOUNT ) + "=" );
+                            if ( ((Account) dcbm.getElementAt( idx )).getAccountName().equalsIgnoreCase( (String) runArgsHM.get( RUN_ARGS_IMPORTACCOUNT ) ) )
+                                {
+                                foundAccount = (Account) dcbm.getElementAt( idx );
+                                break;
+                                }        
+                            }
+
+                        if ( idx >= 0 )
+                            {
+                            comboAccount.setSelectedItem( foundAccount );
+                            }
+                        else
+                            {
+                            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                                {
+                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'importaccount\' you chose \'" 
+                                                                                        + (String) runArgsHM.get( RUN_ARGS_IMPORTACCOUNT ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
+                                }
+                            errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_IMPORTACCOUNT );
+                            errorInRunArgs = true;
+                            }
                         }
                     }
                 else
                     {
-                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nof invalid fileformat argument \'" 
-                                                                            + (String) runArgsHM.get( "fileformat" ) + "\'.", "Error", JOptionPane.ERROR_MESSAGE );
+                    if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                        {
+                        JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'fileformat\' you chose \'" 
+                                                                                + (String) runArgsHM.get( RUN_ARGS_FILEFORMAT ) + "\' is not valid for the file you gave.", "Error", JOptionPane.ERROR_MESSAGE );
+                        }
+                    errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT_FOR_FILE );
                     errorInRunArgs = true;
                     }
-                }  // endif fileformat
+                }
+            else
+                {
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                    {
+                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nof invalid \'fileformat\' value \'" 
+                                                                            + (String) runArgsHM.get( RUN_ARGS_FILEFORMAT ) + "\'.", "Error", JOptionPane.ERROR_MESSAGE );
+                    }
+                errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT );
+                errorInRunArgs = true;
+                }
             }  // endif fileformat
-        }
-     skipDuringInit = false;
-    }
+        
+        
+        if ( runArgsHM.containsKey( RUN_ARGS_PROCESSFLAG ) )
+            {
+            if ( ! runArgsHM.containsKey( RUN_ARGS_FILEFORMAT ) )
+                {
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                    {
+                    JOptionPane.showMessageDialog( this, "Cannot proceed without a \'fileformat\' argument "
+                                                                            + "if you use the \'processFlag\' argument.", "Error", JOptionPane.ERROR_MESSAGE );
+                    }
+                errCodeList.add( RUN_ARGS_ERRORCODE_REQUIRES_FILEFORMAT );
+                errorInRunArgs = true;
+                }
+            else if ( ! runArgsHM.containsKey( RUN_ARGS_IMPORTACCOUNT ) )
+                {
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                    {
+                    JOptionPane.showMessageDialog( this, "Cannot proceed without a \'importaccount\' argument "
+                                                                            + "if you use the \'processFlag\' argument.", "Error", JOptionPane.ERROR_MESSAGE );
+                    }
+                errCodeList.add( RUN_ARGS_ERRORCODE_REQUIRES_IMPORTACCOUNT );
+                errorInRunArgs = true;
+                }
+            }
+        
+       if ( runArgsHM.containsKey( RUN_ARGS_PROCESSFLAG ) && ! errorInRunArgs )
+            {
+            btnProcessActionPerformed( null );
+            autoProcessedAFile = true;
+            }
+        
+        }  // END of arguments processing
+      else if ( runArgsHM.size() > 0 )
+            {
+            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                {
+                JOptionPane.showMessageDialog( this, "Cannot proceed without a \'file\' argument "
+                                                                           , "Error", JOptionPane.ERROR_MESSAGE );
+                }
+            errCodeList.add( RUN_ARGS_ERRORCODE_REQUIRES_FILE );
+            errorInRunArgs = true;
+            }
+       return errCodeList;
+       }
 
    private void fillAccountCombo( Main main )
    {
@@ -427,7 +509,7 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblAccount, gridBagConstraints);
 
-        comboAccount.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboAccount.setModel(new javax.swing.DefaultComboBoxModel(new Account[] {  }));
         comboAccount.setMaximumSize(new java.awt.Dimension(180, 24));
         comboAccount.setMinimumSize(new java.awt.Dimension(180, 24));
         comboAccount.setPreferredSize(new java.awt.Dimension(180, 24));
@@ -639,16 +721,11 @@ public class ImportDialog
 
           Account account = (Account) comboAccount.getSelectedItem();
           RootAccount rootAccount = main.getRootAccount();
-//          if ( reader instanceof CustomReader )
-//            {
-//            reader.
-//            }
+
           transReader.parse( csvData, account, rootAccount );
           csvReader.close();
-          com.moneydance.apps.md.controller.Main mainApp =
-             (com.moneydance.apps.md.controller.Main) main.getMainContext();
-          new OnlineManager( (MoneydanceGUI) mainApp.getUI() )
-             .processDownloadedTxns( account );
+
+          onlineMgr.processDownloadedTxns( account );
             }
        catch ( IOException x )
             {
@@ -661,7 +738,7 @@ public class ImportDialog
             }
 
        if ( checkDeleteFile.isSelected() )
-       {
+        {
           try
           {
              SecureFileDeleter.delete( selectedFile );
@@ -673,10 +750,10 @@ public class ImportDialog
                 JOptionPane.ERROR_MESSAGE );
              return;
           }
-       }
+        }
 
-       if ( !Settings.getBoolean( "success.dialog.shown", false ) )
-       {
+       if ( ! Settings.getBoolean( "success.dialog.shown", false ) )
+        {
           Settings.setYesNo( "success.dialog.shown", true );
           JOptionPane.showMessageDialog( rootPane,
              "The file was imported properly. \n\n"
@@ -684,7 +761,7 @@ public class ImportDialog
              + "selected and click on the 'downloaded transactions' message at the \n"
              + "bottom of the screen.",
              "Import Successful", JOptionPane.INFORMATION_MESSAGE );
-       }
+        }
 
        setVisible( false );
     }//GEN-LAST:event_btnProcessActionPerformed

@@ -19,6 +19,7 @@ import com.moneydance.apps.md.controller.FeatureModuleContext;
 import com.moneydance.apps.md.model.RootAccount;
 import java.awt.Image;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
@@ -32,7 +33,7 @@ public class Main
    extends FeatureModule
 {
    private static final int VERSION = 15;
-   protected static final String VERSION_STRING = "Beta 15.4";
+   protected static final String VERSION_STRING = "Beta 15.5";
    private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Milutin Jovanović, Stan Towianski";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
@@ -43,6 +44,8 @@ public class Main
       "accepting terms of this license."
            ;
    private static Image image;
+
+   private ArrayList<Integer> errCodeList = null;
 
    {
       try
@@ -74,9 +77,11 @@ public class Main
    @Override
    public void init()
    {
+      System.err.println( "name and version =" + NAME + " " + VERSION_STRING + "=" );
       FeatureModuleContext context = getContext();
       if ( context == null )
       {
+         System.err.println( "*** Error: got context == null" );
          return;
       }
 
@@ -133,7 +138,7 @@ public class Main
    public void invoke( String uri )
    {
        /*
-       uri = "filename=/home/aaa/Downloads/aa-test.csv"
+       uri = ImportDialog.RUN_ARGS_FILE + "=/home/aaa/Downloads/aa-test.csv"
                 + "&fileformat=Discover Card"
                 + "&importaccount=IMPORT BANK"
                 + "&deletecsvfileflag"
@@ -142,7 +147,7 @@ public class Main
         */
 
       /*
-    argsHM.put( "filename", "/home/aaa/Downloads/aa-test.csv" );
+    argsHM.put( "file", "/home/aaa/Downloads/aa-test.csv" );
     argsHM.put( "fileformat", "Discover Card" );
     //argsHM.put( "dateformat", "MM/DD/YYYY" );
     argsHM.put( "importaccount", "IMPORT BANK" );
@@ -158,35 +163,50 @@ public class Main
         
       //int count = tokenizer.countTokens();
       //String url = count + " tokens(";
+      System.err.println( "uri string =" + uri + "=" );
+
       while ( tokenizer.hasMoreTokens() )
           {
          //url = url.concat( tokenizer.nextToken() );
           String [] pcs = tokenizer.nextToken().split( "=" );
+          System.err.println( "arg token [0] =" + pcs[0] + "=   token[1] =" + (pcs.length < 2 ?  "" : pcs[1]) + "=" );
           if ( pcs.length > 1 )
               {
               if ( pcs[1].startsWith( "\"" ) )
                   {
                   argsHM.put( pcs[0].toLowerCase(),  pcs[1].substring( 1, pcs[1].length() - 1 ) );
+                  System.err.println( "arg key =" + pcs[0].toLowerCase() + "=   value =" + pcs[1].substring( 1, pcs[1].length() - 1 ) + "=" );
                   }
               else
                   {
                   argsHM.put( pcs[0].toLowerCase(),  pcs[1] );
+                  System.err.println( "arg key =" + pcs[0].toLowerCase() + "=   value =" + pcs[1] + "=" );
                   }
               }
           else
               {
               argsHM.put( pcs[0].toLowerCase(),  null );
+              System.err.println( "arg key =" + pcs[0].toLowerCase() + "=   value =" + null + "=" );
               }
           }
+      argsHM.remove( "import" );  // This seems to be passed in and I do not know why.
     
       ImportDialog dialog = new ImportDialog( this, argsHM );
-      dialog.setLocationRelativeTo( null );
+
+      //-------   This is for passing in arguments to do auto processing.   -------
+     errCodeList = dialog.processRunArguments();
+
+     dialog.setLocationRelativeTo( null );
       
-      if ( ! dialog.isAutoProcessedAFile() )
+      if ( ! dialog.isAutoProcessedAFile() && ! argsHM.containsKey( "junitflag" ) )
           {
           dialog.setVisible( true );
           }
    }
+
+    public ArrayList<Integer> getErrCodeList() {
+        return errCodeList;
+    }
 
    @Override
    public String getVendorURL()
