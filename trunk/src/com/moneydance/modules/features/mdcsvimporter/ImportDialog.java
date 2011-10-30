@@ -99,13 +99,13 @@ public class ImportDialog
 
       this.main = main;
       
-      com.moneydance.apps.md.controller.Main mainApp =
-             (com.moneydance.apps.md.controller.Main) main.getMainContext();
-      
-      onlineMgr = new OnlineManager( (MoneydanceGUI) mainApp.getUI() );
-      
       if ( main.getMainContext() != null )
         {
+      
+        com.moneydance.apps.md.controller.Main mainApp =
+               (com.moneydance.apps.md.controller.Main) main.getMainContext();
+        onlineMgr = new OnlineManager( (MoneydanceGUI) mainApp.getUI() );
+        
         fillAccountCombo( main );
         }
 
