@@ -66,6 +66,8 @@ public abstract class TransactionReader
    public abstract String getFormatName();
 
    public abstract String[] getSupportedDateFormats();
+   
+   public abstract void setSupportedDateFormats( String[] supportedDateFormats );
 
    public abstract String getDateFormat();
 

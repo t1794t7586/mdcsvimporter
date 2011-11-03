@@ -101,7 +101,7 @@ public class DateGuesser
          {
             field1Format = DD;
             retVal |= checkPossibleFormats2();
-            if ( field1Value >= 10 )
+            if ( field1Value < 10 )  // >= 10 )
             {
                field1Format = D;
                retVal |= checkPossibleFormats2();
@@ -121,7 +121,7 @@ public class DateGuesser
          {
             field1Format = MM;
             retVal |= checkPossibleFormats2();
-            if ( field1Value >= 10 )
+            if ( field1Value < 10 )  // >= 10 )
             {
                field1Format = M;
                retVal |= checkPossibleFormats2();
@@ -162,7 +162,7 @@ public class DateGuesser
             {
                field2Format = DD;
                retVal |= checkPossibleFormats3();
-               if ( field2Value >= 10 )
+               if ( field2Value < 10 )  // >= 10 )
                {
                   field2Format = D;
                   retVal |= checkPossibleFormats3();
@@ -185,7 +185,7 @@ public class DateGuesser
             {
                field2Format = MM;
                retVal |= checkPossibleFormats3();
-               if ( field2Value >= 10 )
+               if ( field2Value < 10 )  // >= 10 )
                {
                   field2Format = M;
                   retVal |= checkPossibleFormats3();
@@ -233,7 +233,7 @@ public class DateGuesser
                field3Format = DD;
                retVal = true;
                registerFormat();
-               if ( field3Value >= 10 )
+               if ( field3Value < 10 )  // >= 10 )
                {
                   field3Format = D;
                   registerFormat();
@@ -259,7 +259,7 @@ public class DateGuesser
                field3Format = MM;
                retVal = true;
                registerFormat();
-               if ( field3Value >= 10 )
+               if ( field3Value < 10 )  // >= 10 )
                {
                   field3Format = M;
                   registerFormat();
@@ -305,10 +305,12 @@ public class DateGuesser
       Integer count = results.get( key );
       if ( count == null )
       {
+          System.err.println( "saving format key =" + key + "=   count =" + 1 );
          results.put( key, 1 );
       }
       else
       {
+          System.err.println( "saving format key =" + key + "=   count =" + (count + 1) );
          results.put( key, count + 1 );
       }
    }
@@ -365,12 +367,18 @@ public class DateGuesser
 
       for ( Map.Entry<String, Integer> entry : results.entrySet() )
       {
+         System.err.println( "results before sort entry.getValue() =" + entry.getValue() + "=   entry.getKey() =" + entry.getKey() + "=" );
          sortedResults.put( entry.getValue(), entry.getKey() );
       }
 
       possibleFormats = new String[sortedResults.size()];
       sortedResults.values().toArray( possibleFormats );
 
+      for ( String tmp : possibleFormats )
+      {
+         System.err.println( "possibleFormats =" + tmp + "=" );
+      }
+      
       if ( datesDetected == 0 )
       {
          bestFormatProbability = 0;

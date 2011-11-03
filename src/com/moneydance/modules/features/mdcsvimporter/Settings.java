@@ -131,6 +131,21 @@ public final class Settings
                     customReaderData.getEmptyFlagsList().set( c - 1,customReaderData.getEmptyFlagsList().get( c ).trim() );
                     }
 
+                /*
+                if ( props.getProperty( readerName + ".DateFormatList" ) != null )
+                    {
+                    customReaderData.setDateFormatList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DateFormatList" ).split( "[\\[\\],]" ) ) ) );
+                    }
+                else
+                    {
+                    customReaderData.setDateFormatList( new ArrayList<String>() );
+                    }
+                max = customReaderData.getDateFormatList().size();
+                for ( int c = 1; c < max; c++ )
+                    {
+                    customReaderData.getDateFormatList().set( c - 1,customReaderData.getDateFormatList().get( c ).trim() );
+                    }
+                 */
                 System.err.println( "props readerName =" + customReaderData.getReaderName() + "=" );
                 System.err.println( "props getFieldSeparatorChar() =" + customReaderData.getFieldSeparatorChar() + "=" );
                 System.err.println( "props getDateFormatString() =" + customReaderData.getDateFormatString()+ "=" );
@@ -142,6 +157,8 @@ public final class Settings
                 
                 CustomReader customReader = new CustomReader( customReaderData );
                 ReaderHM.put( props.getProperty( readerName + ".Name" ), customReader );
+                
+                customReader.createSupportedDateFormats( customReaderData.getDateFormatString() );                
                 }
             }
           }
@@ -279,6 +296,7 @@ public final class Settings
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatString", customReaderData.getDateFormatString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DataTypesList", customReaderData.getDataTypesList().toString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList", customReaderData.getEmptyFlagsList().toString() );
+         //setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatList", customReaderData.getDateFormatList().toString() );
 
          save( props );
       }
@@ -300,6 +318,7 @@ public final class Settings
          props.remove( "reader:" + customReaderData.getReaderName() + ".DateFormatString" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".DataTypesList" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList" );
+         //props.remove( "reader:" + customReaderData.getReaderName() + ".DateFormatList" );
 
          save( props );
       }

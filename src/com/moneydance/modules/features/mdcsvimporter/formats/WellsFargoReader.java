@@ -153,6 +153,12 @@ public class WellsFargoReader
    }
 
    @Override
+    public void setSupportedDateFormats( String[] supportedDateFormats ) 
+        {
+        ;
+        }
+
+   @Override
    public String getDateFormat()
    {
       return DATE_FORMAT;

@@ -15,6 +15,7 @@ import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 
 /**
@@ -34,6 +35,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
    //     ArrayList<javax.swing.JComboBox> emptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
         ArrayList<String> dataTypesList = new ArrayList<String>( 10 );
         ArrayList<String> emptyFlagsList = new ArrayList<String>( 10 );
+        //ArrayList<String> dateFormatList = new ArrayList<String>( 10 );
         HashMap<String, CustomReaderData> ReaderConfigsHM = new HashMap<String, CustomReaderData>();
         HashMap<String, TransactionReader> ReaderHM = new HashMap<String, TransactionReader>();
 
@@ -63,6 +65,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         customReaderData.setReaderName( readerName.getText() );
         customReaderData.setDataTypesList( createNewDataTypesList() );
         customReaderData.setEmptyFlagsList( createNewEmptyFlagsList() );
+        //customReaderData.setDateFormatList( readDateFormatList() );
         customReaderData.setFieldSeparatorChar( getFieldSeparatorChar() );
         customReaderData.setHeaderLines( getHeaderLines() );
         customReaderData.setDateFormatString( getDateFormatString() );
@@ -87,6 +90,9 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         Settings.setCustomReaderConfig( customReaderData );
         
         this.parent.comboFileFormat1AddItem( customReader );
+        
+        customReader.createSupportedDateFormats( getDateFormatString() );
+        this.parent.createSupportedDateFormats( getDateFormatString() );
 
         return true;
         }
@@ -133,9 +139,9 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         readerName.setText( readerNameToGet );
         dataTypesList = customReaderData.getDataTypesList();
         emptyFlagsList = customReaderData.getEmptyFlagsList();
+        //dateFormatList = customReaderData.getDateFormatList();
         setFieldSeparatorChar( customReaderData.getFieldSeparatorChar() );
         setHeaderLines( customReaderData.getHeaderLines() );
-        setDateFormatString( customReaderData.getDateFormatString() );
 
         DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
         customReadersList.setSelectedValue( readerNameToGet, true );
@@ -190,7 +196,32 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         isNullable7.setSelectedItem( emptyFlagsList.get( 7 ) );
         isNullable8.setSelectedItem( emptyFlagsList.get( 8 ) );
         isNullable9.setSelectedItem( emptyFlagsList.get( 9 ) );
+                
+        /*
+        DefaultComboBoxModel dateFormatModel = new DefaultComboBoxModel();
+        for ( String format : dateFormatList )
+            {
+            System.out.println( "add date format =" + format + "=" );
+            dateFormatModel.addElement( format );
+            }
         
+        dateFormatCB.setModel( dateFormatModel );
+            if ( this.parent != null )
+                {
+                this.parent.comboDateFormatSetModel( dateFormatModel );
+                }
+        
+        TransactionReader customReader = ReaderHM.get( readerName.getText() );
+        String [] tmpArray = new String[0];
+        customReader.setSupportedDateFormats( dateFormatList.toArray( tmpArray ) );
+         */
+        
+        CustomReader customReader = (CustomReader) ReaderHM.get( readerName.getText() );
+        setDateFormatString( customReaderData.getDateFormatString() );
+
+        customReader.createSupportedDateFormats( getDateFormatString() );
+        this.parent.createSupportedDateFormats( getDateFormatString() );
+
         System.err.println( "getNumberOfCustomReaderFieldsUsed() =" + getNumberOfCustomReaderFieldsUsed() );
         return true;
         }
@@ -261,6 +292,21 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         newEmptyFlagsList.add( ((String)isNullable9.getSelectedItem()));        
         return newEmptyFlagsList;
         }
+
+    /*
+    public ArrayList<String> readDateFormatList() 
+        {
+        DefaultComboBoxModel dcbm = (DefaultComboBoxModel) dateFormatCB.getModel();
+        
+        int max = dcbm.getSize();
+        ArrayList<String> newList = new ArrayList<String>( max );
+        for ( int i = 0; i < max; i++ )
+            {
+            newList.add( ( (String) dcbm.getElementAt( i ) ) );
+            }
+        return newList;
+        }
+    */
     /*
     public ArrayList<javax.swing.JComboBox> createNewEmptyFlagsList() 
         {
@@ -284,7 +330,18 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     }
 
     public String getDateFormatSelected() {
-        return (String) dateFormatCB.getSelectedItem();
+        //return (String) dateFormatCB.getSelectedItem();
+        return (String) dateFormatCr.getText();
+    }
+    
+    public void setDateFormatString( String xxx) {
+        //dateFormatCB.setSelectedItem( xxx );
+        dateFormatCr.setText( xxx );
+    }
+
+    public String getDateFormatString() {
+        //return (String) dateFormatCB.getSelectedItem();
+        return dateFormatCr.getText();
     }
 
     public int getNumberOfCustomReaderFieldsUsed()
@@ -325,14 +382,6 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
     public int getFieldSeparatorChar() {
         return fieldSeparatorChar.getText().charAt( 0 );
-    }
-    
-    public void setDateFormatString( String xxx) {
-        dateFormatCB.setSelectedItem( xxx );
-    }
-
-    public String getDateFormatString() {
-        return (String) dateFormatCB.getSelectedItem();
     }
     
     protected void init()
@@ -376,6 +425,12 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             if ( ReaderHM.get( readerName ).isCustomReaderFlag() )
                 {
                 listModel.addElement( readerName );
+                
+                // needs to be in Settings()
+//                CustomReader customReader = (CustomReader) getTransactionReader( readerName );
+//                CustomReaderData customReaderData = ReaderConfigsHM.get( readerName );
+//
+//                customReader.createSupportedDateFormats( customReaderData.getDateFormatString() );
                 }
             if ( this.parent != null )
                 {
@@ -404,6 +459,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         emptyFlagsList.add( (String)isNullable7.getSelectedItem() );
         emptyFlagsList.add( (String)isNullable8.getSelectedItem() );
         emptyFlagsList.add( (String)isNullable9.getSelectedItem() );
+
     }                                 
     
     /** This method is called from within the constructor to
@@ -466,14 +522,18 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         fieldSeparatorChar = new javax.swing.JTextField();
         resetFieldsBtn = new javax.swing.JButton();
         jLabel19 = new javax.swing.JLabel();
-        dateFormatCB = new javax.swing.JComboBox();
+        dateFormatCr = new javax.swing.JTextField();
+        jLabel20 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(70, 20));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setText("Reader Name:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel1, gridBagConstraints);
 
         readerName.setPreferredSize(new java.awt.Dimension(160, 19));
@@ -693,9 +753,10 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         jLabel13.setText("Number of Header Lines:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel13, gridBagConstraints);
 
         headerLines.setText("1");
@@ -706,8 +767,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(headerLines, gridBagConstraints);
 
@@ -727,6 +788,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 10;
         gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
         getContentPane().add(jScrollPane1, gridBagConstraints);
@@ -766,6 +828,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
         getContentPane().add(jLabel15, gridBagConstraints);
 
         message.setForeground(new java.awt.Color(255, 0, 0));
@@ -802,7 +865,9 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jLabel18.setText("Field Separator:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel18, gridBagConstraints);
 
         fieldSeparatorChar.setText(",");
@@ -814,7 +879,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(fieldSeparatorChar, gridBagConstraints);
 
@@ -825,28 +890,43 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(resetFieldsBtn, gridBagConstraints);
 
         jLabel19.setText("Date Format:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel19, gridBagConstraints);
 
-        dateFormatCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] {
-            "MM/DD/YYYY"
-            , "DD/MM/YY"
-            , "YY/MM/DD"
-            , "YYYY-MM-DD" } ));
-gridBagConstraints = new java.awt.GridBagConstraints();
-gridBagConstraints.gridx = 2;
-gridBagConstraints.gridy = 3;
-getContentPane().add(dateFormatCB, gridBagConstraints);
+        dateFormatCr.setText("YYYY-MM-DD");
+        dateFormatCr.setToolTipText("<html>\nYou can do things like: MM/DD/YYYY, MM.DD.YY, YY-MM-DD<br/>\nhttp://download.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html");
+        dateFormatCr.setMinimumSize(new java.awt.Dimension(100, 19));
+        dateFormatCr.setPreferredSize(new java.awt.Dimension(100, 19));
+        dateFormatCr.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dateFormatCrActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        getContentPane().add(dateFormatCr, gridBagConstraints);
 
-pack();
-}// </editor-fold>//GEN-END:initComponents
+        jLabel20.setText("             ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        getContentPane().add(jLabel20, gridBagConstraints);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
         message.setText( "" );
@@ -880,6 +960,7 @@ pack();
         customReaderData.setReaderName( readerName.getText() );
         customReaderData.setDataTypesList( createNewDataTypesList() );
         customReaderData.setEmptyFlagsList( createNewEmptyFlagsList() );
+        //customReaderData.setDateFormatList( readDateFormatList() );
         customReaderData.setFieldSeparatorChar( getFieldSeparatorChar() );
         customReaderData.setHeaderLines( getHeaderLines() );
         customReaderData.setDateFormatString( getDateFormatString() );
@@ -888,7 +969,10 @@ pack();
         // *** I could get and replace the existing one but just do this for now until things work  ! ! !
         CustomReader customReader = new CustomReader( customReaderData );
         ReaderHM.put( readerName.getText(), customReader );
-        
+
+        customReader.createSupportedDateFormats( getDateFormatString() );
+        this.parent.createSupportedDateFormats( getDateFormatString() );
+
         Settings.setCustomReaderConfig( customReaderData );
     }//GEN-LAST:event_saveBtnActionPerformed
 
@@ -903,7 +987,8 @@ pack();
         this.parent.comboFileFormat1SetItem( ReaderHM.get( readerName.getText() ) );
         parent.setSkipDuringInit( false );
         //System.out.println( "done button  (String) dateFormatCB.getSelectedItem() =" + (String) dateFormatCB.getSelectedItem() + "=" );
-        this.parent.comboDateFormatSetItem( (String) dateFormatCB.getSelectedItem() );
+        //this.parent.comboDateFormatSetItem( getDateFormatString() );
+        this.parent.createSupportedDateFormats( getDateFormatString() );
 
     }//GEN-LAST:event_doneBtnActionPerformed
 
@@ -928,6 +1013,10 @@ pack();
     private void resetFieldsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetFieldsBtnActionPerformed
         clearReaderConfig();
     }//GEN-LAST:event_resetFieldsBtnActionPerformed
+
+    private void dateFormatCrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dateFormatCrActionPerformed
+            ;
+    }//GEN-LAST:event_dateFormatCrActionPerformed
 
     /**
      * @param args the command line arguments
@@ -960,7 +1049,7 @@ pack();
     private javax.swing.JComboBox dataType7;
     private javax.swing.JComboBox dataType8;
     private javax.swing.JComboBox dataType9;
-    private javax.swing.JComboBox dateFormatCB;
+    private javax.swing.JTextField dateFormatCr;
     private javax.swing.JButton deleteBtn;
     private javax.swing.JButton doneBtn;
     private javax.swing.JTextField fieldSeparatorChar;
@@ -987,6 +1076,7 @@ pack();
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

@@ -14,13 +14,10 @@
  */
 package com.moneydance.modules.features.mdcsvimporter.formats;
 
-import com.moneydance.apps.md.model.AbstractTxn;
-import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.OnlineTxn;
-import com.moneydance.apps.md.model.ParentTxn;
-import com.moneydance.apps.md.model.SplitTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
 import com.moneydance.modules.features.mdcsvimporter.CustomReaderData;
+import com.moneydance.modules.features.mdcsvimporter.DateGuesser;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
@@ -39,14 +36,20 @@ public class CustomReader extends TransactionReader
 
    private String dateFormatStringSelected = DATE_FORMAT_US;
    
-   private static final String[] SUPPORTED_DATE_FORMATS =
+   private static String[] SUPPORTED_DATE_FORMATS =
    {
       DATE_FORMAT_US
            , DATE_FORMAT_EU
            , DATE_FORMAT_JP
            , DATE_FORMAT_INTN
    };
+
    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT_US );
+   //private CustomDateFormat dateFormat;
+   
+   //private String[] compatibleDateFormats;
+   private String dateFormatString;
+
    
    public CustomReader( CustomReaderData customReaderData )
         {
@@ -55,6 +58,21 @@ public class CustomReader extends TransactionReader
         }
    
    
+   @Override
+    public void setSupportedDateFormats( String[] supportedDateFormats ) 
+        {
+        SUPPORTED_DATE_FORMATS = supportedDateFormats;
+        }
+    
+    public void createSupportedDateFormats( String dateFormatArg ) 
+        {
+         System.err.println(  "\n---------   entered createSupportedDateFormats() dateFormatArg =" + dateFormatArg + "=  -------------" );
+        String[] tmp = new String[1];
+        tmp[0] = dateFormatArg;
+        SUPPORTED_DATE_FORMATS = tmp;
+        setDateFormat( dateFormatArg );
+        }
+    
    @Override
    public boolean canParse( CSVData data )
         {
@@ -84,6 +102,9 @@ public class CustomReader extends TransactionReader
       
       boolean retVal = true;
       int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
+
+      setDateFormat( getCustomReaderData().getDateFormatString() );
+      System.err.println(  "using dateFormat string =" + getCustomReaderData().getDateFormatString() + "=" );
       
       while ( retVal && data.nextLine() )
          {
@@ -138,14 +159,32 @@ public class CustomReader extends TransactionReader
              if ( dataTypeExpecting.equalsIgnoreCase( "date" ) )
                 {
                 System.err.println(  "date >" + fieldString + "<" );
-                System.err.println(  "date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
-              /*
-                 if ( !date.equals( dateFormat.format( dateFormat.parseInt( data.getField() ) ) ) )
+                System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+                
+                /*
+                  // find guessable date formats
+                //  if ( retVal )
+                  {
+                  DateGuesser guesser = new DateGuesser();
+                  guesser.checkDateString( fieldString );
+ 
+                     //compatibleDateFormats = guesser.getPossibleFormats();
+                     SUPPORTED_DATE_FORMATS = guesser.getPossibleFormats();
+                     importDialog.popComboDateFormatList( SUPPORTED_DATE_FORMATS );
+                     if ( dateFormatStringSelected == null ||
+                        ! findDateFormat( SUPPORTED_DATE_FORMATS, dateFormatStringSelected ) )
+                     {
+                        setDateFormat( guesser.getBestFormat() );
+                     }
+                  }
+                */
+              /**/
+                 if ( dateFormat.parseInt( fieldString ) != dateFormat.parseInt( dateFormat.format( dateFormat.parseInt( fieldString ) ) ) )
                  {
                     retVal = false;
                     break;
                  }
-              */
+              /**/
                 }
              else if ( dataTypeExpecting.equalsIgnoreCase( "-Payment-" ) 
                          || dataTypeExpecting.equalsIgnoreCase( "-Deposit-" ) )   // was only amount before
@@ -225,6 +264,9 @@ public class CustomReader extends TransactionReader
      int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
      System.err.println(  "maxFieldIndex =" + maxFieldIndex );
 
+     setDateFormat( getCustomReaderData().getDateFormatString() );
+     System.err.println(  "using dateFormat string =" + getCustomReaderData().getDateFormatString() + "=" );
+     
      System.err.println(  "----------------------" );
      if ( ! csvData.hasZeroFields() )
         {
@@ -255,7 +297,7 @@ public class CustomReader extends TransactionReader
          if ( dataTypeExpecting.equalsIgnoreCase( "date" ) )
             {
             System.err.println(  "date >" + fieldString + "<" );
-            System.err.println(  "date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             date = dateFormat.parseInt( fieldString );
 
@@ -353,11 +395,25 @@ public class CustomReader extends TransactionReader
    @Override
    public void setDateFormat( String format )
    {
+      if ( format == null )
+      {
+         return;
+      }
+
+   System.err.println(  "setDateFormat() format =" + format + "=   dateFormatString =" + dateFormatString + "=" );
+      if ( ! format.equals( dateFormatStringSelected ) )
+      {
+         dateFormat = new CustomDateFormat( format );
+         dateFormatStringSelected = format;
+      }
+
+      /*
    dateFormatStringSelected = getCustomReaderData().getDateFormatString();
    System.err.println(  "customReader setDateFormat() =" + dateFormatStringSelected + "<" );
    System.err.println(  "customReader customReaderDialog.getDateFormatSelected() >" + getCustomReaderData().getDateFormatString() + "<" );
    dateFormat = new CustomDateFormat( getCustomReaderData().getDateFormatString() );
-   
+   */
+      
       /*
       if ( !DATE_FORMAT_US.equals( format ) )
       {
@@ -365,6 +421,24 @@ public class CustomReader extends TransactionReader
       }
        * 
        */
+   }
+
+   private static boolean findDateFormat( String[] compatibleDateFormats, String dateFormatStringArg )
+   {
+      if ( dateFormatStringArg == null )
+      {
+         return false;
+      }
+
+      for ( String s : compatibleDateFormats )
+      {
+         if ( s.equals( dateFormatStringArg ) )
+         {
+            return true;
+         }
+      }
+
+      return false;
    }
 
 //   @Override

@@ -92,7 +92,9 @@
             <arg line="${dist.jar}"/>
         </java>
         <basename property="dist.jar.fileonly" file="${dist.jar}" suffix=".mxt"/>
-        <move file="s-${idstring}.mxt" tofile="${dist.jar}" overwrite="true"/>
+        <!--move file="s-${idstring}.mxt" tofile="${dist.jar}" overwrite="true"/-->
+	<copy file="s-${idstring}.mxt" tofile="${dist.jar}" overwrite="true"/>
+        <delete file="s-${idstring}.mxt" quiet="true"/>        
         <copy file="${dist.jar}" todir="${user.home}/.moneydance/fmodules" overwrite="true"/>
         <delete file="${dist.dir}/${dist.jar.fileonly}.zip" quiet="true"/>
         <zip destfile="${dist.dir}/${dist.jar.fileonly}.zip">
