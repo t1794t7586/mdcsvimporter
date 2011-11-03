@@ -14,6 +14,7 @@ public class CustomReaderData {
 //    ArrayList<javax.swing.JComboBox> emptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
     ArrayList<String> dataTypesList = new ArrayList<String>( 10 );
     ArrayList<String> emptyFlagsList = new ArrayList<String>( 10 );
+    //ArrayList<String> dateFormatList = new ArrayList<String>( 10 );
     int fieldSeparatorChar = ',';
     int headerLines = 0;
     String readerName = "";

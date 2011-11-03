@@ -154,6 +154,12 @@ public class SimpleCreditDebitReader
    }
 
    @Override
+    public void setSupportedDateFormats( String[] supportedDateFormats ) 
+        {
+        compatibleDateFormats = supportedDateFormats;
+        }
+
+   @Override
    public String getDateFormat()
    {
       return dateFormatString;

@@ -46,8 +46,12 @@ public class ImportDialog
    private HashMap runArgsHM;
    protected final static String RUN_ARGS_FILE = "file";
    protected final static String RUN_ARGS_FILEFORMAT = "fileformat";
+   protected final static String RUN_ARGS_DATEFORMAT = "dateformat";
    protected final static String RUN_ARGS_IMPORTACCOUNT = "importaccount";
+   protected final static String RUN_ARGS_IMPORTTYPE = "importtype";
    protected final static String RUN_ARGS_PROCESSFLAG = "processflag";
+   protected final static String RUN_ARGS_DELETECSVFILEFLAG = "deletecsvfileflag";
+   protected final static String RUN_ARGS_NOPOPERRORSFLAG = "nopoperrorsflag";
    protected final static String RUN_ARGS_JUNIT = "junitflag";
    
    protected final static int RUN_ARGS_ERRORCODE_INVALID_FILE = 1;
@@ -125,7 +129,7 @@ public class ImportDialog
         selectedFile = new File( (String) runArgsHM.get( RUN_ARGS_FILE ) );
         if ( ! selectedFile.exists() )
             {
-            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                 {
                 JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nfile \'" 
                                                                         + (String) runArgsHM.get( RUN_ARGS_FILE ) + "\' does not exist.", "Error", JOptionPane.ERROR_MESSAGE );
@@ -139,29 +143,29 @@ public class ImportDialog
             fileChanged();
             }
                         
-        if ( runArgsHM.containsKey( "importtype" ) )
+        if ( runArgsHM.containsKey( RUN_ARGS_IMPORTTYPE ) )
             {
-            if ( "ONLINE".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
+            if ( "ONLINE".equalsIgnoreCase( (String) runArgsHM.get( RUN_ARGS_IMPORTTYPE ) ) )
                 {
                 onlineImportTypeRB.setSelected( true );
                 }
-            else if ( "REGULAR".equalsIgnoreCase( (String) runArgsHM.get( "importtype" ) ) )
+            else if ( "REGULAR".equalsIgnoreCase( (String) runArgsHM.get( RUN_ARGS_IMPORTTYPE ) ) )
                 {
                 regularImportTypeRB.setSelected( true );
                 }
             else
                 {
-                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                     {
-                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'importtype\' you chose \'" 
-                                                                            + (String) runArgsHM.get( "importtype" ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
+                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'" + RUN_ARGS_IMPORTTYPE + "\' you chose \'" 
+                                                                            + (String) runArgsHM.get( RUN_ARGS_IMPORTTYPE ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
                     }
                 errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_IMPORTTYPE );
                 errorInRunArgs = true;
                 }
             }
         
-        if ( runArgsHM.containsKey( "deletecsvfileflag" ) )
+        if ( runArgsHM.containsKey( RUN_ARGS_DELETECSVFILEFLAG ) )
             {
             checkDeleteFile.setSelected( true );
             }
@@ -179,21 +183,21 @@ public class ImportDialog
                     {
                     comboFileFormat.setSelectedItem( reqTransReader );
                     processFileFormatChanged( reqTransReader );  // call it myself so I know when it is done.
-                    if ( runArgsHM.containsKey( "dateformat" ) )
+                    if ( runArgsHM.containsKey( RUN_ARGS_DATEFORMAT ) )
                         {
                         dcbm = (DefaultComboBoxModel) comboDateFormat.getModel();
-                        idx = dcbm.getIndexOf( (String) runArgsHM.get( "dateformat" ) );
+                        idx = dcbm.getIndexOf( (String) runArgsHM.get( RUN_ARGS_DATEFORMAT ) );
 
                         if ( idx >= 0 )
                             {
-                            comboDateFormat.setSelectedItem( (String) runArgsHM.get( "dateformat" ) );
+                            comboDateFormat.setSelectedItem( (String) runArgsHM.get( RUN_ARGS_DATEFORMAT ) );
                             }
                         else
                             {
-                            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                                 {
-                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'dateformat\' you chose \'" 
-                                                                                    + (String) runArgsHM.get( "dateformat" ) + "\' is not valid for the \'fileformat\' used.", "Error", JOptionPane.ERROR_MESSAGE );
+                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'" + RUN_ARGS_DATEFORMAT + "\' you chose \'" 
+                                                                                    + (String) runArgsHM.get( RUN_ARGS_DATEFORMAT ) + "\' is not valid for the \'" + RUN_ARGS_FILEFORMAT + "\' used.", "Error", JOptionPane.ERROR_MESSAGE );
                                 }
                             errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_DATEFORMAT_FOR_FILEFORMAT );
                             errorInRunArgs = true;
@@ -224,9 +228,9 @@ public class ImportDialog
                             }
                         else
                             {
-                            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                                 {
-                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'importaccount\' you chose \'" 
+                                JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'" + RUN_ARGS_IMPORTACCOUNT + "\' you chose \'" 
                                                                                         + (String) runArgsHM.get( RUN_ARGS_IMPORTACCOUNT ) + "\' is not valid.", "Error", JOptionPane.ERROR_MESSAGE );
                                 }
                             errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_IMPORTACCOUNT );
@@ -236,9 +240,9 @@ public class ImportDialog
                     }
                 else
                     {
-                    if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                    if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                         {
-                        JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'fileformat\' you chose \'" 
+                        JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nthe \'" + RUN_ARGS_FILEFORMAT + "\' you chose \'" 
                                                                                 + (String) runArgsHM.get( RUN_ARGS_FILEFORMAT ) + "\' is not valid for the file you gave.", "Error", JOptionPane.ERROR_MESSAGE );
                         }
                     errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT_FOR_FILE );
@@ -247,9 +251,9 @@ public class ImportDialog
                 }
             else
                 {
-                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                     {
-                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nof invalid \'fileformat\' value \'" 
+                    JOptionPane.showMessageDialog( this, "Cannot proceed with processing of csv file because \nof invalid \'" + RUN_ARGS_FILEFORMAT + "\' value \'" 
                                                                             + (String) runArgsHM.get( RUN_ARGS_FILEFORMAT ) + "\'.", "Error", JOptionPane.ERROR_MESSAGE );
                     }
                 errCodeList.add( RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT );
@@ -262,20 +266,20 @@ public class ImportDialog
             {
             if ( ! runArgsHM.containsKey( RUN_ARGS_FILEFORMAT ) )
                 {
-                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                     {
-                    JOptionPane.showMessageDialog( this, "Cannot proceed without a \'fileformat\' argument "
-                                                                            + "if you use the \'processFlag\' argument.", "Error", JOptionPane.ERROR_MESSAGE );
+                    JOptionPane.showMessageDialog( this, "Cannot proceed without a \'" + RUN_ARGS_FILEFORMAT + "\' argument "
+                                                                            + "if you use the \'" + RUN_ARGS_PROCESSFLAG + "\' argument.", "Error", JOptionPane.ERROR_MESSAGE );
                     }
                 errCodeList.add( RUN_ARGS_ERRORCODE_REQUIRES_FILEFORMAT );
                 errorInRunArgs = true;
                 }
             else if ( ! runArgsHM.containsKey( RUN_ARGS_IMPORTACCOUNT ) )
                 {
-                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+                if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                     {
-                    JOptionPane.showMessageDialog( this, "Cannot proceed without a \'importaccount\' argument "
-                                                                            + "if you use the \'processFlag\' argument.", "Error", JOptionPane.ERROR_MESSAGE );
+                    JOptionPane.showMessageDialog( this, "Cannot proceed without a \'" + RUN_ARGS_IMPORTACCOUNT + "\' argument "
+                                                                            + "if you use the \'" + RUN_ARGS_PROCESSFLAG + "\' argument.", "Error", JOptionPane.ERROR_MESSAGE );
                     }
                 errCodeList.add( RUN_ARGS_ERRORCODE_REQUIRES_IMPORTACCOUNT );
                 errorInRunArgs = true;
@@ -291,9 +295,9 @@ public class ImportDialog
         }  // END of arguments processing
       else if ( runArgsHM.size() > 0 )
             {
-            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) )
+            if ( ! runArgsHM.containsKey( RUN_ARGS_JUNIT ) && ! runArgsHM.containsKey( RUN_ARGS_NOPOPERRORSFLAG ) )
                 {
-                JOptionPane.showMessageDialog( this, "Cannot proceed without a \'file\' argument "
+                JOptionPane.showMessageDialog( this, "Cannot proceed without a \'" + RUN_ARGS_FILE + "\' argument "
                                                                            , "Error", JOptionPane.ERROR_MESSAGE );
                 }
             errCodeList.add( RUN_ARGS_ERRORCODE_REQUIRES_FILE );
@@ -361,12 +365,9 @@ public class ImportDialog
                 }
 
              String[] formats = transReader.getSupportedDateFormats();
+             System.err.println( "importDialog().processFileFormatChanged()  formats =" + formats + "=" );
 
-             comboDateFormat.removeAllItems();
-             for ( String s : formats )
-                {
-                comboDateFormat.addItem( s );
-                }
+             popComboDateFormatList( formats );
 
              if ( formats.length == 0 )
                 {
@@ -423,12 +424,12 @@ public class ImportDialog
         jLabel3.setText("jLabel3");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Import CSV File: " + main.VERSION_STRING);
+        setTitle("Import File: " + main.VERSION_STRING);
         setName("importDialog"); // NOI18N
         setResizable(false);
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
-        lblSelectFile.setText("Select CSV File:");
+        lblSelectFile.setText("Select Import File:");
         lblSelectFile.setPreferredSize(new java.awt.Dimension(120, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -500,7 +501,7 @@ public class ImportDialog
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         getContentPane().add(btnProcess, gridBagConstraints);
 
-        lblAccount.setText("Select Account:");
+        lblAccount.setText("Import to Account:");
         lblAccount.setPreferredSize(new java.awt.Dimension(120, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -536,7 +537,7 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         getContentPane().add(lblMessage, gridBagConstraints);
 
-        lblFileFormat.setText("File Format:");
+        lblFileFormat.setText("File Reader Format:");
         lblFileFormat.setPreferredSize(new java.awt.Dimension(120, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -545,7 +546,7 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblFileFormat, gridBagConstraints);
 
-        comboFileFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboFileFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] {  }));
         comboFileFormat.setMaximumSize(new java.awt.Dimension(180, 24));
         comboFileFormat.setMinimumSize(new java.awt.Dimension(180, 24));
         comboFileFormat.setPreferredSize(new java.awt.Dimension(180, 24));
@@ -594,7 +595,7 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblDateFormat, gridBagConstraints);
 
-        comboDateFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        comboDateFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] {  }));
         comboDateFormat.setMaximumSize(new java.awt.Dimension(180, 24));
         comboDateFormat.setMinimumSize(new java.awt.Dimension(180, 24));
         comboDateFormat.setPreferredSize(new java.awt.Dimension(180, 24));
@@ -612,10 +613,10 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
         getContentPane().add(comboDateFormat, gridBagConstraints);
 
-        jButton1.setText("Maintain Custom Readers");
+        jButton1.setText("Maintain Custom File Readers");
         jButton1.setMaximumSize(new java.awt.Dimension(43, 25));
-        jButton1.setMinimumSize(new java.awt.Dimension(43, 25));
-        jButton1.setPreferredSize(new java.awt.Dimension(200, 25));
+        jButton1.setMinimumSize(new java.awt.Dimension(220, 25));
+        jButton1.setPreferredSize(new java.awt.Dimension(220, 25));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -921,10 +922,34 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
         comboDateFormat.setSelectedItem( xxx );
         }
 
+    public void createSupportedDateFormats( String dateFormatArg ) 
+        {
+        DefaultComboBoxModel dateFormatModel = new DefaultComboBoxModel();
+        System.out.println( "createSupportedDateFormats() dateFormatArg =" + dateFormatArg + "=" );
+        dateFormatModel.addElement( dateFormatArg );
+        
+        comboDateFormat.setModel( dateFormatModel );
+
+        comboDateFormat.setSelectedIndex( 0 );
+        }
+    
     public String comboDateFormatGetItem()
         {
         System.err.println( "importDialog() comboDateFormat.comboDateFormat.getSelectedItem() =" + comboDateFormat.getSelectedItem() + "=" );
         return (String) comboDateFormat.getSelectedItem();
+        }
+
+    public void comboDateFormatAddItem( String format )
+        {
+        System.err.println( "importDialog() add date format item =" + comboDateFormat + "=" );
+        //customReaderCB.addItem( xxx );
+        comboDateFormat.addItem( format );
+        }
+
+    public void comboDateFormatSetModel( DefaultComboBoxModel model )
+        {
+        System.err.println( "importDialog() comboDateFormatSetModel()" );
+        comboDateFormat.setModel( model );
         }
 
     private void textFilenameChanged()
@@ -938,6 +963,17 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
       }
    }
 
+    public void popComboDateFormatList( String [] formats )
+        {
+         System.err.println(  "entered popComboDateFormatList()" );
+         comboDateFormat.removeAllItems();
+         for ( String s : formats )
+            {
+            System.err.println(  "popComboDateFormatList add format >" + s + "<" );
+            comboDateFormat.addItem( s );
+            }
+        }
+    
    protected void fileChanged()
    {
       String message = null;
@@ -1012,12 +1048,9 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
       {
          TransactionReader reader = (TransactionReader) comboFileFormat.getSelectedItem();
          String[] formats = reader.getSupportedDateFormats();
+         System.err.println( "importDialog().fileChanged()  formats =" + formats + "=" );
 
-         comboDateFormat.removeAllItems();
-         for ( String s : formats )
-         {
-            comboDateFormat.addItem( s );
-         }
+         popComboDateFormatList( formats );
 
          if ( formats.length == 0 )
          {

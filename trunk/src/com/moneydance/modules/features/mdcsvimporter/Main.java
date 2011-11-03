@@ -33,7 +33,7 @@ public class Main
    extends FeatureModule
 {
    private static final int VERSION = 15;
-   protected static final String VERSION_STRING = "Beta 15.5";
+   protected static final String VERSION_STRING = "Beta 15.6";
    private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Milutin Jovanović, Stan Towianski";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
@@ -85,7 +85,7 @@ public class Main
          return;
       }
 
-      context.registerFeature( this, "import", image, "Import CSV File" );
+      context.registerFeature( this, "import", image, "Import File" );
    }
 
    RootAccount getRootAccount()
