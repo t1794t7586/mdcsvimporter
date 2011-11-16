@@ -3,6 +3,11 @@
 
 =mdcsvimporter Release Notes=
 
+==BETA14==
+
+September 2, 2011
+  * ADD: New Custom Readers. This lets users manage multiple reader settings for their own banks. Create configurations for say: Discover card, VISA, private bank, etc... You denote data columns that can be -Payment-, -Deposit-, date, amount, etc... When you choose a file, it will fill out a drop down list of all the readers that match your csv file format by testing your data. You can then select on to use to import your data by.
+
 ==BETA13==
 
 June 23, 2011
