@@ -34,6 +34,11 @@ public class WellsFargoReader
       DATE_FORMAT
    };
    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT );
+   private String amountString;
+   private String dateString;
+   private String description;
+//   private long amount;
+   private int date;
 
    @Override
    public boolean canParse( CSVData data )
@@ -56,8 +61,8 @@ public class WellsFargoReader
          {
             continue; // skip empty lines
          }
-         String date = data.getField();
-         if ( !date.equals( dateFormat.format( dateFormat.parseInt( data.getField() ) ) ) )
+         String dateTest = data.getField();
+         if ( !dateTest.equals( dateFormat.format( dateFormat.parseInt( data.getField() ) ) ) )
          {
             retVal = false;
             break;
@@ -101,27 +106,33 @@ public class WellsFargoReader
    }
 
    @Override
-   protected boolean parseNext( OnlineTxn txn )
+   protected boolean parseNext()
       throws IOException
    {
       csvData.nextField();
-      String dateString = csvData.getField();
+      dateString = csvData.getField();
       if ( dateString == null || dateString.length() == 0 )
       { // skip empty lines
          return false;
       }
 
       csvData.nextField();
-      String amountString = csvData.getField();
+      amountString = csvData.getField();
 
       csvData.nextField(); // skip '*'
 
       csvData.nextField(); // skip unknown number
 
       csvData.nextField();
-      String description = csvData.getField();
+      description = csvData.getField();
 
-      long amount = 0;
+      return true;
+   }
+
+   @Override
+   protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
+   {
+	  long amount = 0;
       try
       {
          double amountDouble;
@@ -133,8 +144,7 @@ public class WellsFargoReader
          throwException( "Invalid amount." );
       }
 
-      int date = dateFormat.parseInt( dateString );
-
+      date = dateFormat.parseInt( dateString );
       txn.setAmount( amount );
       txn.setTotalAmount( amount );
       txn.setMemo( description );
@@ -174,8 +184,8 @@ public class WellsFargoReader
    }
 
    @Override
-   protected boolean haveHeader()
+   protected int getHeaderCount()
    {
-      return false;
+      return 0;
    }
 }

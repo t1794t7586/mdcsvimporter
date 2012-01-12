@@ -36,6 +36,15 @@ public class INGNetherlandsReader
    private static final String DATE_FORMAT = "D-M-YYYY";
    private static final String[] SUPPORTED_DATE_FORMATS = { DATE_FORMAT };
    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT );
+   private String mededelingen;
+   private String code;
+   private String datum;
+   private String bedrag;
+   private String naam;
+   private String rekening;
+   private String tegenrekening;
+   private String mutatiesort;
+   private String af_bij;
 
    @Override
    public boolean canParse( CSVData data )
@@ -70,44 +79,50 @@ public class INGNetherlandsReader
    }
 
    @Override
-   protected boolean parseNext( OnlineTxn txn )
+   protected boolean parseNext()
       throws IOException
    {
       if ( !csvData.nextField() )
       { // empty line
          return false;
       }
-      String datum = csvData.getField();
+      datum = csvData.getField();
 
       csvData.nextField();
-      String naam = csvData.getField();
+      naam = csvData.getField();
 
       csvData.nextField();
-      String rekening = csvData.getField();
+      rekening = csvData.getField();
 
       csvData.nextField();
-      String tegenrekening = csvData.getField();
+      tegenrekening = csvData.getField();
 
       csvData.nextField();
-      String code = csvData.getField();
+      code = csvData.getField();
 
       csvData.nextField();
-      String af_bij = csvData.getField();
+      af_bij = csvData.getField();
 
       csvData.nextField();
-      String bedrag = csvData.getField();
+      bedrag = csvData.getField();
 
       csvData.nextField();
-      String mutatiesort = csvData.getField();
+      mutatiesort = csvData.getField();
 
       csvData.nextField();
-      String mededelingen = csvData.getField();
+      mededelingen = csvData.getField();
       if ( mededelingen == null )
       {
          throwException( "Invalid line." );
       }
 
-      long amount = 0;
+	  return true;
+   }
+
+   @Override
+   protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
+   {
+	  long amount = 0;
       try
       {
          double amountDouble = StringUtils.parseDoubleWithException( bedrag, ',' );
@@ -130,7 +145,7 @@ public class INGNetherlandsReader
          throwException( "Value of Af/Bij field must be 'Af' or 'Bij'." );
       }
 
-      int date = dateFormat.parseInt( datum );
+	  int date = dateFormat.parseInt( datum );
 
       Integer hashCode = naam.hashCode() ^ rekening.hashCode() ^
          tegenrekening.hashCode() ^ code.hashCode() ^ af_bij.hashCode() ^
@@ -176,8 +191,8 @@ public class INGNetherlandsReader
    }
 
    @Override
-   protected boolean haveHeader()
+   protected int getHeaderCount()
    {
-      return true;
+      return 1;
    }
 }

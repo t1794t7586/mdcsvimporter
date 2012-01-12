@@ -36,6 +36,10 @@ public class SimpleCreditDebitReader
    private CustomDateFormat dateFormat;
    private String[] compatibleDateFormats;
    private String dateFormatString;
+   private String dateString;
+   private String description;
+   private String debit;
+   private String credit;
 
    @Override
    public boolean canParse( CSVData data )
@@ -85,26 +89,26 @@ public class SimpleCreditDebitReader
    {
       return "Simple Date/Description/Credit/Debit";
    }
-
+   
    @Override
-   protected boolean parseNext( OnlineTxn txn )
+   protected boolean parseNext()
       throws IOException
    {
       csvData.nextField();
-      String dateString = csvData.getField();
+      dateString = csvData.getField();
       if ( dateString == null || dateString.length() == 0 )
       { // empty line
          return false;
       }
 
       csvData.nextField();
-      String description = csvData.getField();
+      description = csvData.getField();
 
       csvData.nextField();
-      String credit = csvData.getField();
+      credit = csvData.getField();
 
       csvData.nextField();
-      String debit = csvData.getField();
+      debit = csvData.getField();
       if ( credit == null && debit == null )
       {
          throwException( "Invalid line." );
@@ -115,7 +119,13 @@ public class SimpleCreditDebitReader
          throwException( "Credit and debit fields are both empty." );
       }
 
-      long amount = 0;
+	  return true;
+   }
+
+   @Override
+   protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
+   {
+	  long amount = 0;
       try
       {
          double amountDouble;
@@ -144,9 +154,8 @@ public class SimpleCreditDebitReader
       txn.setDateInitiatedInt( date );
       txn.setDateAvailableInt( date );
 
-      return true;
+	  return true;
    }
-
    @Override
    public String[] getSupportedDateFormats()
    {
@@ -199,8 +208,8 @@ public class SimpleCreditDebitReader
    }
 
    @Override
-   protected boolean haveHeader()
+   protected int getHeaderCount()
    {
-      return true;
+      return 1;
    }
 }
