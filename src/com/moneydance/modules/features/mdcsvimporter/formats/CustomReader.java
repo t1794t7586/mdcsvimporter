@@ -17,7 +17,6 @@ package com.moneydance.modules.features.mdcsvimporter.formats;
 import com.moneydance.apps.md.model.OnlineTxn;
 import com.moneydance.modules.features.mdcsvimporter.CSVData;
 import com.moneydance.modules.features.mdcsvimporter.CustomReaderData;
-import com.moneydance.modules.features.mdcsvimporter.DateGuesser;
 import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
@@ -50,6 +49,12 @@ public class CustomReader extends TransactionReader
    //private String[] compatibleDateFormats;
    private String dateFormatString;
 
+     private long amount = 0;
+     private int date = 0;
+     private String description = "";
+     private String checkNumber = "";
+	 private String phoneString;
+	 private String memo;
    
    public CustomReader( CustomReaderData customReaderData )
         {
@@ -72,7 +77,7 @@ public class CustomReader extends TransactionReader
         SUPPORTED_DATE_FORMATS = tmp;
         setDateFormat( dateFormatArg );
         }
-    
+	
    @Override
    public boolean canParse( CSVData data )
         {
@@ -253,13 +258,15 @@ public class CustomReader extends TransactionReader
     * Note: This really parses a whole line at a time.
     */
    @Override
-   protected boolean parseNext( OnlineTxn txn )
-      throws IOException
+   protected boolean parseNext() throws IOException
    {
-     long amount = 0;
-     int date = 0;
-     String description = "";
-     String origCheckNumber = "";
+     amount = 0;
+     date = 0;
+     description = "";
+     checkNumber = "";
+	 phoneString  = "";
+	 memo  = "";
+
      int fieldIndex = 0;
      int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
      System.err.println(  "maxFieldIndex =" + maxFieldIndex );
@@ -288,7 +295,8 @@ public class CustomReader extends TransactionReader
             continue;
             }
          else if ( ( fieldString == null || fieldString.equals( "" ) )
-                    && ! getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
+                    && ! getCustomReaderData().getEmptyFlagsList().get( fieldIndex )
+					.equals( "Can Be Blank" ) )
             {
             System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
             throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
@@ -301,9 +309,9 @@ public class CustomReader extends TransactionReader
 
             date = dateFormat.parseInt( fieldString );
 
-            txn.setDatePostedInt( date );
-            txn.setDateInitiatedInt( date );
-            txn.setDateAvailableInt( date );
+//            txn.setDatePostedInt( date );
+//            txn.setDateInitiatedInt( date );
+//            txn.setDateAvailableInt( date );
           /*
              if ( !date.equals( dateFormat.format( dateFormat.parseInt( csvData.getField() ) ) ) )
              {
@@ -312,7 +320,7 @@ public class CustomReader extends TransactionReader
              }
           */
             }
-        else if ( ( dataTypeExpecting.equalsIgnoreCase( "-Payment-" ) 
+         else if ( ( dataTypeExpecting.equalsIgnoreCase( "-Payment-" )
                       || dataTypeExpecting.equalsIgnoreCase( "-Deposit-" ) )
                                         &&
                      ! ( fieldString == null || fieldString.equals( "" ) ) )
@@ -337,8 +345,8 @@ public class CustomReader extends TransactionReader
                 {
                 throwException( "Invalid amount." );
                 }
-            txn.setAmount( amount );
-            txn.setTotalAmount( amount );
+//            txn.setAmount( amount );
+//            txn.setTotalAmount( amount );
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( "check number" ) )
             {
@@ -351,30 +359,54 @@ public class CustomReader extends TransactionReader
                 }
                  */
             System.err.println(  "check number >" + fieldString + "<" );
-            txn.setCheckNum( fieldString );
+			checkNumber = fieldString;
+//            txn.setCheckNum( fieldString );
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( "description" ) )
             {
             System.err.println(  "description >" + fieldString + "<" );
-            txn.setName( fieldString );
+//            txn.setName( fieldString );
             description = fieldString;
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( "memo" ) )
             {
             System.err.println(  "memo >" + fieldString + "<" );
-            txn.setMemo( fieldString );
+			memo = fieldString;
+//            txn.setMemo( fieldString );
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( "tag" ) )
             {
             System.err.println(  "tag in phone field >" + fieldString + "<" );
             // storing it into phone field for now since onlinetxn cannot handle tags. A kludge for now.  Stan
-            txn.setPhone( fieldString );
+//            txn.setPhone( fieldString );
+			phoneString = fieldString;
             }
          } // end for
 
      // MOVED to TransactionReader so everyone creates it the same way.
 //      txn.setFITxnId( date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
 //      System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' ) + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
+
+      return true;
+   }
+
+   @Override
+   protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
+   {
+		txn.setAmount( amount );
+		txn.setTotalAmount( amount );
+		txn.setDatePostedInt( date );
+        txn.setDateInitiatedInt( date );
+        txn.setDateAvailableInt( date );
+		txn.setCheckNum( checkNumber );
+		txn.setName( description );
+		txn.setMemo( memo );
+		txn.setPhone( phoneString );
+		// MOVED to TransactionReader so everyone creates it the same way.
+//		txn.setFITxnId( date + ":" + currency.format( amount, '.' )
+//				+ ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
+		System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' )
+				+ ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
 
       return true;
    }
@@ -453,9 +485,9 @@ public class CustomReader extends TransactionReader
     
 
    @Override
-   protected boolean haveHeader()
+   protected int getHeaderCount()
    {
-      return true;
+      return getCustomReaderData().getHeaderLines();
    }   
    
 }

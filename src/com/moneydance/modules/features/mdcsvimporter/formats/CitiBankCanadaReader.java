@@ -31,6 +31,13 @@ public class CitiBankCanadaReader
    private static final String DATE_FORMAT = "MM/DD/YYYY";
    private static final String[] SUPPORTED_DATE_FORMATS = { DATE_FORMAT };
    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT );
+   private String amountString;
+   private String description;
+//   private long amount;
+//   private int transactionDate;
+   private String transactionDateString;
+//   private int postingDate;
+   private String postingDateString;
 
    @Override
    public boolean canParse( CSVData data )
@@ -60,33 +67,39 @@ public class CitiBankCanadaReader
    }
 
    @Override
-   protected boolean parseNext( OnlineTxn txn )
+   protected boolean parseNext()
       throws IOException
    {
       if ( !csvData.nextField() )
       { // empty line
          return false;
       }
-      String transactionDateString = csvData.getField();
+      transactionDateString = csvData.getField();
       if ( transactionDateString.equalsIgnoreCase( "Date downloaded:" ) )
       { // skip the footer line
          return false;
       }
       
       csvData.nextField();
-      String postingDateString = csvData.getField();
+      postingDateString = csvData.getField();
 
       csvData.nextField();
-      String description = csvData.getField();
+      description = csvData.getField();
 
       csvData.nextField();
-      String amountString = csvData.getField();
+      amountString = csvData.getField();
       if ( amountString == null )
       {
          throwException( "Invalid line." );
-      }
+      }     
 
-      long amount = 0;
+      return true;
+   }
+
+   @Override
+   protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
+   {
+	  long amount = 0;
       try
       {
          double amountDouble = StringUtils.parseDoubleWithException( amountString, '.' );
@@ -108,7 +121,7 @@ public class CitiBankCanadaReader
       txn.setDateInitiatedInt( transactionDate );
       txn.setDateAvailableInt( postingDate );
 
-      return true;
+	  return true;
    }
 
    @Override
@@ -139,9 +152,8 @@ public class CitiBankCanadaReader
    }
 
    @Override
-   protected boolean haveHeader()
+   protected int getHeaderCount()
    {
-      return true;
+      return 1;
    }
 }
-
