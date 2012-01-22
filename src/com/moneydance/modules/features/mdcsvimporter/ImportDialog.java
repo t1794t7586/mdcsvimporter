@@ -703,7 +703,7 @@ public class ImportDialog
 
     private void btnProcessActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnProcessActionPerformed
     {//GEN-HEADEREND:event_btnProcessActionPerformed
-        System.err.println( "Process button entered" );
+       System.err.println( "Process button entered" );
        Settings.setYesNo( "delete.file", checkDeleteFile.isSelected() );
        Settings.setYesNo( "importtype.online.radiobutton", onlineImportTypeRB.isSelected() );
        Settings.setInteger( "selected.account", comboAccount.getSelectedIndex() );
@@ -721,12 +721,13 @@ public class ImportDialog
        //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
 
           Account account = (Account) comboAccount.getSelectedItem();
-          RootAccount rootAccount = main.getRootAccount();
-
-          transReader.parse( csvData, account, rootAccount );
+          System.err.println( "starting transReader.parse..." );
+          transReader.parse( main, csvData, account, main.getRootAccount() );
           csvReader.close();
+          System.out.println( "finished transReader.parse" );
 
-          onlineMgr.processDownloadedTxns( account );
+          //TESTING! DS
+//         onlineMgr.processDownloadedTxns( account );
             }
        catch ( IOException x )
             {
@@ -925,7 +926,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     public void createSupportedDateFormats( String dateFormatArg ) 
         {
         DefaultComboBoxModel dateFormatModel = new DefaultComboBoxModel();
-        System.out.println( "createSupportedDateFormats() dateFormatArg =" + dateFormatArg + "=" );
+        System.out.println( "ImportDialog.createSupportedDateFormats() dateFormatArg =" + dateFormatArg + "=" );
         dateFormatModel.addElement( dateFormatArg );
         
         comboDateFormat.setModel( dateFormatModel );
@@ -1011,7 +1012,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
       {
         TransactionReader.customReaderDialog = customReaderDialog;
         
-         TransactionReader[] fileFormats = TransactionReader.getCompatibleReaders( selectedFile, this );
+         TransactionReader[] fileFormats = TransactionReader.getCompatibleReaders( selectedFile, this, main.getRootAccount() );
 
          comboFileFormat.removeAllItems();
          for ( TransactionReader reader : fileFormats )

@@ -25,8 +25,9 @@ import com.moneydance.apps.md.model.ParentTxn;
 import com.moneydance.apps.md.model.SplitTxn;
 
 import com.moneydance.apps.md.model.TxnSet;
+import com.moneydance.apps.md.view.gui.MoneydanceGUI;
+import com.moneydance.apps.md.view.gui.OnlineManager;
 import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
-import com.moneydance.util.StreamTable;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,9 +48,12 @@ public abstract class TransactionReader
    
    protected static ImportDialog importDialog = null;
    protected static CustomReaderDialog customReaderDialog = null;
-   
+   protected static RootAccount rootAccount = null;
+
    protected CSVData csvData;
    protected Account account;
+   protected String accountNameFromCSV;//for reading account from CSV file
+   protected String priorAccountNameFromCSV = "";//for efficiency only
    protected OnlineTxnList transactionList;
    protected TransactionSet txnSet;
    protected CurrencyType currency;
@@ -60,8 +64,11 @@ public abstract class TransactionReader
    
    protected abstract boolean canParse( CSVData data );
 
-   protected abstract boolean parseNext( OnlineTxn txn )
-      throws IOException;
+   protected abstract boolean parseNext() throws IOException;
+
+// protected abstract boolean parseNext(OnlineTxn txn) throws IOException;
+
+   protected abstract boolean assignDataToTxn( OnlineTxn txn ) throws IOException;
 
    public abstract String getFormatName();
 
@@ -83,6 +90,11 @@ public abstract class TransactionReader
       throw new IOException( message );
    }
 
+   protected final void setRootAccount( RootAccount rootAccount )
+   {
+        this.rootAccount = rootAccount;
+   }
+
    public final String calcFITxnIdAbstract( AbstractTxn atxn )
       throws IOException
        {
@@ -98,11 +110,13 @@ public abstract class TransactionReader
             //String tmp = atxn.getDateInt() + ":" + currency.format( atxn.getValue(), '.' ) + ":" + atxn.getDescription() + ":" + atxn.getCheckNumber();
 
       // Create a pattern to match comments
-      Pattern ckNumPat = Pattern.compile( "^.*\\\"chknum\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
-      Pattern amtPat = Pattern.compile( "^.*\\\"amt\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
-      String amt = null;
-      String origCheckNumber = null;
-      String desc = null;
+ //dave Pattern ckNumPat = Pattern.compile("^.*\\\"chknum\\\" = \\\"(.+?)\\\"\n.*$", Pattern.MULTILINE);
+        // I think I want to stick with (.*) instead of (.+) because I want to catch () either way. Stan
+    Pattern ckNumPat = Pattern.compile( "^.*\\\"chknum\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
+    Pattern amtPat = Pattern.compile( "^.*\\\"amt\\\" = \\\"(.*?)\\\"\n.*$", Pattern.MULTILINE );
+    String amt = null;
+    String origCheckNumber = null;
+    String desc = null;
       
        /*
   <TAG>
@@ -166,8 +180,7 @@ public abstract class TransactionReader
         String tmp = atxn.getDateInt() + ":" + amt
                            + ":" + desc
                            + ":" + (origCheckNumber == null ? "" : origCheckNumber.replaceAll( "^0*(.*)", "$1" ) )    // strip leading 0's
-                           + ":" + (atxn.getTag( "ol.orig-memo" ) == null ? "" : atxn.getTag( "ol.orig-memo" ))
-                                  ;            
+                           + ":" + (atxn.getTag( "ol.orig-memo" ) == null ? "" : atxn.getTag( "ol.orig-memo" ));
 
         //System.err.println( "calc abstract FITxnld >" + tmp + "<" );
         return tmp;
@@ -189,34 +202,76 @@ public abstract class TransactionReader
        //System.err.println(  "calc online FITxnld >" + tmp + "<" );
        return tmp;
        }
-   
-   public final void parse( CSVData csvDataArg, Account account, RootAccount rootAccount )
-      throws IOException
-   {
-      System.err.println(  "\n---------   entered TransactionReader().parse()  -------------" );
 
-      this.csvData = csvDataArg;
-      this.account = account;
-      this.transactionList = account.getDownloadedTxns();
-//      this.transactionList = new OnlineTxnList( new StreamTable() );
-      this.txnSet = rootAccount.getTransactionSet();
-      this.tsetMatcherKey = new HashSet();
-      //this.onlineMatcherKey = new HashSet();
-      this.tsetFITxnIdMatcherKey = new HashSet();
-      this.currency = account.getCurrencyType();
-      long totalProcessed = 0;
-      long totalAccepted = 0;
-      long totalRejected = 0;
-      long totalDuplicates = 0;
-      
-      System.err.println(  "\n---------   beg: make set of existing account transactions  -------------" );
-      //System.err.println(  "number of trans list =" +this.txnSet.getTransactionsForAccount( account ).getSize()  );
-      System.err.println(  "number of trans list =" +this.txnSet.getAllTxns().getSize()  );
-      // cannot get just for account because I am putting them into a temp/empty account !
-      //Enumeration<AbstractTxn> tenums = this.txnSet.getTransactionsForAccount( account ).getAllTxns();
-      TxnSet tset = this.txnSet.getAllTxns();
-      System.err.println(  "tset.getSize() =" +tset.getSize() + "   online txns.getSize() =" + transactionList.getTxnCount() );
-      
+      private final void makeSetOfExistingTxns( TxnSet tset )
+                throws IOException 
+        {
+        int k = 0;
+        for ( AbstractTxn atxn : tset )
+            {
+            String tmp = calcFITxnIdAbstract( atxn );
+
+            //System.err.println( "tmp string [" + k + "] =" + tmp + "=" );
+            tsetMatcherKey.add( tmp );
+            tsetFITxnIdMatcherKey.add( atxn.getFiTxnId( OnlineTxn.PROTO_TYPE_OFX ) );
+            tsetFITxnIdMatcherKey.add( atxn.getFiTxnId( defProtocolId ) );
+
+            k++;
+            //if ( k > 9 )
+            //   break;
+            }
+        //System.err.println(  "\n---------   end: make set of existing account transactions  -------------" );
+        }
+
+      /*                
+       ************************************************************************************************
+       */
+        public final void parse( Main main, CSVData csvDataArg, Account accountIn, RootAccount rootAccount )
+                throws IOException 
+        {
+        System.err.println("\n---------   entered TransactionReader().parse()  -------------");
+
+        this.csvData = csvDataArg;
+        this.rootAccount = rootAccount;
+        this.txnSet = rootAccount.getTransactionSet();
+        this.tsetMatcherKey = new HashSet();
+        this.tsetFITxnIdMatcherKey = new HashSet();
+
+//      //begin testing
+//      //this is part of what would be needed to match account names
+//      //using regex or partial matching instead of exact and complete matching.
+//      HashMap<String, Account> accountMap = new HashMap<String, Account>();
+//      Enumeration accountListEnum = rootAccount.getSubAccounts();
+//      while (accountListEnum.hasMoreElements()) {
+//      Account a = (Account)accountListEnum.nextElement();
+//      accountMap.put(a.getAccountName(), a);
+//          }
+//      //getAllAccountNames - is only path from root to present acct
+//      //end testing
+
+        System.err.println("\n---------   beg: make set of existing account transactions  -------------");
+        //System.err.println(  "number of trans list =" +this.txnSet.getTransactionsForAccount( account ).getSize()  );
+        System.err.println("size of txnSet.getAllTxns = " + this.txnSet.getAllTxns().getSize());
+        // cannot get just for account because I am putting them into a temp/empty account !
+        //Enumeration<AbstractTxn> tenums = this.txnSet.getTransactionsForAccount( account ).getAllTxns();
+        TxnSet tset = this.txnSet.getAllTxns();
+
+        //TODO: refactor this.
+        //Currently, if the CSV file contains transactions from different accounts
+        //with different currencies, we don't handle that. However, we could.
+        //By separating the parsing from the matching, we could easily handle it.
+        //For now, the account selected on the dialog will provide the currency
+        //for all accounts.
+        //Fixing this is a low priority because
+        //	1) not everyone has multiple accounts in a single file
+        //	2) most people with multiple accounts will have them in the same currency
+        //If someone needs multiple currencies and accounts in one file,
+        //it can be implemented as described above.
+        this.currency = accountIn.getCurrencyType();
+        //TODO: after refacting, call this only after each line of CSV file has been processed
+        //TODO: parse CSV first, then iterate again to match FITxnId
+        makeSetOfExistingTxns( tset );
+
       /*
      while ( tenums.hasMoreElements() ) 
             {
@@ -226,23 +281,7 @@ public abstract class TransactionReader
             }
        * 
        */
-      
-      int k = 0;
-      for ( AbstractTxn atxn : tset )
-          {
-            String tmp = calcFITxnIdAbstract( atxn );
-            
-            //System.err.println( "tmp string [" + k + "] =" + tmp + "=" );
-            tsetMatcherKey.add( tmp );
-            tsetFITxnIdMatcherKey.add( atxn.getFiTxnId( OnlineTxn.PROTO_TYPE_OFX ) );
-            tsetFITxnIdMatcherKey.add( atxn.getFiTxnId( defProtocolId ) );
-            
-            k++;
-            //if ( k > 9 )
-             //   break;
-          }
-      System.err.println(  "\n---------   end: make set of existing account transactions  -------------" );
-      
+
       /*   THIS DOES NOT SEEM TO HAVE ENTRIES SO i AM LEAVING IT OUT
       int max = transactionList.getTxnCount();
       for ( k = 0; k < max; k++ ) // OnlineTxn onlinetxn : transactionList )
@@ -256,8 +295,8 @@ public abstract class TransactionReader
             //if ( k > 9 )
              //   break;
           }
-      System.err.println(  "\n---------   end: make set of existing account online transactions  -------------" );
       */
+      System.err.println(  "\n---------   end: make set of existing account online transactions  -------------" );
       
       //csvData.reset();
         if ( this instanceof CustomReader )
@@ -274,40 +313,84 @@ public abstract class TransactionReader
       //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
 
       //----- Skip Header Lines  -----
-        if ( this instanceof CustomReader )
+        System.err.println(  "getHeaderCount() =" + getHeaderCount() );
+        for ( int hdrCnt = getHeaderCount(); hdrCnt > 0; --hdrCnt )
             {
-//            int skipHeaderLines = customReaderDialog.getHeaderLines();
-            int skipHeaderLines = getCustomReaderData().getHeaderLines();
-            for ( int i = 0; i < skipHeaderLines; i++ )
-                {
-                System.err.println(  "skip header for customReader" );
-                csvData.nextLine();
-                }
-            }
-        else
-            {
-              if ( haveHeader() )
-                {
-                 csvData.nextLine(); // skip the header
-                }
+            csvData.nextLine(); // skip the header
+            System.err.println( "skip header" );
             }
       
-      while ( csvData.nextLine() )
-          {
-          totalProcessed ++;
-          OnlineTxn txn = transactionList.newTxn();
-          if ( parseNext( txn ) )
-            {
-            txn.setProtocolType( OnlineTxn.PROTO_TYPE_OFX );
+      //testing
+      com.moneydance.apps.md.controller.Main mainApp =
+                        (com.moneydance.apps.md.controller.Main) main.getMainContext();
+      OnlineManager onlineMgr = new OnlineManager( (MoneydanceGUI) mainApp.getUI() );
 
-            /*
-            if ( ! importDialog.isSelectedOnlineImportTypeRB() )
+//		this.account = account;
+//		this.transactionList = account.getDownloadedTxns();
+      long totalProcessed = 0;
+      long totalAccepted = 0;
+      long totalRejected = 0;
+      long totalDuplicates = 0;
+//		priorAccountNameFromCSV = "";
+//		System.out.println("calling while (csvData.nextLine())...");
+      boolean accountMissingError = false;
+
+      while ( csvData.nextLine() )
+        {
+        accountNameFromCSV = "";
+        totalProcessed++;
+        //			System.out.println("calling parseNext...");
+        if ( parseNext() )
+            {
+            if ( null == accountNameFromCSV || accountNameFromCSV.isEmpty() )
                 {
-                // Flip signs for regular txn's
-                txn.setAmount( -txn.getAmount() );
-                txn.setTotalAmount( -txn.getAmount() );
+                System.out.println( "accountNameFromCSV is empty. Used selected acct." );
+                this.account = accountIn;
                 }
+            else
+                {
+                this.account = rootAccount.getAccountByName( accountNameFromCSV );
+                System.out.println( "accountNameFromCSV: " +  accountNameFromCSV );
+                if ( this.account == null )
+                    {
+                    System.err.println( "ERROR: account is null" );
+                    //TODO: make new account?
+                    if ( ! accountMissingError )
+                        {
+                        JOptionPane.showMessageDialog(importDialog, "The account in the CSV file must \nalready exist in Money Dance. \nPlease create it first.");
+                        }
+                    accountMissingError = true;
+                    totalRejected++;
+                    continue;
+                    }
+                System.out.println( "account.getAccountName(): " + this.account.getAccountName() );
+                }
+          //TODO: per-account currency assignment is unfinished.
+          //it requires separating parsing logic from matching logic. 2011.11.25 ds
+          //this.currency = account.getCurrencyType();
+
+
+        //  if (null != this.transactionList &&
+        //  ! accountNameFromCSV.contentEquals(priorAccountNameFromCSV)) {
+        //  priorAccountNameFromCSV = accountNameFromCSV;
+          this.transactionList = account.getDownloadedTxns();//TODO: move this out of loop
+          System.err.println( "tset.getSize() = " + tset.getSize() + "   online txns.getSize() = " + transactionList.getTxnCount() );
+
+        //				}
+          System.out.println("OnlineTxn txn = transactionList.newTxn();");
+          OnlineTxn txn = transactionList.newTxn();
+          assignDataToTxn( txn );
+          txn.setProtocolType( OnlineTxn.PROTO_TYPE_OFX );
+
+          /*
+          if ( ! importDialog.isSelectedOnlineImportTypeRB() )
+          {
+          // Flip signs for regular txn's
+          txn.setAmount( -txn.getAmount() );
+          txn.setTotalAmount( -txn.getAmount() );
+          }
             */
+            System.err.println( "if (account.balanceIsNegated())" );
             if ( account.balanceIsNegated() )
                 {
                 txn.setAmount( -txn.getAmount() );
@@ -343,19 +426,23 @@ public abstract class TransactionReader
                     txnSet.addNewTxn( pTxn );
                     }
                 totalAccepted ++;
+                // I don't know why, but for now this works here, but not below, after the main loop - Stan. Maybe because of using multiple account names?
+                System.err.println( "onlineMgr.processDownloadedTxns for account :" + account.getAccountName() );
+                onlineMgr.processDownloadedTxns( account );
                 }
             else
                 {
                 System.err.println( "will NOT add Duplicate transaction with txn.getFITxnId( ) =" + txn.getFITxnId( ) + "=" );
                 totalDuplicates ++;
                 }
-              }
+              }  // parseNext()
           else
               {
+              // need to fixxx that it counts blank lines which it skips, as rejecteds
               csvData.printCurrentLine();
               totalRejected++;
              }
-         }
+         }  // end while()
       
       JOptionPane.showMessageDialog( importDialog, "Total Records Process: " + totalProcessed
                                                                             + "\nRecords Imported: " + totalAccepted
@@ -453,7 +540,7 @@ public abstract class TransactionReader
             return this.customReaderDialog.getNumberOfCustomReaderFieldsUsed();
         }
    
-   public static TransactionReader[] getCompatibleReaders( File selectedFile, ImportDialog importDialogArg )
+   public static TransactionReader[] getCompatibleReaders( File selectedFile, ImportDialog importDialogArg, RootAccount rootAccount )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
       importDialog = importDialogArg;
@@ -470,6 +557,7 @@ public abstract class TransactionReader
                 CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
                 CSVData csvData = new CSVData( csvReader );
             
+                transactionReader.setRootAccount( rootAccount );
                 if ( transactionReader.canParse( csvData ) )
                       {
                       System.err.println( "------- at canparse WORKS for =" + key + "=" );
@@ -539,7 +627,8 @@ public abstract class TransactionReader
       return getFormatName();
    }
 
-   protected abstract boolean haveHeader();
+   //protected abstract boolean haveHeader();
+   protected abstract int getHeaderCount();
    
    /*
    protected String convertParensToMinusSign( String amt )

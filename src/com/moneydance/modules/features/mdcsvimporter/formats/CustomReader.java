@@ -28,12 +28,26 @@ import java.io.IOException;
  */
 public class CustomReader extends TransactionReader
 {
-   private static final String DATE_FORMAT_US = "MM/DD/YYYY";
-   private static final String DATE_FORMAT_EU = "DD/MM/YY";
-   private static final String DATE_FORMAT_JP = "YY/MM/DD";
-   private static final String DATE_FORMAT_INTN = "YYYY-MM-DD";
+    public static final String DATA_TYPE_BLANK = "";
+    public static final String DATA_TYPE_IGNORE = "ignore";
+    public static final String DATA_TYPE_PAYMENT = "-Payment-";
+    public static final String DATA_TYPE_DEPOSIT = "-Deposit-";
+    public static final String DATA_TYPE_DATE = "date";
+    public static final String DATA_TYPE_DATE_AVAILABLE = "date available";
+    public static final String DATA_TYPE_DATE_INITIATED = "date initiated";
+    public static final String DATA_TYPE_DATE_POSTED = "date posted";
+    public static final String DATA_TYPE_DATE_PURCHASED = "date purchased";
+    public static final String DATA_TYPE_CHECK_NUMBER = "check number";
+    public static final String DATA_TYPE_DESCRIPTION = "description";
+    public static final String DATA_TYPE_MEMO = "memo";
+    public static final String DATA_TYPE_ACCOUNT_NAME = "account name";
 
-   private String dateFormatStringSelected = DATE_FORMAT_US;
+    private static final String DATE_FORMAT_US = "MM/DD/YYYY";
+    private static final String DATE_FORMAT_EU = "DD/MM/YY";
+    private static final String DATE_FORMAT_JP = "YY/MM/DD";
+    private static final String DATE_FORMAT_INTN = "YYYY-MM-DD";
+
+    private String dateFormatStringSelected = DATE_FORMAT_US;
    
    private static String[] SUPPORTED_DATE_FORMATS =
    {
@@ -43,18 +57,23 @@ public class CustomReader extends TransactionReader
            , DATE_FORMAT_INTN
    };
 
-   private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT_US );
-   //private CustomDateFormat dateFormat;
+    private CustomDateFormat dateFormat = new CustomDateFormat( DATE_FORMAT_US );
+    //private CustomDateFormat dateFormat;
    
-   //private String[] compatibleDateFormats;
-   private String dateFormatString;
+    //private String[] compatibleDateFormats;
+    private String dateFormatString;
 
-     private long amount = 0;
-     private int date = 0;
-     private String description = "";
-     private String checkNumber = "";
-	 private String phoneString;
-	 private String memo;
+    private long amount = 0;
+    private int date = 0;
+    private int dateAvailable = 0;
+    private int dateInitiated = 0;
+    private int datePosted = 0;
+    private int datePurchased = 0;
+    private String description = "";
+    private String checkNumber = "";
+    private String phoneString;
+    private String memo;
+    private String accountName;
    
    public CustomReader( CustomReaderData customReaderData )
         {
@@ -98,7 +117,7 @@ public class CustomReader extends TransactionReader
       //csvData.getReader().setFieldSeparator( getCustomReaderData().getFieldSeparatorChar() );
       //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
         
-        int skipHeaderLines = getCustomReaderData().getHeaderLines();
+        int skipHeaderLines = getHeaderCount();
         for ( int i = 0; i < skipHeaderLines; i++ )
             {
             System.err.println( "skip header line" );
@@ -142,11 +161,11 @@ public class CustomReader extends TransactionReader
 //                }
              String fieldString = data.getField();
              
-             if ( dataTypeExpecting.equalsIgnoreCase( "ignore" ) )
+             if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
                 {
                 continue;
                 }
-             else if ( ( fieldString == null || fieldString.equals( "" ) ) )
+             else if ( ( fieldString == null || fieldString.equals( DATA_TYPE_BLANK ) ) )
                 {
                 if ( ! getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).equals( "Can Be Blank" ) )
                     {
@@ -161,7 +180,12 @@ public class CustomReader extends TransactionReader
                     }
                 }
                 
-             if ( dataTypeExpecting.equalsIgnoreCase( "date" ) )
+             if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE ) 
+                   ||  dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_AVAILABLE )
+                   ||  dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_INITIATED )
+                   ||  dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_POSTED )
+                   ||  dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_PURCHASED )
+                     )
                 {
                 System.err.println(  "date >" + fieldString + "<" );
                 System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
@@ -191,8 +215,8 @@ public class CustomReader extends TransactionReader
                  }
               /**/
                 }
-             else if ( dataTypeExpecting.equalsIgnoreCase( "-Payment-" ) 
-                         || dataTypeExpecting.equalsIgnoreCase( "-Deposit-" ) )   // was only amount before
+             else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_PAYMENT ) 
+                         || dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DEPOSIT ) )   // was only amount before
                 {
                 System.err.println(  "amountString >" + fieldString + "<" );
                 fieldString = fieldString.replaceAll( "\\((.*)\\)", "-$1" );
@@ -230,17 +254,30 @@ public class CustomReader extends TransactionReader
                         break;
                      }
                 }
-             else if ( dataTypeExpecting.equalsIgnoreCase( "description" ) )
+             else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DESCRIPTION ) )
                 {
                 System.err.println(  "description >" + fieldString + "<" );
                 }
-             else if ( dataTypeExpecting.equalsIgnoreCase( "memo" ) )
+             else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_MEMO) )
                 {
                 System.err.println(  "memo >" + fieldString + "<" );
                 }
              else if ( dataTypeExpecting.equalsIgnoreCase( "tag" ) )
                 {
                 System.err.println(  "tag >" + fieldString + "<" );
+                }
+             else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_ACCOUNT_NAME ) )
+                {
+                System.err.println(  "accountName >" + fieldString + "<" );
+                accountName = fieldString;
+
+                if ( rootAccount.getAccountByName( accountName ) == null )
+                    {
+                    System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+                    retVal = false;
+                    break;
+                    }
+                this.accountNameFromCSV = accountName;
                 }
              } // end for
       }
@@ -262,10 +299,15 @@ public class CustomReader extends TransactionReader
    {
      amount = 0;
      date = 0;
+     dateAvailable = 0;
+     dateInitiated = 0;
+     datePosted = 0;
+     datePurchased = 0;
      description = "";
      checkNumber = "";
-	 phoneString  = "";
-	 memo  = "";
+     phoneString = "";
+     memo = "";
+     accountName = "";
 
      int fieldIndex = 0;
      int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
@@ -290,7 +332,7 @@ public class CustomReader extends TransactionReader
          String fieldString = csvData.getField();
          System.err.println(  "fieldString =" + fieldString + "=  fieldIndex = " + fieldIndex );
 
-         if ( dataTypeExpecting.equalsIgnoreCase( "ignore" ) )
+         if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
             {
             continue;
             }
@@ -302,7 +344,7 @@ public class CustomReader extends TransactionReader
             throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but got no value =" + fieldString + "= and STOP ON ERROR" );
             }
          
-         if ( dataTypeExpecting.equalsIgnoreCase( "date" ) )
+         if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE ) )
             {
             System.err.println(  "date >" + fieldString + "<" );
             System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
@@ -320,8 +362,36 @@ public class CustomReader extends TransactionReader
              }
           */
             }
-         else if ( ( dataTypeExpecting.equalsIgnoreCase( "-Payment-" )
-                      || dataTypeExpecting.equalsIgnoreCase( "-Deposit-" ) )
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_AVAILABLE ) )
+            {
+            System.err.println(  "dateAvailable >" + fieldString + "<" );
+            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+
+            dateAvailable = dateFormat.parseInt( fieldString );
+            }
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_INITIATED) )
+            {
+            System.err.println(  "dateInitiated >" + fieldString + "<" );
+            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+
+            dateInitiated = dateFormat.parseInt( fieldString );
+            }
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_POSTED ) )
+            {
+            System.err.println(  "datePosted >" + fieldString + "<" );
+            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+
+            datePosted = dateFormat.parseInt( fieldString );
+            }
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_PURCHASED ) )
+            {
+            System.err.println(  "datePurchased >" + fieldString + "<" );
+            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+
+            datePurchased = dateFormat.parseInt( fieldString );
+            }
+         else if ( ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_PAYMENT )
+                      || dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DEPOSIT ) )
                                         &&
                      ! ( fieldString == null || fieldString.equals( "" ) ) )
             {
@@ -331,11 +401,11 @@ public class CustomReader extends TransactionReader
             try
                 {
                 double amountDouble = StringUtils.parseDoubleWithException( fieldString, '.' );
-                if ( dataTypeExpecting.equalsIgnoreCase( "-Payment-" ) )
+                if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_PAYMENT ) )
                     {
                     amount += currency.getLongValue( amountDouble );
                     }
-                else if ( dataTypeExpecting.equalsIgnoreCase( "-Deposit-" ) )
+                else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DEPOSIT ) )
                     {
                     System.err.println(  "flip sign for deposit" );
                     amount -= currency.getLongValue( amountDouble );
@@ -348,7 +418,7 @@ public class CustomReader extends TransactionReader
 //            txn.setAmount( amount );
 //            txn.setTotalAmount( amount );
             }
-         else if ( dataTypeExpecting.equalsIgnoreCase( "check number" ) )
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_CHECK_NUMBER ) )
             {
             //origCheckNumber = fieldString;
             /*  changed matching to use original check number which contained leading 0's so go back to using that. Stan
@@ -362,13 +432,13 @@ public class CustomReader extends TransactionReader
 			checkNumber = fieldString;
 //            txn.setCheckNum( fieldString );
             }
-         else if ( dataTypeExpecting.equalsIgnoreCase( "description" ) )
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DESCRIPTION ) )
             {
             System.err.println(  "description >" + fieldString + "<" );
 //            txn.setName( fieldString );
             description = fieldString;
             }
-         else if ( dataTypeExpecting.equalsIgnoreCase( "memo" ) )
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_MEMO ) )
             {
             System.err.println(  "memo >" + fieldString + "<" );
 			memo = fieldString;
@@ -381,6 +451,18 @@ public class CustomReader extends TransactionReader
 //            txn.setPhone( fieldString );
 			phoneString = fieldString;
             }
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_ACCOUNT_NAME ) )
+            {
+            System.err.println(  "accountName >" + fieldString + "<" );
+            accountName = fieldString;
+
+            if ( rootAccount.getAccountByName( accountName ) == null )
+                {
+                System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+                throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+                }
+            this.accountNameFromCSV = accountName;
+            }
          } // end for
 
      // MOVED to TransactionReader so everyone creates it the same way.
@@ -392,24 +474,64 @@ public class CustomReader extends TransactionReader
 
    @Override
    protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
-   {
-		txn.setAmount( amount );
-		txn.setTotalAmount( amount );
-		txn.setDatePostedInt( date );
-        txn.setDateInitiatedInt( date );
+    {
+    txn.setAmount( amount );
+    txn.setTotalAmount( amount );
+    
+    if ( dateAvailable != 0 )
+        {
+        txn.setDateAvailableInt( dateAvailable );
+        }
+    else
+        {
         txn.setDateAvailableInt( date );
-		txn.setCheckNum( checkNumber );
-		txn.setName( description );
-		txn.setMemo( memo );
-		txn.setPhone( phoneString );
+        }
+    
+    if ( dateInitiated != 0 )
+        {
+        txn.setDateInitiatedInt( dateInitiated );
+        }
+    else
+        {
+        txn.setDateInitiatedInt( date );
+        }
+    
+    if ( datePosted != 0 )
+        {
+        txn.setDatePostedInt( datePosted );
+        }
+    else
+        {
+        txn.setDatePostedInt( date );
+        }
+    
+    if ( datePurchased != 0 )
+        {
+        txn.setDatePurchasedInt( datePurchased );
+        }
+    else
+        {
+        txn.setDatePurchasedInt( date );
+        }
+
+//    System.err.println(  "date >" + date + "<" );
+//    System.err.println(  "date >" + txn.getDateAvailableInt() + "<" );
+//    System.err.println(  "date >" + txn.getDateInitiatedInt() + "<" );
+//    System.err.println(  "date >" + txn.getDatePostedInt() + "<" );
+//    System.err.println(  "date >" + txn.getDatePurchasedInt() + "<" );
+
+    txn.setCheckNum( checkNumber );
+    txn.setName( description );
+    txn.setMemo( memo );
+    txn.setPhone( phoneString );
 		// MOVED to TransactionReader so everyone creates it the same way.
 //		txn.setFITxnId( date + ":" + currency.format( amount, '.' )
 //				+ ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
-		System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' )
-				+ ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
-
-      return true;
-   }
+    //System.err.println(  "FITxnld >" + date + ":" + currency.format( amount, '.' )
+    //                        + ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() + "<" );
+//(date == 0 ? datePurchased : date)
+    return true;
+    }
 
    @Override
    public String[] getSupportedDateFormats()
