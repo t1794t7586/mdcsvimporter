@@ -17,9 +17,15 @@ public class CustomReaderData {
     //ArrayList<String> dateFormatList = new ArrayList<String>( 10 );
     int fieldSeparatorChar = ',';
     int headerLines = 0;
+    int footerLines = 0;
+    int amountCurrencyChar = '$';
+    int amountDecimalSignChar = '.';
+    int amountGroupingSeparatorChar = ',';
+    String amountFormat = "#,###,###,##0.00;(#)";
     String readerName = "";
     String dateFormatString = "MM/DD/YY";
 
+    
     public ArrayList<String> getDataTypesList() {
         return dataTypesList;
     }
@@ -82,4 +88,44 @@ public class CustomReaderData {
         return c;
         }
 
+    public int getFooterLines() {
+        return footerLines;
+    }
+
+    public void setFooterLines(int footerLines) {
+        this.footerLines = footerLines;
+    }
+
+    public int getAmountCurrencyChar() {
+        return amountCurrencyChar;
+    }
+
+    public void setAmountCurrencyChar(int amountCurrencyChar) {
+        this.amountCurrencyChar = amountCurrencyChar;
+    }
+
+    public int getAmountDecimalSignChar() {
+        return amountDecimalSignChar;
+    }
+
+    public void setAmountDecimalSignChar(int amountDecimalSignChar) {
+        this.amountDecimalSignChar = amountDecimalSignChar;
+    }
+
+    public String getAmountFormat() {
+        return amountFormat;
+    }
+
+    public void setAmountFormat(String amountFormat) {
+        this.amountFormat = amountFormat;
+    }
+
+    public int getAmountGroupingSeparatorChar() {
+        return amountGroupingSeparatorChar;
+    }
+
+    public void setAmountGroupingSeparatorChar(int amountGroupingSeparatorChar) {
+        this.amountGroupingSeparatorChar = amountGroupingSeparatorChar;
+    }
+  
 }

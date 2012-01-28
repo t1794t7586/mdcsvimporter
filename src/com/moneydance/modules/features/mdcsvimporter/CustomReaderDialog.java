@@ -61,8 +61,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
        private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
        private static SimpleCreditDebitReader simpleCreditDebitReader = new SimpleCreditDebitReader();
        private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
-	   private static YodleeReader yodleeReader = new YodleeReader();
-	   private static BbvaCompassBankReader bbvaCompassReader = new BbvaCompassBankReader();
+       private static YodleeReader yodleeReader = new YodleeReader();
+       private static BbvaCompassBankReader bbvaCompassReader = new BbvaCompassBankReader();
 
 
     /** Creates new form CustomerReaderDialog */
@@ -88,8 +88,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         //customReaderData.setDateFormatList( readDateFormatList() );
         customReaderData.setFieldSeparatorChar( getFieldSeparatorChar() );
         customReaderData.setHeaderLines( getHeaderLines() );
+        customReaderData.setFooterLines( getFooterLines() );
         customReaderData.setDateFormatString( getDateFormatString() );
 
+        customReaderData.setAmountCurrencyChar( getAmountCurrencyChar() );
+        customReaderData.setAmountDecimalSignChar( getAmountDecimalSignChar() );
+        customReaderData.setAmountGroupingSeparatorChar( getAmountGroupingSeparatorChar() );
+        customReaderData.setAmountFormat( getAmountFormat() );
+        
         /*
         System.out.println( "add datatype===================================" );
         int i = 0;
@@ -162,6 +168,12 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         //dateFormatList = customReaderData.getDateFormatList();
         setFieldSeparatorChar( customReaderData.getFieldSeparatorChar() );
         setHeaderLines( customReaderData.getHeaderLines() );
+        setFooterLines( customReaderData.getFooterLines() );
+        
+        setAmountCurrencyChar( customReaderData.getAmountCurrencyChar() );
+        setAmountDecimalSignChar( customReaderData.getAmountDecimalSignChar() );
+        setAmountGroupingSeparatorChar( customReaderData.getAmountGroupingSeparatorChar() );
+        setAmountFormat( customReaderData.getAmountFormat() );
 
         DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
         customReadersList.setSelectedValue( readerNameToGet, true );
@@ -250,6 +262,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         {
         setFieldSeparatorChar( ',' );
         setHeaderLines( 1 );
+        setFooterLines( 0 );
         
         dataType0.setSelectedIndex( 0 );
         dataType1.setSelectedIndex( 0 );
@@ -398,6 +411,26 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         return x;
     }
 
+    public void setFooterLines( int xxx ) 
+        {
+        footerLines.setText( String.valueOf( xxx ) );
+        //System.err.println( "CustomReaderDialog.setFooterLines(" + xxx +") text =" + footerLines.getText().trim() + "=" );
+        }
+    
+    public int getFooterLines() {
+        int x = 0;
+        //System.err.println( "CustomReaderDialog.getFooterLines() text =" + footerLines.getText().trim() + "=" );
+        try
+            {
+            x = Integer.parseInt( footerLines.getText().trim() );
+            }
+        catch ( Exception ex )
+            {
+            ;
+            }
+        return x;
+    }
+
     public void setFieldSeparatorChar( int xxx) {
         fieldSeparatorChar.setText( String.valueOf( Character.toString( (char) xxx ) ) );
     }
@@ -406,6 +439,38 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         return fieldSeparatorChar.getText().charAt( 0 );
     }
     
+    public void setAmountCurrencyChar( int xxx) {
+        amountCurrencyChar.setText( String.valueOf( Character.toString( (char) xxx ) ) );
+    }
+
+    public int getAmountCurrencyChar() {
+        return amountCurrencyChar.getText().charAt( 0 );
+    }
+    
+    public void setAmountDecimalSignChar( int xxx) {
+        amountDecimalSignChar.setText( String.valueOf( Character.toString( (char) xxx ) ) );
+    }
+
+    public int getAmountDecimalSignChar() {
+        return amountDecimalSignChar.getText().charAt( 0 );
+    }
+    
+    public void setAmountGroupingSeparatorChar( int xxx) {
+        amountGroupingSeparatorChar.setText( String.valueOf( Character.toString( (char) xxx ) ) );
+    }
+
+    public int getAmountGroupingSeparatorChar() {
+        return amountGroupingSeparatorChar.getText().charAt( 0 );
+    }
+    
+    public void setAmountFormat( String xxx) {
+        amountFormat.setText( xxx );
+    }
+    
+    public String getAmountFormat() {
+        return (String) amountFormat.getText();
+    }
+
     protected void init()
         {
         /*
@@ -553,14 +618,16 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         dateFormatCr = new javax.swing.JTextField();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
-        groupingSeparatorSymbol = new javax.swing.JTextField();
+        amountGroupingSeparatorChar = new javax.swing.JTextField();
         jLabel22 = new javax.swing.JLabel();
-        decimalSignSymbol = new javax.swing.JTextField();
+        amountDecimalSignChar = new javax.swing.JTextField();
         jLabel23 = new javax.swing.JLabel();
-        currencySymbol = new javax.swing.JTextField();
+        amountCurrencyChar = new javax.swing.JTextField();
         jLabel24 = new javax.swing.JLabel();
         amountFormat = new javax.swing.JTextField();
         jLabel25 = new javax.swing.JLabel();
+        jLabel26 = new javax.swing.JLabel();
+        footerLines = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(70, 20));
@@ -791,17 +858,16 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 6;
         getContentPane().add(jLabel12, gridBagConstraints);
 
-        jLabel13.setText("Number of Header Lines:");
+        jLabel13.setText("Number of Footer Lines:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel13, gridBagConstraints);
 
         headerLines.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         headerLines.setText("1");
+        headerLines.setMinimumSize(new java.awt.Dimension(40, 19));
         headerLines.setPreferredSize(new java.awt.Dimension(40, 19));
         headerLines.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -810,7 +876,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(headerLines, gridBagConstraints);
 
@@ -908,7 +974,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 20;
         getContentPane().add(doneBtn, gridBagConstraints);
 
-        jLabel18.setText("Field Separator:");
+        jLabel18.setText("CSV Field Separator:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 5;
@@ -981,21 +1047,21 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel21, gridBagConstraints);
 
-        groupingSeparatorSymbol.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        groupingSeparatorSymbol.setText(",");
-        groupingSeparatorSymbol.setEnabled(false);
-        groupingSeparatorSymbol.setMinimumSize(new java.awt.Dimension(20, 19));
-        groupingSeparatorSymbol.setPreferredSize(new java.awt.Dimension(20, 19));
-        groupingSeparatorSymbol.addActionListener(new java.awt.event.ActionListener() {
+        amountGroupingSeparatorChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        amountGroupingSeparatorChar.setText(",");
+        amountGroupingSeparatorChar.setEnabled(false);
+        amountGroupingSeparatorChar.setMinimumSize(new java.awt.Dimension(20, 19));
+        amountGroupingSeparatorChar.setPreferredSize(new java.awt.Dimension(20, 19));
+        amountGroupingSeparatorChar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                groupingSeparatorSymbolActionPerformed(evt);
+                amountGroupingSeparatorCharActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        getContentPane().add(groupingSeparatorSymbol, gridBagConstraints);
+        getContentPane().add(amountGroupingSeparatorChar, gridBagConstraints);
 
         jLabel22.setText("Decimal Sign:");
         jLabel22.setEnabled(false);
@@ -1006,16 +1072,16 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel22, gridBagConstraints);
 
-        decimalSignSymbol.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        decimalSignSymbol.setText(".");
-        decimalSignSymbol.setEnabled(false);
-        decimalSignSymbol.setMinimumSize(new java.awt.Dimension(20, 19));
-        decimalSignSymbol.setPreferredSize(new java.awt.Dimension(20, 19));
+        amountDecimalSignChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        amountDecimalSignChar.setText(".");
+        amountDecimalSignChar.setEnabled(false);
+        amountDecimalSignChar.setMinimumSize(new java.awt.Dimension(20, 19));
+        amountDecimalSignChar.setPreferredSize(new java.awt.Dimension(20, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        getContentPane().add(decimalSignSymbol, gridBagConstraints);
+        getContentPane().add(amountDecimalSignChar, gridBagConstraints);
 
         jLabel23.setText("Currency Symbol:");
         jLabel23.setEnabled(false);
@@ -1026,16 +1092,16 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel23, gridBagConstraints);
 
-        currencySymbol.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        currencySymbol.setText("$");
-        currencySymbol.setEnabled(false);
-        currencySymbol.setMinimumSize(new java.awt.Dimension(20, 19));
-        currencySymbol.setPreferredSize(new java.awt.Dimension(20, 19));
+        amountCurrencyChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        amountCurrencyChar.setText("$");
+        amountCurrencyChar.setEnabled(false);
+        amountCurrencyChar.setMinimumSize(new java.awt.Dimension(20, 19));
+        amountCurrencyChar.setPreferredSize(new java.awt.Dimension(20, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        getContentPane().add(currencySymbol, gridBagConstraints);
+        getContentPane().add(amountCurrencyChar, gridBagConstraints);
 
         jLabel24.setText("Amount Format:");
         jLabel24.setEnabled(false);
@@ -1047,6 +1113,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(jLabel24, gridBagConstraints);
 
         amountFormat.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        amountFormat.setText("#,###,###,##0.00;(#)");
         amountFormat.setEnabled(false);
         amountFormat.setMinimumSize(new java.awt.Dimension(160, 19));
         amountFormat.setPreferredSize(new java.awt.Dimension(160, 19));
@@ -1062,6 +1129,30 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 1;
         getContentPane().add(jLabel25, gridBagConstraints);
+
+        jLabel26.setText("Number of Header Lines:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        getContentPane().add(jLabel26, gridBagConstraints);
+
+        footerLines.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        footerLines.setText("0");
+        footerLines.setMinimumSize(new java.awt.Dimension(40, 19));
+        footerLines.setPreferredSize(new java.awt.Dimension(40, 19));
+        footerLines.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                footerLinesActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        getContentPane().add(footerLines, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -1093,6 +1184,18 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             return;
             }
         
+        try
+            {
+            int x = Integer.parseInt( footerLines.getText().trim() );
+            if ( x < 0 )
+                throw new Exception();
+            }
+        catch ( Exception ex )
+            {
+            message.setText( "Number of Footer Lines must be 0 or more" );
+            return;
+            }
+        
         CustomReaderData customReaderData = ReaderConfigsHM.get( readerName.getText() );
         
         customReaderData.setReaderName( readerName.getText() );
@@ -1101,8 +1204,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         //customReaderData.setDateFormatList( readDateFormatList() );
         customReaderData.setFieldSeparatorChar( getFieldSeparatorChar() );
         customReaderData.setHeaderLines( getHeaderLines() );
+        customReaderData.setFooterLines( getFooterLines() );
         customReaderData.setDateFormatString( getDateFormatString() );
         
+        customReaderData.setAmountCurrencyChar( getAmountCurrencyChar() );
+        customReaderData.setAmountDecimalSignChar( getAmountDecimalSignChar() );
+        customReaderData.setAmountGroupingSeparatorChar( getAmountGroupingSeparatorChar() );
+        customReaderData.setAmountFormat( getAmountFormat() );
+
         ReaderConfigsHM.put( readerName.getText(), customReaderData );
         // *** I could get and replace the existing one but just do this for now until things work  ! ! !
         CustomReader customReader = new CustomReader( customReaderData );
@@ -1156,9 +1265,13 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             ;
     }//GEN-LAST:event_dateFormatCrActionPerformed
 
-    private void groupingSeparatorSymbolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_groupingSeparatorSymbolActionPerformed
+    private void amountGroupingSeparatorCharActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_amountGroupingSeparatorCharActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_groupingSeparatorSymbolActionPerformed
+    }//GEN-LAST:event_amountGroupingSeparatorCharActionPerformed
+
+    private void footerLinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_footerLinesActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_footerLinesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1180,8 +1293,10 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addBtn;
+    private javax.swing.JTextField amountCurrencyChar;
+    private javax.swing.JTextField amountDecimalSignChar;
     private javax.swing.JTextField amountFormat;
-    private javax.swing.JTextField currencySymbol;
+    private javax.swing.JTextField amountGroupingSeparatorChar;
     private javax.swing.JList customReadersList;
     private javax.swing.JComboBox dataType0;
     private javax.swing.JComboBox dataType1;
@@ -1194,11 +1309,10 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     private javax.swing.JComboBox dataType8;
     private javax.swing.JComboBox dataType9;
     private javax.swing.JTextField dateFormatCr;
-    private javax.swing.JTextField decimalSignSymbol;
     private javax.swing.JButton deleteBtn;
     private javax.swing.JButton doneBtn;
     private javax.swing.JTextField fieldSeparatorChar;
-    private javax.swing.JTextField groupingSeparatorSymbol;
+    private javax.swing.JTextField footerLines;
     private javax.swing.JTextField headerLines;
     private javax.swing.JComboBox isNullable0;
     private javax.swing.JComboBox isNullable1;
@@ -1228,6 +1342,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

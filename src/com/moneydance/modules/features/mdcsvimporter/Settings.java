@@ -38,6 +38,7 @@ public final class Settings
 {    
     static HashMap<String, CustomReaderData> ReaderConfigsHM = null;
     static HashMap<String, TransactionReader> ReaderHM = null;
+    static Properties currentProps = new Properties();
 
    private static File getFilename()
    {
@@ -48,7 +49,8 @@ public final class Settings
    private static Properties load()
       throws IOException
    {
-      Properties retVal = new Properties();
+      currentProps = new Properties();
+      
       InputStream is;
       try
       {
@@ -56,17 +58,17 @@ public final class Settings
       }
       catch ( FileNotFoundException ex )
       {
-         return retVal; // no file is normal condition to start with empty props object
+         return currentProps; // no file is normal condition to start with empty props object
       }
       try
       {
-         retVal.load( is );
+         currentProps.load( is );
       }
       finally
       {
          is.close();
       }
-      return retVal;
+      return currentProps;
    }
 
    private static void save( Properties props )
@@ -80,14 +82,19 @@ public final class Settings
       finally
       {
          os.close();
+         load();
       }
    }
 
-   public static String get( String name )
+   public static String get( boolean loadProps, String name )
    {
       try
       {
-         return load().getProperty( name );
+         if ( loadProps )
+            {
+            load();
+            }
+         return currentProps.getProperty( name );
       }
       catch ( IOException ex )
       {
@@ -96,6 +103,100 @@ public final class Settings
       }
    }
            
+   public static String get( boolean loadProps, String name, String defaultValue )
+    {
+    String retVal = get( loadProps, name );
+    if ( retVal == null )
+        {
+        return defaultValue;
+        }
+    return retVal;
+    }
+
+   public static void set( String name, String value )
+   {
+      try
+      {
+         Properties props = load();
+
+        setOnly( props, name, value );
+
+        save( props );
+      }
+      catch ( IOException ex )
+      {
+         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
+      }
+   }
+
+   public static void setOnly( Properties props, String name, String value )
+   {
+         // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
+         String oldValue = props.getProperty( name );
+         if ( (oldValue != null && oldValue.equals( value )) ||
+            (value != null && value.equals( oldValue )) )
+         {
+            return;
+         }
+
+         props.setProperty( name, value );
+   }
+
+   public static boolean getBoolean( boolean loadProps, String name )
+   {
+      return getBoolean( loadProps, name, false );
+   }
+
+   public static boolean getBoolean( boolean loadProps, String name, boolean defaultValue )
+   {
+      String value = get( loadProps, name );
+      if ( value == null )
+      {
+         return defaultValue;
+      }
+
+      if ( value.equalsIgnoreCase( "true" ) || value.equalsIgnoreCase( "yes" ) ||
+         value.equalsIgnoreCase( "1" ) )
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
+   }
+
+   public static void setBoolean( String name, boolean value )
+   {
+      set( name, value ? "true" : "false" );
+   }
+
+   public static void setYesNo( String name, boolean value )
+   {
+      set( name, value ? "yes" : "no" );
+   }
+
+   public static int getInteger( boolean loadProps, String name )
+   {
+      return getInteger( loadProps, name, 0 );
+   }
+
+   public static int getInteger( boolean loadProps, String name, int defaultValue )
+   {
+      String value = get( loadProps, name );
+      if ( value == null )
+      {
+         return defaultValue;
+      }
+
+      return Integer.parseInt( value );
+   }
+
+   public static void setInteger( String name, int value )
+   {
+      set( name, Integer.toString( value ) );
+   }
+
    public static HashMap<String, CustomReaderData> createReaderConfigsHM()
    {
       ReaderConfigsHM = new HashMap<String, CustomReaderData>();
@@ -116,11 +217,17 @@ public final class Settings
                    
                 CustomReaderData customReaderData = new CustomReaderData();
                 customReaderData.setReaderName( props.getProperty( readerName + ".Name" ) );
-                customReaderData.setFieldSeparatorChar( Integer.parseInt( props.getProperty( readerName + ".FieldSeparator" ) ) );
+                customReaderData.setFieldSeparatorChar( getInteger( false, readerName + ".FieldSeparator", ',' ) );
                 customReaderData.setDateFormatString( props.getProperty( readerName + ".DateFormatString" ) );
 
-                customReaderData.setHeaderLines( Integer.parseInt( props.getProperty( readerName + ".HeaderLines" ) ) );
+                customReaderData.setHeaderLines( getInteger( false, readerName + ".HeaderLines", 0 ) );
+                customReaderData.setFooterLines( getInteger( false, readerName + ".FooterLines", 0 ) );
 
+                customReaderData.setAmountCurrencyChar( getInteger( false, readerName + ".AmountCurrencyChar", '$' ) );
+                customReaderData.setAmountDecimalSignChar( getInteger( false, readerName + ".AmountDecimalSignChar", '.' ) );
+                customReaderData.setAmountGroupingSeparatorChar( getInteger( false, readerName + ".AmountGroupingSeparatorChar", ',' ) );
+                customReaderData.setAmountFormat( props.getProperty( readerName + ".AmountFormat" ) );
+                
                 customReaderData.setDataTypesList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DataTypesList" ).split( "[\\[\\],]" ) ) ) );
                 customReaderData.setEmptyFlagsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".EmptyFlagsList" ).split( "[\\[\\],]" ) ) ) );
 
@@ -175,115 +282,6 @@ public final class Settings
         return ReaderHM;
     }
 
-   public static String get( String name, String defaultValue )
-   {
-      try
-      {
-         String retVal = load().getProperty( name );
-         if ( retVal == null )
-         {
-            return defaultValue;
-         }
-         return retVal;
-      }
-      catch ( IOException ex )
-      {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
-         return defaultValue;
-      }
-   }
-
-   public static void set( String name, String value )
-   {
-      try
-      {
-         Properties props = load();
-
-         // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
-         String oldValue = props.getProperty( name );
-         if ( (oldValue != null && oldValue.equals( value )) ||
-            (value != null && value.equals( oldValue )) )
-         {
-            return;
-         }
-
-         props.setProperty( name, value );
-         save( props );
-      }
-      catch ( IOException ex )
-      {
-         Logger.getLogger( Settings.class.getName() ).log( Level.SEVERE, null, ex );
-      }
-   }
-
-   public static void setOnly( Properties props, String name, String value )
-   {
-         // skip if values match (I am sorry for not optimizing the condition, it is early morning...)
-         String oldValue = props.getProperty( name );
-         if ( (oldValue != null && oldValue.equals( value )) ||
-            (value != null && value.equals( oldValue )) )
-         {
-            return;
-         }
-
-         props.setProperty( name, value );
-   }
-
-   public static boolean getBoolean( String name )
-   {
-      return getBoolean( name, false );
-   }
-
-   public static boolean getBoolean( String name, boolean defaultValue )
-   {
-      String value = get( name );
-      if ( value == null )
-      {
-         return defaultValue;
-      }
-
-      if ( value.equalsIgnoreCase( "true" ) || value.equalsIgnoreCase( "yes" ) ||
-         value.equalsIgnoreCase( "1" ) )
-      {
-         return true;
-      }
-      else
-      {
-         return false;
-      }
-   }
-
-   public static void setBoolean( String name, boolean value )
-   {
-      set( name, value ? "true" : "false" );
-   }
-
-   public static void setYesNo( String name, boolean value )
-   {
-      set( name, value ? "yes" : "no" );
-   }
-
-   public static int getInteger( String name )
-   {
-      return getInteger( name, 0 );
-   }
-
-   public static int getInteger( String name, int defaultValue )
-   {
-      String value = get( name );
-      if ( value == null )
-      {
-         return defaultValue;
-      }
-
-      return Integer.parseInt( value );
-   }
-
-   public static void setInteger( String name, int value )
-   {
-      set( name, Integer.toString( value ) );
-   }
-
    public static void setCustomReaderConfig( CustomReaderData customReaderData )
    {
       try
@@ -292,11 +290,16 @@ public final class Settings
 
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".Name", customReaderData.getReaderName() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".HeaderLines", Integer.toString( customReaderData.getHeaderLines() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".FooterLines", Integer.toString( customReaderData.getFooterLines() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".FieldSeparator", Integer.toString( customReaderData.getFieldSeparatorChar() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatString", customReaderData.getDateFormatString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DataTypesList", customReaderData.getDataTypesList().toString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList", customReaderData.getEmptyFlagsList().toString() );
          //setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatList", customReaderData.getDateFormatList().toString() );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountCurrencyChar", Integer.toString( customReaderData.getAmountCurrencyChar() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountDecimalSignChar", Integer.toString( customReaderData.getAmountDecimalSignChar() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountGroupingSeparatorChar", Integer.toString( customReaderData.getAmountGroupingSeparatorChar() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountFormat", customReaderData.getAmountFormat() );
 
          save( props );
       }
@@ -314,11 +317,17 @@ public final class Settings
          
          props.remove( "reader:" + customReaderData.getReaderName() + ".Name" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".HeaderLines" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".FooterLines" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".FieldSeparator" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".DateFormatString" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".DataTypesList" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList" );
          //props.remove( "reader:" + customReaderData.getReaderName() + ".DateFormatList" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".FooterLines" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".AmountCurrencyChar" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".AmountDecimalSignChar" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".AmountGroupingSeparatorChar" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".AmountFormat" );
 
          save( props );
       }
