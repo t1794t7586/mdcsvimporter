@@ -113,8 +113,8 @@ public class ImportDialog
         fillAccountCombo( main );
         }
 
-      checkDeleteFile.setSelected( Settings.getBoolean( "delete.file" ) );
-      onlineImportTypeRB.setSelected( Settings.getBoolean( "importtype.online.radiobutton" ) );
+      checkDeleteFile.setSelected( Settings.getBoolean( false, "delete.file" ) );
+      onlineImportTypeRB.setSelected( Settings.getBoolean( false, "importtype.online.radiobutton" ) );
               
      skipDuringInit = false;
     }
@@ -315,7 +315,7 @@ public class ImportDialog
 
       if ( comboAccount.getItemCount() > 0 )
       {
-         comboAccount.setSelectedIndex( Settings.getInteger( "selected.account", 0 ) );
+         comboAccount.setSelectedIndex( Settings.getInteger( false, "selected.account", 0 ) );
       }
    }
 
@@ -671,7 +671,7 @@ public class ImportDialog
        dialog.setFileHidingEnabled( true );
        dialog.setDialogTitle( "Select text file" );
        dialog.setCurrentDirectory(
-          new File( Settings.get( "last.directory",
+          new File( Settings.get( false, "last.directory",
           dialog.getCurrentDirectory().getAbsolutePath() ) ) );
        dialog.addChoosableFileFilter( new FileFilter()
        {
@@ -754,7 +754,7 @@ public class ImportDialog
           }
         }
 
-       if ( ! Settings.getBoolean( "success.dialog.shown", false ) )
+       if ( ! Settings.getBoolean( false, "success.dialog.shown", false ) )
         {
           Settings.setYesNo( "success.dialog.shown", true );
           JOptionPane.showMessageDialog( rootPane,

@@ -312,6 +312,27 @@ public abstract class TransactionReader
       //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
       //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
 
+        csvData.reset();
+        long fileLineCount = 0;
+        long endingBlankLines = 0;
+        //----- Count File Lines to know where Footer starts  -----
+        while ( csvData.nextLine() )
+            {
+            fileLineCount ++;
+            if ( ! csvData.hasZeroFields() )
+                {
+                endingBlankLines ++;
+                System.err.println(  "endingBlankLines =" + endingBlankLines );
+                }
+            else
+                {
+                endingBlankLines = 0;
+                }
+            }
+        System.err.println(  "fileLineCount =" + fileLineCount );
+
+        
+      csvData.reset();
       //----- Skip Header Lines  -----
         System.err.println(  "getHeaderCount() =" + getHeaderCount() );
         for ( int hdrCnt = getHeaderCount(); hdrCnt > 0; --hdrCnt )
@@ -331,15 +352,17 @@ public abstract class TransactionReader
       long totalAccepted = 0;
       long totalRejected = 0;
       long totalDuplicates = 0;
+      long stopAtLine = fileLineCount - getHeaderCount() - getCustomReaderData().getFooterLines() - endingBlankLines;
 //		priorAccountNameFromCSV = "";
 //		System.out.println("calling while (csvData.nextLine())...");
       boolean accountMissingError = false;
 
-      while ( csvData.nextLine() )
+      while ( csvData.nextLine() && totalProcessed < stopAtLine )
         {
         accountNameFromCSV = "";
         totalProcessed++;
         //			System.out.println("calling parseNext...");
+        
         if ( parseNext() )
             {
             if ( null == accountNameFromCSV || accountNameFromCSV.isEmpty() )
