@@ -477,6 +477,32 @@ public class CustomReader extends TransactionReader
     {
     txn.setAmount( amount );
     txn.setTotalAmount( amount );
+
+    // ---  set a default date to be used if particular dates are not set  ---s
+    if ( date == 0 )
+        {
+        if ( dateInitiated != 0 )
+            {
+            date = dateInitiated;
+            }
+        else if ( datePurchased != 0 )
+            {
+            date = datePurchased;
+            }
+        else if ( datePosted != 0 )
+            {
+            date = datePosted;
+            }
+        else if ( dateAvailable != 0 )
+            {
+            date = dateAvailable;
+            }
+        else
+            {
+            System.err.println(  "*** Error: No Date field is set !" );
+            throwException( "*** Error: No Date field is set !" );
+            }
+        }
     
     if ( dateAvailable != 0 )
         {
