@@ -35,6 +35,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         String [] dataTypes = { 
                                         CustomReader.DATA_TYPE_BLANK 
                                         , CustomReader.DATA_TYPE_IGNORE 
+                                        , CustomReader.DATA_TYPE_IGNORE_REST 
                                         , CustomReader.DATA_TYPE_PAYMENT 
                                         , CustomReader.DATA_TYPE_DEPOSIT 
                                         , CustomReader.DATA_TYPE_DATE 
@@ -95,6 +96,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         customReaderData.setAmountDecimalSignChar( getAmountDecimalSignChar() );
         customReaderData.setAmountGroupingSeparatorChar( getAmountGroupingSeparatorChar() );
         customReaderData.setAmountFormat( getAmountFormat() );
+        customReaderData.setImportReverseOrderFlg( getImportReverseOrderFlg() );
         
         /*
         System.out.println( "add datatype===================================" );
@@ -174,6 +176,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         setAmountDecimalSignChar( customReaderData.getAmountDecimalSignChar() );
         setAmountGroupingSeparatorChar( customReaderData.getAmountGroupingSeparatorChar() );
         setAmountFormat( customReaderData.getAmountFormat() );
+        setImportReverseOrderFlg( customReaderData.getImportReverseOrderFlg() );
 
         DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
         customReadersList.setSelectedValue( readerNameToGet, true );
@@ -470,6 +473,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     public String getAmountFormat() {
         return (String) amountFormat.getText();
     }
+    
+    public void setImportReverseOrderFlg( boolean xxx) {
+        importReverseOrderFlg.setSelected( xxx  );
+    }
+    
+    public boolean getImportReverseOrderFlg() {
+        return importReverseOrderFlg.isSelected();
+    }
 
     protected void init()
         {
@@ -628,6 +639,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jLabel25 = new javax.swing.JLabel();
         jLabel26 = new javax.swing.JLabel();
         footerLines = new javax.swing.JTextField();
+        importReverseOrderFlg = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(70, 20));
@@ -1107,7 +1119,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jLabel24.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel24, gridBagConstraints);
@@ -1119,7 +1131,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         amountFormat.setPreferredSize(new java.awt.Dimension(160, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         getContentPane().add(amountFormat, gridBagConstraints);
@@ -1153,6 +1165,13 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(footerLines, gridBagConstraints);
+
+        importReverseOrderFlg.setText("Import Transactions in Reverse Order.");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 2;
+        getContentPane().add(importReverseOrderFlg, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -1211,6 +1230,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         customReaderData.setAmountDecimalSignChar( getAmountDecimalSignChar() );
         customReaderData.setAmountGroupingSeparatorChar( getAmountGroupingSeparatorChar() );
         customReaderData.setAmountFormat( getAmountFormat() );
+        customReaderData.setImportReverseOrderFlg( getImportReverseOrderFlg() );
 
         ReaderConfigsHM.put( readerName.getText(), customReaderData );
         // *** I could get and replace the existing one but just do this for now until things work  ! ! !
@@ -1314,6 +1334,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     private javax.swing.JTextField fieldSeparatorChar;
     private javax.swing.JTextField footerLines;
     private javax.swing.JTextField headerLines;
+    private javax.swing.JCheckBox importReverseOrderFlg;
     private javax.swing.JComboBox isNullable0;
     private javax.swing.JComboBox isNullable1;
     private javax.swing.JComboBox isNullable2;

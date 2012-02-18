@@ -21,6 +21,10 @@ import com.moneydance.modules.features.mdcsvimporter.TransactionReader;
 import com.moneydance.util.CustomDateFormat;
 import com.moneydance.util.StringUtils;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
@@ -30,6 +34,7 @@ public class CustomReader extends TransactionReader
 {
     public static final String DATA_TYPE_BLANK = "";
     public static final String DATA_TYPE_IGNORE = "ignore";
+    public static final String DATA_TYPE_IGNORE_REST = "ignore rest";
     public static final String DATA_TYPE_PAYMENT = "-Payment-";
     public static final String DATA_TYPE_DEPOSIT = "-Deposit-";
     public static final String DATA_TYPE_DATE = "date";
@@ -117,21 +122,56 @@ public class CustomReader extends TransactionReader
       //csvData.getReader().setFieldSeparator( getCustomReaderData().getFieldSeparatorChar() );
       //System.err.println( "at parse getFieldSeparator() after set =" + (char)csvData.getReader().getFieldSeparator() + "=" );
         
+        data.reset();
+        long fileLineCount = 0;
+        long endingBlankLines = 0;
+        //----- Count File Lines to know where Footer starts  -----
+        while ( data.nextLine() )
+            {
+            fileLineCount ++;
+            if ( ! data.hasZeroFields() )
+                {
+                endingBlankLines ++;
+                System.err.println(  "endingBlankLines =" + endingBlankLines );
+                }
+            else
+                {
+                endingBlankLines = 0;
+                }
+            }
+        System.err.println(  "fileLineCount =" + fileLineCount );
+
+        data.reset();
         int skipHeaderLines = getHeaderCount();
         for ( int i = 0; i < skipHeaderLines; i++ )
             {
             System.err.println( "skip header line" );
             data.nextLine();
             }
+      long begAtLine = data.getCurrentLineIndex() + 1;
       
       boolean retVal = true;
       int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
 
       setDateFormat( getCustomReaderData().getDateFormatString() );
+      
+      SimpleDateFormat sdf = new SimpleDateFormat( getCustomReaderData().getDateFormatString() );
+      sdf.setLenient( false );
+      
       System.err.println(  "using dateFormat string =" + getCustomReaderData().getDateFormatString() + "=" );
       
-      while ( retVal && data.nextLine() )
+      long totalProcessed = 0;
+      long stopAtLine = fileLineCount - getHeaderCount() - getCustomReaderData().getFooterLines() - endingBlankLines;
+//		priorAccountNameFromCSV = "";
+//		System.out.println("calling while (csvData.nextLine())...");
+ 
+//    data.printFile();
+//    data.reverseListRangeOrder( begAtLine, stopAtLine - 1 );
+//    data.printFile();
+    
+      while ( retVal && data.nextLine() && totalProcessed < stopAtLine )
          {
+         totalProcessed++;
          System.err.println(  "------- next line ---------------" );
          if ( ! data.hasZeroFields() )
             {
@@ -141,6 +181,7 @@ public class CustomReader extends TransactionReader
          if ( ! data.hasEnoughFieldsPerCurrentLine( maxFieldIndex - 1 ) )
             {
             System.err.println(  "Have too few fields. Needed >= " + ( maxFieldIndex - 2 ) );
+            data.printCurrentLine();
             retVal = false;
             }
 
@@ -161,7 +202,11 @@ public class CustomReader extends TransactionReader
 //                }
              String fieldString = data.getField();
              
-             if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
+             if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE_REST ) )
+                {
+                break;
+                }
+             else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
                 {
                 continue;
                 }
@@ -188,7 +233,6 @@ public class CustomReader extends TransactionReader
                      )
                 {
                 System.err.println(  "date >" + fieldString + "<" );
-                System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
                 
                 /*
                   // find guessable date formats
@@ -208,12 +252,28 @@ public class CustomReader extends TransactionReader
                   }
                 */
               /**/
-                 if ( dateFormat.parseInt( fieldString ) != dateFormat.parseInt( dateFormat.format( dateFormat.parseInt( fieldString ) ) ) )
-                 {
+//                 if ( dateFormat.parseInt( fieldString ) != dateFormat.parseInt( dateFormat.format( dateFormat.parseInt( fieldString ) ) ) )
+//                 {
+//                    retVal = false;
+//                    break;
+//                 }
+                System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+      
+                try {
+                    sdf.parse( fieldString );
+                }
+                catch (ParseException e) {
+                    System.err.println(  "canParse() parseException: " + sdf.toString() + "<" );
                     retVal = false;
                     break;
-                 }
-              /**/
+                }
+                catch (IllegalArgumentException e) {
+                    System.err.println(  "canParse() IllegalArgumentException: " + sdf.toString() + "<" );
+                    retVal = false;
+                    break;
+                }
+
+                /**/
                 }
              else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_PAYMENT ) 
                          || dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DEPOSIT ) )   // was only amount before
@@ -332,7 +392,11 @@ public class CustomReader extends TransactionReader
          String fieldString = csvData.getField();
          System.err.println(  "fieldString =" + fieldString + "=  fieldIndex = " + fieldIndex );
 
-         if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
+         if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE_REST ) )
+            {
+            break;
+            }
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
             {
             continue;
             }
@@ -347,10 +411,15 @@ public class CustomReader extends TransactionReader
          if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE ) )
             {
             System.err.println(  "date >" + fieldString + "<" );
-            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            System.err.println(  "date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             date = dateFormat.parseInt( fieldString );
-
+            // I thought the format was giving incorrect dates for 2/5/2011 so I started doing my own thing. I later
+            // found out the method I am calling uses an MD method which is working, and my new stuff was not so I left it out.  Stan
+            Date gotDate = parseDateToInt( fieldString, getCustomReaderData().getDateFormatString() );  // part of my new stuff not being used.
+//            date = getIntDate( gotDate );
+            System.err.println(  "new date int =" + getIntDate( gotDate ) + "=   new date formatted >" + giveFormattedDate( gotDate, getCustomReaderData().getDateFormatString() ) + "<" );
+            
 //            txn.setDatePostedInt( date );
 //            txn.setDateInitiatedInt( date );
 //            txn.setDateAvailableInt( date );
@@ -472,6 +541,47 @@ public class CustomReader extends TransactionReader
       return true;
    }
 
+     public Date parseDateToInt( String dateStr, String format )
+     {
+      Date ddd = null;
+      SimpleDateFormat sdf = null;
+
+      try {
+      sdf = new SimpleDateFormat(format);
+      sdf.setLenient(false);
+      ddd = sdf.parse(dateStr);
+      System.err.println(  "parseDateToInt() from format =" + format + "=  and date in string =" + dateStr + "=   got Date =" + ddd.toString() + "=" );
+    }
+    catch (ParseException e) {
+      System.err.println(  "parseDateToInt() parseException =" + sdf.toString() + "=" );
+      return ddd;
+    }
+    catch (IllegalArgumentException e) {
+      System.err.println(  "parseDateToInt() IllegalArgumentException =" + sdf.toString() + "=" );
+      return ddd;
+    }
+    return ddd;
+    }
+
+    public int getIntDate( Date gotDate )
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(gotDate);
+        return (cal.get( Calendar.YEAR ) * 10000) + (cal.get( Calendar.MONTH ) * 100) + cal.get( Calendar.DAY_OF_MONTH );
+    }
+
+    public String giveFormattedDate( Date ddd, String format )
+    {
+        StringBuffer sss = new StringBuffer();
+      SimpleDateFormat sdf = new SimpleDateFormat(format);
+      sdf.setLenient(false);
+      if ( ddd == null )
+          return "";
+      
+        //StringBuffer buf =  sdf.format( ddd );
+        return sdf.format( ddd );
+        
+    }
    @Override
    protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
     {

@@ -340,6 +340,7 @@ public abstract class TransactionReader
             csvData.nextLine(); // skip the header
             System.err.println( "skip header" );
             }
+      long begAtLine = csvData.getCurrentLineIndex() + 1;
       
       //testing
       com.moneydance.apps.md.controller.Main mainApp =
@@ -355,7 +356,15 @@ public abstract class TransactionReader
       long stopAtLine = fileLineCount - getHeaderCount() - getCustomReaderData().getFooterLines() - endingBlankLines;
 //		priorAccountNameFromCSV = "";
 //		System.out.println("calling while (csvData.nextLine())...");
-      boolean accountMissingError = false;
+    boolean accountMissingError = false;
+
+//    csvData.printFile();
+        System.err.println( "ImportReverseOrderFlg(): " + getCustomReaderData().getImportReverseOrderFlg() );
+        if ( getCustomReaderData().getImportReverseOrderFlg() )
+            {
+            csvData.reverseListRangeOrder( begAtLine, stopAtLine - 1 );
+        //    csvData.printFile();
+            }
 
       while ( csvData.nextLine() && totalProcessed < stopAtLine )
         {

@@ -16,6 +16,7 @@ package com.moneydance.modules.features.mdcsvimporter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  *
@@ -73,6 +74,29 @@ public class CSVData
       currentLineIndex = -1;
       currentFieldIndex = -1;      
    }
+
+   public void reverseListRangeOrder( long beg, long end )
+        {
+        //System.err.println(  "hasZeroFields() ----  currentLineIndex =" + currentLineIndex + "=    data.length =" + data.length );
+        System.err.println( "revLine beg: " +  beg );
+        System.err.println( "revLine end: " +  end );
+        if ( end <= beg )
+            {
+            return;
+            }
+        
+        int begInt = (int)beg;
+        int endInt = (int)end;
+       
+        String[] strArr = null;
+       
+        for (      ; endInt > begInt; endInt--, begInt++ )
+                {
+                strArr = data[ endInt ];
+                data[ endInt ] = data[ begInt ];
+                data[ begInt ] = strArr;
+                }
+    }
 
    public boolean nextLine()
    {
@@ -137,7 +161,11 @@ public class CSVData
       return data[currentLineIndex][currentFieldIndex];
    }
 
-
+   public int getCurrentLineIndex()
+        {
+        return currentLineIndex;
+        }
+   
    public String printCurrentLine()
    {
       if ( currentLineIndex < 0 || currentLineIndex >= data.length )
@@ -156,6 +184,24 @@ public class CSVData
        System.err.append( "<" );
        return null;
    }
+
+   public void printFile()
+    {
+    System.err.append( "\n ------------- PRINT FILE  ---------------" );
+    int maxRows = data.length;
+    for ( int row = 0; row < maxRows; row++ )
+        {
+        System.err.append( "\n line [" +  row + "] >" );
+        for ( int fieldIndex = 0; fieldIndex < data[ row ].length; fieldIndex++ )
+            {
+            if ( fieldIndex > 0 )
+                    System.err.append( "|" );
+            System.err.append( data[ row ][ fieldIndex ] );
+            }
+        System.err.append( "<" );
+        }
+    System.err.append( "\n -------------  END PRINT FILE  ---------------" );
+    }
 
     public CSVReader getReader() {
         return this.reader;

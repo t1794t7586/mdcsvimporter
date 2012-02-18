@@ -416,10 +416,8 @@ public class ImportDialog
         lblDateFormat = new javax.swing.JLabel();
         comboDateFormat = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         jLabel3.setText("jLabel3");
 
@@ -472,7 +470,7 @@ public class ImportDialog
         gridBagConstraints.gridy = 9;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(5, 10, 5, 0);
+        gridBagConstraints.insets = new java.awt.Insets(5, 10, 10, 0);
         getContentPane().add(checkDeleteFile, gridBagConstraints);
 
         btnClose.setText("Close");
@@ -573,7 +571,7 @@ public class ImportDialog
         onlineImportTypeRB.setText("Online");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         getContentPane().add(onlineImportTypeRB, gridBagConstraints);
 
@@ -582,7 +580,7 @@ public class ImportDialog
         regularImportTypeRB.setText("Regular");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         getContentPane().add(regularImportTypeRB, gridBagConstraints);
 
@@ -615,8 +613,6 @@ public class ImportDialog
 
         jButton1.setText("Maintain Custom File Readers");
         jButton1.setMaximumSize(new java.awt.Dimension(43, 25));
-        jButton1.setMinimumSize(new java.awt.Dimension(220, 25));
-        jButton1.setPreferredSize(new java.awt.Dimension(220, 25));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -629,38 +625,26 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         getContentPane().add(jButton1, gridBagConstraints);
 
-        jLabel1.setText("Suggestion: Create a temporary bank account to import into.");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(jLabel1, gridBagConstraints);
-
-        jLabel2.setText("When you are ok with the imported records, then batch move");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(jLabel2, gridBagConstraints);
-
-        jLabel4.setText("them to the right account.");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 7;
-        gridBagConstraints.gridwidth = 5;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
-        getContentPane().add(jLabel4, gridBagConstraints);
-
         jLabel5.setText("Import Transactions as:");
         jLabel5.setToolTipText("<html>Online: These will not have a default category pre-set.<br/>\nRegular: These are regular transactions and they get the default category for the account.<br/>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You can also import a 'tag' field in the regular type.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         getContentPane().add(jLabel5, gridBagConstraints);
+
+        jLabel6.setText("Suggestion");
+        jLabel6.setToolTipText("<html><font face=\\\"sansserif\\\" color=\\\"green\\\">Create a temporary bank account to import into.<br/>When you are ok with the imported records, then batch move<br/>them to the right account.</font></html>\n\n");
+        jLabel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jLabel6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        getContentPane().add(jLabel6, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -888,11 +872,9 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     private javax.swing.JComboBox comboDateFormat;
     private javax.swing.JComboBox comboFileFormat;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel lblAccount;
     private javax.swing.JLabel lblDateFormat;
     private javax.swing.JLabel lblFileFormat;

@@ -22,6 +22,7 @@ public class CustomReaderData {
     int amountDecimalSignChar = '.';
     int amountGroupingSeparatorChar = ',';
     String amountFormat = "#,###,###,##0.00;(#)";
+    boolean importReverseOrderFlg = false;
     String readerName = "";
     String dateFormatString = "MM/DD/YY";
 
@@ -126,6 +127,14 @@ public class CustomReaderData {
 
     public void setAmountGroupingSeparatorChar(int amountGroupingSeparatorChar) {
         this.amountGroupingSeparatorChar = amountGroupingSeparatorChar;
+    }
+
+    public boolean getImportReverseOrderFlg() {
+        return importReverseOrderFlg;
+    }
+
+    public void setImportReverseOrderFlg(boolean importReverseOrderFlg) {
+        this.importReverseOrderFlg = importReverseOrderFlg;
     }
   
 }
