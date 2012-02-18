@@ -227,6 +227,7 @@ public final class Settings
                 customReaderData.setAmountDecimalSignChar( getInteger( false, readerName + ".AmountDecimalSignChar", '.' ) );
                 customReaderData.setAmountGroupingSeparatorChar( getInteger( false, readerName + ".AmountGroupingSeparatorChar", ',' ) );
                 customReaderData.setAmountFormat( props.getProperty( readerName + ".AmountFormat" ) );
+                customReaderData.setImportReverseOrderFlg( getBoolean( false, readerName + ".ImportReverseOrderFlag", false ) );
                 
                 customReaderData.setDataTypesList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DataTypesList" ).split( "[\\[\\],]" ) ) ) );
                 customReaderData.setEmptyFlagsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".EmptyFlagsList" ).split( "[\\[\\],]" ) ) ) );
@@ -300,6 +301,7 @@ public final class Settings
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountDecimalSignChar", Integer.toString( customReaderData.getAmountDecimalSignChar() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountGroupingSeparatorChar", Integer.toString( customReaderData.getAmountGroupingSeparatorChar() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountFormat", customReaderData.getAmountFormat() );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".ImportReverseOrderFlag", Boolean.toString( customReaderData.getImportReverseOrderFlg() ) );
 
          save( props );
       }
@@ -328,6 +330,7 @@ public final class Settings
          props.remove( "reader:" + customReaderData.getReaderName() + ".AmountDecimalSignChar" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".AmountGroupingSeparatorChar" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".AmountFormat" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".ImportReverseOrderFlag" );
 
          save( props );
       }
