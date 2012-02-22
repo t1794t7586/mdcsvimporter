@@ -578,38 +578,50 @@ public abstract class TransactionReader
       importDialog = importDialogArg;
       
       System.err.println( "getCompatibleReaders() call cust read canParse()" );
+      CSVReader csvReader = null;
       
       for ( String key : Settings.getReaderHM().keySet() )
             {
             TransactionReader transactionReader = Settings.getReaderHM().get( key );
-            System.err.println( "at canparse for transReader =" + key + "=" );
+            System.err.println( "\n================  at canparse for transReader >" + key + "< ===============" );
             
              try
-             {
-                CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
+                {
+                csvReader = new CSVReader( new FileReader( selectedFile ) );
                 CSVData csvData = new CSVData( csvReader );
             
                 transactionReader.setRootAccount( rootAccount );
                 if ( transactionReader.canParse( csvData ) )
                       {
-                      System.err.println( "------- at canparse WORKS for =" + key + "=" );
+                      System.err.println( "=============== at canparse WORKS for >" + key + "< ===============" );
                       formats.add( transactionReader );
                       }
                 else
                       {
-                      System.err.println( "------- at canparse not work for =" + key + "=" );
+                      System.err.println( "=============== at canparse NOT WORK for >" + key + "< ===============" );
                       }
-                csvReader.close();
-             }
+                }
              catch ( Throwable x )
-             {
-                  System.err.println( "at canparse error reading file !" );
-             }
+                 {
+                 System.err.println( "at canparse error reading file !" );
+                 System.err.println( "=============== at canparse NOT WORK for >" + key + "< ===============" );
+                 }
+             finally
+                {
+                try
+                    {
+                    csvReader.close();
+                    }
+                catch( Exception fex )
+                    {
+                        ;
+                    }
+                }
             }
       
       /*
       if ( customerReaderName != null && ! customerReaderName.equals( "" ) )
-        {
+s        {
 
           System.err.println( "at canparse getFieldSeparator() =" + (char)data.getReader().getFieldSeparator() + "=" );
 
