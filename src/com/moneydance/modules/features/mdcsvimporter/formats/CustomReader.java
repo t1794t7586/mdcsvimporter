@@ -105,7 +105,7 @@ public class CustomReader extends TransactionReader
    @Override
    public boolean canParse( CSVData data )
         {
-         System.err.println(  "\n---------   entered customerReader().canParse() as type =" + getFormatName() + "=  -------------" );
+        System.err.println(  "---------   entered customerReader().canParse() as type =" + getFormatName() + "=  -------------" );
         try {
             data.parseIntoLines( getCustomReaderData().getFieldSeparatorChar() );
             } 
@@ -155,10 +155,13 @@ public class CustomReader extends TransactionReader
 
       setDateFormat( getCustomReaderData().getDateFormatString() );
       
-      SimpleDateFormat sdf = new SimpleDateFormat( getCustomReaderData().getDateFormatString() );
+      // convert to validate with Java date formatting d,y, and M. case matters.
+      String jDateFormat = getCustomReaderData().getDateFormatString().toLowerCase();
+      jDateFormat = jDateFormat.replace( 'm', 'M' );
+      SimpleDateFormat sdf = new SimpleDateFormat( jDateFormat );
       sdf.setLenient( false );
       
-      System.err.println(  "using dateFormat string =" + getCustomReaderData().getDateFormatString() + "=" );
+      System.err.println(  "using dateFormat string =" + getCustomReaderData().getDateFormatString() + "->" + jDateFormat + "<-" );
       
       long totalProcessed = 0;
       long stopAtLine = fileLineCount - getHeaderCount() - getCustomReaderData().getFooterLines() - endingBlankLines;
@@ -260,7 +263,14 @@ public class CustomReader extends TransactionReader
                 System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
       
                 try {
-                    sdf.parse( fieldString );
+                    sdf.parse( fieldString );  // This seems to catch jan 32 -> feb 01 which I do not want to allow.
+
+                    // won't work when fieldString is 3/5/2012 because it will compare incorrectly to created 03/05/2012 and don't know how to fix that! !
+//                    if ( ! sdf.fieldString.equals( dateFormat.format( dateFormat.parseInt( fieldString ) ) ) )
+//                        {
+//                        retVal = false;
+//                        break;
+//                        }
                 }
                 catch (ParseException e) {
                     System.err.println(  "canParse() parseException: " + sdf.toString() + "<" );
@@ -547,8 +557,12 @@ public class CustomReader extends TransactionReader
       SimpleDateFormat sdf = null;
 
       try {
-      sdf = new SimpleDateFormat(format);
-      sdf.setLenient(false);
+      // convert to validate with Java date formatting d,y, and M. case matters.
+      String jDateFormat = format.toLowerCase();
+      jDateFormat = jDateFormat.replace( 'm', 'M' );
+      sdf = new SimpleDateFormat( jDateFormat );
+      sdf.setLenient( false );
+      
       ddd = sdf.parse(dateStr);
       System.err.println(  "parseDateToInt() from format =" + format + "=  and date in string =" + dateStr + "=   got Date =" + ddd.toString() + "=" );
     }
@@ -572,16 +586,19 @@ public class CustomReader extends TransactionReader
 
     public String giveFormattedDate( Date ddd, String format )
     {
-        StringBuffer sss = new StringBuffer();
-      SimpleDateFormat sdf = new SimpleDateFormat(format);
-      sdf.setLenient(false);
+      StringBuffer sss = new StringBuffer();
+      String jDateFormat = format.toLowerCase();
+      jDateFormat = jDateFormat.replace( 'm', 'M' );
+      SimpleDateFormat sdf = new SimpleDateFormat( jDateFormat );
+      sdf.setLenient( false );
+
       if ( ddd == null )
           return "";
       
         //StringBuffer buf =  sdf.format( ddd );
-        return sdf.format( ddd );
-        
+      return sdf.format( ddd );  
     }
+    
    @Override
    protected boolean assignDataToTxn( OnlineTxn txn ) throws IOException
     {
