@@ -4,6 +4,8 @@
  */
 package com.moneydance.modules.features.mdcsvimporter;
 
+import com.moneydance.apps.md.model.Account;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import org.junit.After;
@@ -44,6 +46,7 @@ public class CSVDataTest
    public void tearDown()
    {
    }
+   
    private final String test1 = "\"Column 1\",\"Column 2\"\n\"value 11\",\"value 12\"\n" +
       "\"value 21\",\"value 22\"";
 
@@ -52,9 +55,15 @@ public class CSVDataTest
       throws IOException
    {
       StringReader data = new StringReader( test1 );
-      CSVReader reader = new CSVReader( data );
-      CSVData csvdata = new CSVData( reader );
-      doTest1( csvdata );
+      CSVReader csvReader = new CSVReader( data );
+      CSVData csvData = new CSVData( csvReader );
+
+      csvData.parseIntoLines( ',' );
+
+      System.out.println( "finished transReader.parse" );
+      
+      doTest1( csvData );
+      csvReader.close();
    }
 
    private void doTest1( CSVData reader )
@@ -81,5 +90,6 @@ public class CSVDataTest
       assertFalse( reader.nextField() );
       assertFalse( reader.nextLine() );
       assertFalse( reader.nextField() );
+
    }
 }

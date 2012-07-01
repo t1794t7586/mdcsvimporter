@@ -106,7 +106,7 @@ public class MainTest
     assertEquals( (Integer) main1.getErrCodeList().get( 1 ), (Integer) ImportDialog.RUN_ARGS_ERRORCODE_INVALID_IMPORTACCOUNT );
    }
 
-   @Test
+   @Ignore
    public void expectInvalidFileformat()
       throws IOException
    {
@@ -114,7 +114,7 @@ public class MainTest
 //         MainTest.class.getResourceAsStream( "dateGuesser.csv" ) );
 
       URL url = MainTest.class.getResource( "dateGuesser.csv" );
-      System.err.println( "url filepath =" + url.getFile() + "=" );
+      System.out.println( "url filepath =" + url.getFile() + "=" );
 
       String testUri = ImportDialog.RUN_ARGS_FILE + "=" + url.getFile()
                 + "&fileformat=Discover Card"

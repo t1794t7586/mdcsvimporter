@@ -52,8 +52,8 @@ public class CSVReaderTest
       throws IOException
    {
       StringReader data = new StringReader( test1 );
-      CSVReader reader = new CSVReader( data );
-      doTest1( reader );
+      CSVReader cvsReader = new CSVReader( data );
+      doTest1( cvsReader );
    }
 
    private void doTest1( CSVReader reader )
