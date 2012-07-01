@@ -211,6 +211,24 @@ public class CustomReader extends TransactionReader
                 }
              else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
                 {
+                int x = 1;
+                try
+                    {
+                    x = Integer.parseInt( getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).trim() );
+                    System.err.println(  "ignore " + x + " lines" );
+                    }
+                catch ( Exception ex )
+                    {
+                    System.err.println(  "ignore 1 line by erro on field =" + getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).trim() + "=" );
+                    }
+                while ( x > 1 )
+                    {
+                    data.nextField();
+                    fieldString = data.getField();
+                    System.err.println(  "ignore fieldString =" + fieldString + "=  fieldIndex = " + fieldIndex );
+                    //fieldIndex ++;  NO - just skip data not field data type index
+                    x--;
+                    }
                 continue;
                 }
              else if ( ( fieldString == null || fieldString.equals( DATA_TYPE_BLANK ) ) )
@@ -343,9 +361,10 @@ public class CustomReader extends TransactionReader
 
                 if ( rootAccount.getAccountByName( accountName ) == null )
                     {
-                    System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
-                    retVal = false;
-                    break;
+                    System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= will not import it." );
+//                    System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+//                    retVal = false;
+//                    break;
                     }
                 this.accountNameFromCSV = accountName;
                 }
@@ -408,6 +427,24 @@ public class CustomReader extends TransactionReader
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_IGNORE ) )
             {
+            int x = 1;
+            try
+                {
+                x = Integer.parseInt( getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).trim() );
+                System.err.println(  "ignore " + x + " lines" );
+                }
+            catch ( Exception ex )
+                {
+                System.err.println(  "ignore 1 line by erro on field =" + getCustomReaderData().getEmptyFlagsList().get( fieldIndex ).trim() + "=" );
+                }
+            while ( x > 1 )
+                {
+                csvData.nextField();
+                fieldString = csvData.getField();
+                System.err.println(  "ignore fieldString =" + fieldString + "=  fieldIndex = " + fieldIndex );
+                //fieldIndex ++;  NO - just skip data not field data type index
+                x--;
+                }
             continue;
             }
          else if ( ( fieldString == null || fieldString.equals( "" ) )
@@ -537,8 +574,10 @@ public class CustomReader extends TransactionReader
 
             if ( rootAccount.getAccountByName( accountName ) == null )
                 {
-                System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
-                throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+                System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= will not import it." );
+//                System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+//                throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+                return false; // skip this line
                 }
             this.accountNameFromCSV = accountName;
             }

@@ -49,7 +49,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
                                         , CustomReader.DATA_TYPE_ACCOUNT_NAME 
                                     };
         
-        String [] allowEmptyFlag = { "", "Can Be Blank" };
+        String [] allowEmptyFlag = { "", "Can Be Blank", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 //        ArrayList<javax.swing.JComboBox> dataTypesList = new ArrayList<javax.swing.JComboBox>( 10 );
    //     ArrayList<javax.swing.JComboBox> emptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
         ArrayList<String> dataTypesList = new ArrayList<String>( 10 );
