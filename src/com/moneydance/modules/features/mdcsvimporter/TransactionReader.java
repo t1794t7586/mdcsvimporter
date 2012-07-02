@@ -29,8 +29,11 @@ import com.moneydance.apps.md.view.gui.MoneydanceGUI;
 import com.moneydance.apps.md.view.gui.OnlineManager;
 import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.regex.Matcher;
@@ -61,7 +64,9 @@ public abstract class TransactionReader
    protected HashSet tsetFITxnIdMatcherKey = new HashSet<String>();
    //protected HashSet onlineMatcherKey = new HashSet<String>();
    protected int defProtocolId = 999;  // per Sean at MD
-   
+   protected final static String DEFAULT_ENCODING = "UTF-8";  // "UTF-16LE"; "windows-1250"; Preselect this value in Encoding JComboBox.
+   //protected String fileEncoding = DEFAULT_ENCODING;
+
    protected abstract boolean canParse( CSVData data );
 
    protected abstract boolean parseNext() throws IOException;
@@ -560,7 +565,7 @@ public abstract class TransactionReader
   
    public void setCustomReaderDialog( CustomReaderDialog customReaderDialog )
         {
-            System.err.println( "custreader set custreaderdialog" );
+        System.err.println( "custreader set custreaderdialog" );
         this.customReaderDialog = customReaderDialog;
         }
    
@@ -587,7 +592,8 @@ public abstract class TransactionReader
             
              try
                 {
-                csvReader = new CSVReader( new FileReader( selectedFile ) );
+                System.err.println( "using fileEncoding >" + transactionReader.getCustomReaderData().getFileEncoding() + "< ===============" );
+                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ) );
                 CSVData csvData = new CSVData( csvReader );
             
                 transactionReader.setRootAccount( rootAccount );
@@ -698,4 +704,3 @@ s        {
     }
 
 }
-

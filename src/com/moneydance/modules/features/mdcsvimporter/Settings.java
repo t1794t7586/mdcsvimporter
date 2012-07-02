@@ -219,6 +219,7 @@ public final class Settings
                 customReaderData.setReaderName( props.getProperty( readerName + ".Name" ) );
                 customReaderData.setFieldSeparatorChar( getInteger( false, readerName + ".FieldSeparator", ',' ) );
                 customReaderData.setDateFormatString( props.getProperty( readerName + ".DateFormatString" ) );
+                customReaderData.setFileEncoding( props.getProperty( readerName + ".FileEncodingString" ) );
 
                 customReaderData.setHeaderLines( getInteger( false, readerName + ".HeaderLines", 0 ) );
                 customReaderData.setFooterLines( getInteger( false, readerName + ".FooterLines", 0 ) );
@@ -256,6 +257,7 @@ public final class Settings
                  */
                 System.err.println( "props readerName =" + customReaderData.getReaderName() + "=" );
                 System.err.println( "props getFieldSeparatorChar() =" + customReaderData.getFieldSeparatorChar() + "=" );
+                System.err.println( "props getFileEncoding() =" + customReaderData.getFileEncoding() + "=" );
                 System.err.println( "props getDateFormatString() =" + customReaderData.getDateFormatString()+ "=" );
                 System.err.println( "props getHeaderLines() =" + customReaderData.getHeaderLines() + "=" );
                 System.err.println( "props getDataTypesList() =" + customReaderData.getDataTypesList() + "=" );
@@ -293,6 +295,7 @@ public final class Settings
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".HeaderLines", Integer.toString( customReaderData.getHeaderLines() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".FooterLines", Integer.toString( customReaderData.getFooterLines() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".FieldSeparator", Integer.toString( customReaderData.getFieldSeparatorChar() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".FileEncodingString", customReaderData.getFileEncoding() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatString", customReaderData.getDateFormatString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DataTypesList", customReaderData.getDataTypesList().toString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList", customReaderData.getEmptyFlagsList().toString() );

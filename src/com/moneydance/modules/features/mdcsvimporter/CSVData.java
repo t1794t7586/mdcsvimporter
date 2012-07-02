@@ -53,7 +53,7 @@ public class CSVData
         }
       
       while ( reader.nextLine() )
-      {
+        {
          for ( String s = reader.nextField(); s != null; s = reader.nextField() )
             {
             //System.err.println( "         line.add string =" + s + "=" );
@@ -65,11 +65,11 @@ public class CSVData
          line.toArray( newLine );
          file.add( newLine );
          line.clear();
-      }
+        }
 
       data = new String[file.size()][];
       file.toArray( data );
-      //System.err.println( "         lines total =" + file.size() + "=" );
+      System.err.println( "    parsed lines total =" + file.size() + "=" );
       
       currentLineIndex = -1;
       currentFieldIndex = -1;      
