@@ -20,9 +20,8 @@ import com.moneydance.apps.md.view.gui.MoneydanceGUI;
 import com.moneydance.apps.md.view.gui.OnlineManager;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.DefaultComboBoxModel;
@@ -698,7 +697,7 @@ public class ImportDialog
              System.err.println( "comboFileFormat is string =" + transReader.toString() + "=" );
              transReader.setDateFormat( (String) comboDateFormat.getSelectedItem() );
 
-             CSVReader csvReader = new CSVReader( new FileReader( selectedFile ) );
+             CSVReader csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
              CSVData csvData = new CSVData( csvReader );            
        
        //System.err.println( "btnProcessActionPerformed  customReaderDialog.getFieldSeparatorChar() =" + (char)customReaderDialog.getFieldSeparatorChar() + "=" );

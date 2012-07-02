@@ -25,7 +25,8 @@ public class CustomReaderData {
     boolean importReverseOrderFlg = false;
     String readerName = "";
     String dateFormatString = "MM/DD/YY";
-
+    String fileEncoding = TransactionReader.DEFAULT_ENCODING;
+    
     
     public ArrayList<String> getDataTypesList() {
         return dataTypesList;
@@ -135,6 +136,14 @@ public class CustomReaderData {
 
     public void setImportReverseOrderFlg(boolean importReverseOrderFlg) {
         this.importReverseOrderFlg = importReverseOrderFlg;
+    }
+
+    public String getFileEncoding() {
+        return fileEncoding;
+    }
+
+    public void setFileEncoding(String fileEncoding) {
+        this.fileEncoding = fileEncoding;
     }
   
 }
