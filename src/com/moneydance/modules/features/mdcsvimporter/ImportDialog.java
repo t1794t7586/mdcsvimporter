@@ -611,7 +611,6 @@ public class ImportDialog
         getContentPane().add(comboDateFormat, gridBagConstraints);
 
         jButton1.setText("Maintain Custom File Readers");
-        jButton1.setMaximumSize(new java.awt.Dimension(43, 25));
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
