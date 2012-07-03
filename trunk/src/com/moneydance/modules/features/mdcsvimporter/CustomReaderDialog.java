@@ -974,9 +974,9 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jScrollPane1.setPreferredSize(new java.awt.Dimension(160, 160));
 
         customReadersList.setModel(new DefaultListModel() );
-        customReadersList.setMaximumSize(new java.awt.Dimension(180, 100));
-        customReadersList.setMinimumSize(new java.awt.Dimension(120, 85));
-        customReadersList.setPreferredSize(new java.awt.Dimension(120, 85));
+        customReadersList.setMaximumSize(new java.awt.Dimension(32767, 32767));
+        customReadersList.setMinimumSize(new java.awt.Dimension(160, 85));
+        customReadersList.setPreferredSize(new java.awt.Dimension(160, 85));
         customReadersList.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 customReadersListMouseClicked(evt);
@@ -1269,7 +1269,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         fileEncodingCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { }));
         fileEncodingCB.setMinimumSize(new java.awt.Dimension(120, 19));
-        fileEncodingCB.setPreferredSize(new java.awt.Dimension(120, 19));
+        fileEncodingCB.setPreferredSize(new java.awt.Dimension(140, 19));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 7;

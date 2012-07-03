@@ -602,13 +602,13 @@
               <Connection code="new DefaultListModel() " type="code"/>
             </Property>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[180, 100]"/>
+              <Dimension value="[32767, 32767]"/>
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[120, 85]"/>
+              <Dimension value="[160, 85]"/>
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[120, 85]"/>
+              <Dimension value="[160, 85]"/>
             </Property>
           </Properties>
           <Events>
@@ -1016,7 +1016,7 @@
           <Dimension value="[120, 19]"/>
         </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[120, 19]"/>
+          <Dimension value="[140, 19]"/>
         </Property>
       </Properties>
       <Constraints>
