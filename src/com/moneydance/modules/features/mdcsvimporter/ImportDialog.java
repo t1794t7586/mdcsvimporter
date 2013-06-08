@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
@@ -417,6 +418,7 @@ public class ImportDialog
         jButton1 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        comboFileFormatLabel = new javax.swing.JLabel();
 
         jLabel3.setText("jLabel3");
 
@@ -523,7 +525,10 @@ public class ImportDialog
         lblMessage.setForeground(new java.awt.Color(255, 0, 51));
         lblMessage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lblMessage.setText(" ");
+        lblMessage.setMaximumSize(new java.awt.Dimension(200, 25));
+        lblMessage.setMinimumSize(new java.awt.Dimension(100, 25));
         lblMessage.setOpaque(true);
+        lblMessage.setPreferredSize(new java.awt.Dimension(3, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 14;
@@ -643,6 +648,17 @@ public class ImportDialog
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         getContentPane().add(jLabel6, gridBagConstraints);
+
+        comboFileFormatLabel.setText(" ");
+        comboFileFormatLabel.setMaximumSize(new java.awt.Dimension(40, 25));
+        comboFileFormatLabel.setMinimumSize(new java.awt.Dimension(40, 25));
+        comboFileFormatLabel.setPreferredSize(new java.awt.Dimension(40, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
+        getContentPane().add(comboFileFormatLabel, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -869,6 +885,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     private javax.swing.JComboBox comboAccount;
     private javax.swing.JComboBox comboDateFormat;
     private javax.swing.JComboBox comboFileFormat;
+    private javax.swing.JLabel comboFileFormatLabel;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -992,6 +1009,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
       {
         TransactionReader.customReaderDialog = customReaderDialog;
         
+         setLabel( "FindAReader", "Find Reader" );
          TransactionReader[] fileFormats = TransactionReader.getCompatibleReaders( selectedFile, this, main.getRootAccount() );
 
          comboFileFormat.removeAllItems();
@@ -1002,6 +1020,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
 
          if ( fileFormats.length == 0 )
          {
+            setLabel( "FindAReader", "No Matches" );
             comboFileFormat.addItem( "Format not recognized" );
             comboFileFormat.setEnabled( false );
             comboDateFormat.setEnabled( false );
@@ -1010,16 +1029,19 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
          }
          else if ( fileFormats.length == 1 )
          {
+            setLabel( "FindAReader", "Found" );
             comboFileFormat.setSelectedIndex( 0 );
             comboFileFormat.setEnabled( false );
          }
          else
          {
+            setLabel( "FindAReader", "Pick One" );
             comboFileFormat.setEnabled( true );
          }
       }
       else
       {
+         setLabel( "FindAReader", "No File" );
          comboFileFormat.removeAllItems();
          comboFileFormat.addItem( "Format not recognized" );
          comboFileFormat.setEnabled( false );
@@ -1064,15 +1086,30 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
       {
          csvData = null;
       }
-      if ( message != null )
+      setLabel( "main", message );
+   }
+   
+   public void setLabel( String objName, String message )
+   {
+    JLabel label = null;
+       
+    if ( objName.equals( "main" ) )
+        {
+        label = lblMessage;
+        }
+    else if ( objName.equals( "FindAReader" ) )
+        {
+        label = comboFileFormatLabel;
+        }
+    if ( message != null )
       {
-         lblMessage.setVisible( true );
-         lblMessage.setText( message );
-         lblMessage.setForeground( new Color( 255, 0, 51 ) );
+         label.setVisible( true );
+         label.setText( message );
+         label.setForeground( new Color( 255, 0, 51 ) );
       }
-      else
+    else
       {
-         lblMessage.setVisible( false );
+         label.setVisible( false );
       }
    }
 }

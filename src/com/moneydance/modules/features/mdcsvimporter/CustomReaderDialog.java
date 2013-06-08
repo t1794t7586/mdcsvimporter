@@ -675,8 +675,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jLabel27 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(740, 485));
-        setPreferredSize(new java.awt.Dimension(740, 485));
+        setMinimumSize(new java.awt.Dimension(740, 600));
+        setPreferredSize(new java.awt.Dimension(740, 600));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setText("Reader Name:");
@@ -689,7 +689,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(jLabel1, gridBagConstraints);
 
         readerName.setMinimumSize(new java.awt.Dimension(160, 19));
-        readerName.setPreferredSize(new java.awt.Dimension(160, 19));
+        readerName.setPreferredSize(new java.awt.Dimension(160, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -698,16 +698,17 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(readerName, gridBagConstraints);
 
         dataType1.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType1.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType1.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType1.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType1.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 12;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType1, gridBagConstraints);
 
         isNullable1.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable1.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable1.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable1.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable1.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 12;
@@ -715,32 +716,35 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable1, gridBagConstraints);
 
         dataType2.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType2.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType2.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType2.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType2.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 13;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType2, gridBagConstraints);
 
         dataType4.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType4.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType4.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType4.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType4.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 15;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType4, gridBagConstraints);
 
         dataType0.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType0.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType0.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType0.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType0.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 11;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType0, gridBagConstraints);
 
         isNullable0.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable0.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable0.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable0.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable0.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 11;
@@ -748,8 +752,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable0, gridBagConstraints);
 
         isNullable2.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable2.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable2.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable2.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable2.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 13;
@@ -757,8 +761,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable2, gridBagConstraints);
 
         isNullable3.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable3.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable3.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable3.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable3.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 14;
@@ -766,8 +770,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable3, gridBagConstraints);
 
         isNullable4.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable4.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable4.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable4.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable4.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 15;
@@ -775,8 +779,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable4, gridBagConstraints);
 
         isNullable5.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable5.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable5.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable5.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable5.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 16;
@@ -784,8 +788,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable5, gridBagConstraints);
 
         isNullable6.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable6.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable6.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable6.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable6.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 17;
@@ -793,8 +797,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable6, gridBagConstraints);
 
         isNullable7.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable7.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable7.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable7.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable7.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 18;
@@ -802,8 +806,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable7, gridBagConstraints);
 
         isNullable8.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable8.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable8.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable8.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable8.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 19;
@@ -811,8 +815,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable8, gridBagConstraints);
 
         isNullable9.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable9.setMinimumSize(new java.awt.Dimension(100, 19));
-        isNullable9.setPreferredSize(new java.awt.Dimension(100, 19));
+        isNullable9.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable9.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 20;
@@ -820,51 +824,57 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable9, gridBagConstraints);
 
         dataType3.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType3.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType3.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType3.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType3.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 14;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType3, gridBagConstraints);
 
         dataType5.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType5.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType5.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType5.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType5.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 16;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType5, gridBagConstraints);
 
         dataType6.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType6.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType6.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType6.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType6.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 17;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType6, gridBagConstraints);
 
         dataType7.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType7.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType7.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType7.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType7.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 18;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType7, gridBagConstraints);
 
         dataType8.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType8.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType8.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType8.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType8.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 19;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType8, gridBagConstraints);
 
         dataType9.setModel(new javax.swing.DefaultComboBoxModel( dataTypes ) );
-        dataType9.setMinimumSize(new java.awt.Dimension(100, 19));
-        dataType9.setPreferredSize(new java.awt.Dimension(100, 19));
+        dataType9.setMinimumSize(new java.awt.Dimension(150, 25));
+        dataType9.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 20;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(dataType9, gridBagConstraints);
 
         jLabel2.setText("1");
@@ -957,8 +967,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         headerLines.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         headerLines.setText("1");
-        headerLines.setMinimumSize(new java.awt.Dimension(40, 19));
-        headerLines.setPreferredSize(new java.awt.Dimension(40, 19));
+        headerLines.setMinimumSize(new java.awt.Dimension(40, 25));
+        headerLines.setPreferredSize(new java.awt.Dimension(40, 25));
         headerLines.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 headerLinesActionPerformed(evt);
@@ -1011,7 +1021,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 22;
         getContentPane().add(addBtn, gridBagConstraints);
 
@@ -1025,7 +1035,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 22;
         getContentPane().add(deleteBtn, gridBagConstraints);
 
@@ -1054,6 +1064,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 21;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         getContentPane().add(jLabel17, gridBagConstraints);
 
         doneBtn.setText("Done");
@@ -1080,8 +1091,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         fieldSeparatorChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         fieldSeparatorChar.setText(",");
-        fieldSeparatorChar.setMinimumSize(new java.awt.Dimension(20, 19));
-        fieldSeparatorChar.setPreferredSize(new java.awt.Dimension(20, 19));
+        fieldSeparatorChar.setMinimumSize(new java.awt.Dimension(20, 25));
+        fieldSeparatorChar.setPreferredSize(new java.awt.Dimension(20, 25));
         fieldSeparatorChar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fieldSeparatorCharActionPerformed(evt);
@@ -1094,6 +1105,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(fieldSeparatorChar, gridBagConstraints);
 
         resetFieldsBtn.setText("Reset Fields");
+        resetFieldsBtn.setMinimumSize(new java.awt.Dimension(120, 23));
+        resetFieldsBtn.setPreferredSize(new java.awt.Dimension(110, 25));
         resetFieldsBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 resetFieldsBtnActionPerformed(evt);
@@ -1115,8 +1128,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         dateFormatCr.setText("YYYY-MM-DD");
         dateFormatCr.setToolTipText("<html>\nYou can do things like: MM/DD/YYYY, MM.DD.YY, YY-MM-DD<br/>\nhttp://download.oracle.com/javase/6/docs/api/java/text/SimpleDateFormat.html");
-        dateFormatCr.setMinimumSize(new java.awt.Dimension(100, 19));
-        dateFormatCr.setPreferredSize(new java.awt.Dimension(100, 19));
+        dateFormatCr.setMinimumSize(new java.awt.Dimension(100, 25));
+        dateFormatCr.setPreferredSize(new java.awt.Dimension(100, 25));
         dateFormatCr.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dateFormatCrActionPerformed(evt);
@@ -1162,7 +1175,6 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(amountGroupingSeparatorChar, gridBagConstraints);
 
         jLabel22.setText("Decimal Sign:");
-        jLabel22.setEnabled(false);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -1172,9 +1184,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         amountDecimalSignChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         amountDecimalSignChar.setText(".");
-        amountDecimalSignChar.setEnabled(false);
-        amountDecimalSignChar.setMinimumSize(new java.awt.Dimension(20, 19));
-        amountDecimalSignChar.setPreferredSize(new java.awt.Dimension(20, 19));
+        amountDecimalSignChar.setMinimumSize(new java.awt.Dimension(20, 25));
+        amountDecimalSignChar.setPreferredSize(new java.awt.Dimension(20, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
@@ -1239,8 +1250,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         footerLines.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         footerLines.setText("0");
-        footerLines.setMinimumSize(new java.awt.Dimension(40, 19));
-        footerLines.setPreferredSize(new java.awt.Dimension(40, 19));
+        footerLines.setMinimumSize(new java.awt.Dimension(40, 25));
+        footerLines.setPreferredSize(new java.awt.Dimension(40, 25));
         footerLines.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 footerLinesActionPerformed(evt);
@@ -1269,7 +1280,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         fileEncodingCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { }));
         fileEncodingCB.setMinimumSize(new java.awt.Dimension(120, 19));
-        fileEncodingCB.setPreferredSize(new java.awt.Dimension(140, 19));
+        fileEncodingCB.setPreferredSize(new java.awt.Dimension(140, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 7;

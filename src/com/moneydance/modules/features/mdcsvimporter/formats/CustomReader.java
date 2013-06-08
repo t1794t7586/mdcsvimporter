@@ -399,6 +399,7 @@ public class CustomReader extends TransactionReader
      accountName = "";
 
      int fieldIndex = 0;
+     int amountDecimalSignChar = getCustomReaderData().getAmountDecimalSignChar();
      int maxFieldIndex = getCustomReaderData().getNumberOfCustomReaderFieldsUsed();
      System.err.println(  "maxFieldIndex =" + maxFieldIndex );
 
@@ -516,7 +517,7 @@ public class CustomReader extends TransactionReader
             
             try
                 {
-                double amountDouble = StringUtils.parseDoubleWithException( fieldString, '.' );
+                double amountDouble = StringUtils.parseDoubleWithException( fieldString, (char)amountDecimalSignChar );
                 if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_PAYMENT ) )
                     {
                     amount += currency.getLongValue( amountDouble );
