@@ -42,6 +42,14 @@ public final class Settings
 
    private static File getFilename()
    {
+      System.err.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
+      if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
+        {
+        File moneydanceHome = new File( System.getProperty( "user.home" ) + "/Library/Application Support", "Moneydance" );
+        System.err.println( "moneydanceHome folder =" + moneydanceHome + "=" );
+        return new File( moneydanceHome, "mdcsvimporter.props" );
+        }
+
       File moneydanceHome = new File( System.getProperty( "user.home" ), ".moneydance" );
       return new File( moneydanceHome, "mdcsvimporter.props" );
    }
