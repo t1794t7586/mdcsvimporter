@@ -437,9 +437,9 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblSelectFile, gridBagConstraints);
 
-        textFilename.setMaximumSize(new java.awt.Dimension(180, 24));
-        textFilename.setMinimumSize(new java.awt.Dimension(180, 24));
-        textFilename.setPreferredSize(new java.awt.Dimension(180, 24));
+        textFilename.setMaximumSize(new java.awt.Dimension(180, 29));
+        textFilename.setMinimumSize(new java.awt.Dimension(180, 29));
+        textFilename.setPreferredSize(new java.awt.Dimension(180, 29));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -510,9 +510,9 @@ public class ImportDialog
         getContentPane().add(lblAccount, gridBagConstraints);
 
         comboAccount.setModel(new javax.swing.DefaultComboBoxModel(new Account[] {  }));
-        comboAccount.setMaximumSize(new java.awt.Dimension(180, 24));
-        comboAccount.setMinimumSize(new java.awt.Dimension(180, 24));
-        comboAccount.setPreferredSize(new java.awt.Dimension(180, 24));
+        comboAccount.setMaximumSize(new java.awt.Dimension(180, 29));
+        comboAccount.setMinimumSize(new java.awt.Dimension(180, 29));
+        comboAccount.setPreferredSize(new java.awt.Dimension(180, 29));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -549,9 +549,9 @@ public class ImportDialog
         getContentPane().add(lblFileFormat, gridBagConstraints);
 
         comboFileFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] {  }));
-        comboFileFormat.setMaximumSize(new java.awt.Dimension(180, 24));
-        comboFileFormat.setMinimumSize(new java.awt.Dimension(180, 24));
-        comboFileFormat.setPreferredSize(new java.awt.Dimension(180, 24));
+        comboFileFormat.setMaximumSize(new java.awt.Dimension(180, 29));
+        comboFileFormat.setMinimumSize(new java.awt.Dimension(180, 29));
+        comboFileFormat.setPreferredSize(new java.awt.Dimension(180, 29));
         comboFileFormat.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 fileFormatChanged(evt);
@@ -598,9 +598,9 @@ public class ImportDialog
         getContentPane().add(lblDateFormat, gridBagConstraints);
 
         comboDateFormat.setModel(new javax.swing.DefaultComboBoxModel(new String[] {  }));
-        comboDateFormat.setMaximumSize(new java.awt.Dimension(180, 24));
-        comboDateFormat.setMinimumSize(new java.awt.Dimension(180, 24));
-        comboDateFormat.setPreferredSize(new java.awt.Dimension(180, 24));
+        comboDateFormat.setMaximumSize(new java.awt.Dimension(180, 29));
+        comboDateFormat.setMinimumSize(new java.awt.Dimension(180, 29));
+        comboDateFormat.setPreferredSize(new java.awt.Dimension(180, 29));
         comboDateFormat.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 comboDateFormatActionPerformed(evt);
