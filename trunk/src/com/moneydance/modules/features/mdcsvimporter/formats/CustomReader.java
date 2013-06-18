@@ -308,6 +308,9 @@ public class CustomReader extends TransactionReader
                 {
                 System.err.println(  "amountString >" + fieldString + "<" );
                 fieldString = fieldString.replaceAll( "\\((.*)\\)", "-$1" );
+                System.err.println(  "amountString >" + fieldString + "<" );
+                fieldString = fieldString.replaceAll( "[^0-9]*(.*)", "$1" ); // strip leading non-digits
+                System.err.println(  "amountString >" + fieldString + "<" );
 
                 try
                      {
@@ -514,6 +517,8 @@ public class CustomReader extends TransactionReader
             {
             System.err.println(  "amountString >" + fieldString + "<" );
             fieldString = fieldString.replaceAll( "\\((.*)\\)", "-$1" );
+            fieldString = StringUtils.stripNonNumbers( fieldString, (char)amountDecimalSignChar );
+            System.err.println(  "amountString >" + fieldString + "<" );
             
             try
                 {

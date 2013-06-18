@@ -15,6 +15,8 @@ import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitRe
 import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.YodleeReader;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 import javax.swing.DefaultListModel;
 
@@ -677,6 +679,11 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(740, 600));
         setPreferredSize(new java.awt.Dimension(740, 600));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setText("Reader Name:");
@@ -688,7 +695,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel1, gridBagConstraints);
 
-        readerName.setMinimumSize(new java.awt.Dimension(160, 19));
+        readerName.setMinimumSize(new java.awt.Dimension(160, 25));
         readerName.setPreferredSize(new java.awt.Dimension(160, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
@@ -960,7 +967,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         jLabel13.setText("Number of Footer Lines:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel13, gridBagConstraints);
@@ -975,7 +982,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(headerLines, gridBagConstraints);
@@ -995,7 +1002,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jScrollPane1.setViewportView(customReadersList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.gridheight = 10;
@@ -1007,7 +1014,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         jLabel14.setMinimumSize(new java.awt.Dimension(25, 15));
         jLabel14.setPreferredSize(new java.awt.Dimension(25, 15));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 10;
         getContentPane().add(jLabel14, gridBagConstraints);
 
@@ -1021,8 +1028,10 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(addBtn, gridBagConstraints);
 
         deleteBtn.setText("Delete");
@@ -1037,11 +1046,12 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 22;
+        gridBagConstraints.gridwidth = 2;
         getContentPane().add(deleteBtn, gridBagConstraints);
 
         jLabel15.setText("List of Readers:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 10;
         gridBagConstraints.gridwidth = 2;
         getContentPane().add(jLabel15, gridBagConstraints);
@@ -1083,7 +1093,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         jLabel18.setText("CSV Field Separator:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
@@ -1099,13 +1109,13 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(fieldSeparatorChar, gridBagConstraints);
 
         resetFieldsBtn.setText("Reset Fields");
-        resetFieldsBtn.setMinimumSize(new java.awt.Dimension(120, 23));
+        resetFieldsBtn.setMinimumSize(new java.awt.Dimension(90, 23));
         resetFieldsBtn.setPreferredSize(new java.awt.Dimension(110, 25));
         resetFieldsBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1113,14 +1123,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 22;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(resetFieldsBtn, gridBagConstraints);
 
         jLabel19.setText("Date Format:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
@@ -1136,7 +1146,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(dateFormatCr, gridBagConstraints);
@@ -1151,9 +1161,11 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         jLabel21.setText("Grouping separator:");
         jLabel21.setEnabled(false);
+        jLabel21.setFocusable(false);
+        jLabel21.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel21, gridBagConstraints);
@@ -1161,8 +1173,9 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         amountGroupingSeparatorChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         amountGroupingSeparatorChar.setText(",");
         amountGroupingSeparatorChar.setEnabled(false);
-        amountGroupingSeparatorChar.setMinimumSize(new java.awt.Dimension(20, 19));
-        amountGroupingSeparatorChar.setPreferredSize(new java.awt.Dimension(20, 19));
+        amountGroupingSeparatorChar.setFocusable(false);
+        amountGroupingSeparatorChar.setMinimumSize(new java.awt.Dimension(20, 25));
+        amountGroupingSeparatorChar.setPreferredSize(new java.awt.Dimension(20, 25));
         amountGroupingSeparatorChar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 amountGroupingSeparatorCharActionPerformed(evt);
@@ -1170,14 +1183,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         getContentPane().add(amountGroupingSeparatorChar, gridBagConstraints);
 
         jLabel22.setText("Decimal Sign:");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(jLabel22, gridBagConstraints);
@@ -1188,7 +1201,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         amountDecimalSignChar.setPreferredSize(new java.awt.Dimension(20, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         getContentPane().add(amountDecimalSignChar, gridBagConstraints);
 
@@ -1202,10 +1215,10 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(jLabel23, gridBagConstraints);
 
         amountCurrencyChar.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        amountCurrencyChar.setText("$");
+        amountCurrencyChar.setText(" ");
         amountCurrencyChar.setEnabled(false);
-        amountCurrencyChar.setMinimumSize(new java.awt.Dimension(20, 19));
-        amountCurrencyChar.setPreferredSize(new java.awt.Dimension(20, 19));
+        amountCurrencyChar.setMinimumSize(new java.awt.Dimension(40, 25));
+        amountCurrencyChar.setPreferredSize(new java.awt.Dimension(40, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
@@ -1214,6 +1227,8 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         jLabel24.setText("Amount Format:");
         jLabel24.setEnabled(false);
+        jLabel24.setFocusable(false);
+        jLabel24.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 6;
@@ -1222,10 +1237,11 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(jLabel24, gridBagConstraints);
 
         amountFormat.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        amountFormat.setText("#,###,###,##0.00;(#)");
+        amountFormat.setText(" ");
         amountFormat.setEnabled(false);
-        amountFormat.setMinimumSize(new java.awt.Dimension(160, 19));
-        amountFormat.setPreferredSize(new java.awt.Dimension(160, 19));
+        amountFormat.setFocusable(false);
+        amountFormat.setMinimumSize(new java.awt.Dimension(160, 25));
+        amountFormat.setPreferredSize(new java.awt.Dimension(160, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 6;
@@ -1235,13 +1251,13 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         jLabel25.setText(" ");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 2;
         getContentPane().add(jLabel25, gridBagConstraints);
 
         jLabel26.setText("Number of Header Lines:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 4;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
@@ -1258,7 +1274,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(footerLines, gridBagConstraints);
@@ -1272,17 +1288,17 @@ public class CustomReaderDialog extends javax.swing.JDialog {
 
         fileEncodingLbl.setText("File Encoding:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
         getContentPane().add(fileEncodingLbl, gridBagConstraints);
 
         fileEncodingCB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { }));
-        fileEncodingCB.setMinimumSize(new java.awt.Dimension(120, 19));
+        fileEncodingCB.setMinimumSize(new java.awt.Dimension(120, 25));
         fileEncodingCB.setPreferredSize(new java.awt.Dimension(140, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 7;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
         getContentPane().add(fileEncodingCB, gridBagConstraints);
@@ -1413,6 +1429,47 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     private void footerLinesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_footerLinesActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_footerLinesActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        DecimalFormatSymbols decForSyms = new DecimalFormatSymbols();
+        DecimalFormat decFormat = (DecimalFormat) DecimalFormat.getInstance();
+        int numDigits = decFormat.getCurrency().getDefaultFractionDigits();
+        amountCurrencyChar.setText( decFormat.getCurrency().getSymbol() );
+        String format = "0";
+        int i;
+    //    if ( decFormat.getmax > 0 )
+    //        {
+            format += decForSyms.getDecimalSeparator();
+    //        }
+        //System.out.println( "decFormat.getMinimumIntegerDigits() =" + decFormat.getMinimumIntegerDigits() );
+        for ( i = 0; i < 2; i ++ )
+            {
+            format+= "0";
+            }
+
+        //amountDecimalSignChar.setText(  );
+        int groupSize = decFormat.getGroupingSize();
+        char groupSep = decForSyms.getGroupingSeparator();
+        amountGroupingSeparatorChar.setText( groupSep + "" );
+        amountDecimalSignChar.setText( decForSyms.getDecimalSeparator() + "" );
+
+        int gscnt = 1;
+        for ( i = 1; i < 10; i ++ )
+            {
+            if ( gscnt == groupSize )
+                {
+                format = groupSep + format;
+                gscnt = 1;
+                }
+            else
+                {
+                gscnt ++;
+                }
+            format = "#" + format;
+            }
+        format = decForSyms.getCurrencySymbol() + format;
+        amountFormat.setText( format );
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
