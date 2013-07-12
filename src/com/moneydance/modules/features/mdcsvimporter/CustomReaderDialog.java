@@ -48,6 +48,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
                                         , CustomReader.DATA_TYPE_DESCRIPTION 
                                         , CustomReader.DATA_TYPE_MEMO 
                                         , CustomReader.DATA_TYPE_ACCOUNT_NAME 
+                                        , CustomReader.DATA_TYPE_CATEGORY_NAME
                                     };
         
         String [] allowEmptyFlag = { "", "Can Be Blank", "1", "2", "3", "4", "5", "6", "7", "8", "9" };

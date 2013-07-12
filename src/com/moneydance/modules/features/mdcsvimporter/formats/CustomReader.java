@@ -46,6 +46,7 @@ public class CustomReader extends TransactionReader
     public static final String DATA_TYPE_DESCRIPTION = "description";
     public static final String DATA_TYPE_MEMO = "memo";
     public static final String DATA_TYPE_ACCOUNT_NAME = "account name";
+    public static final String DATA_TYPE_CATEGORY_NAME = "category name";
 
     private static final String DATE_FORMAT_US = "MM/DD/YYYY";
     private static final String DATE_FORMAT_EU = "DD/MM/YY";
@@ -79,6 +80,7 @@ public class CustomReader extends TransactionReader
     private String phoneString;
     private String memo;
     private String accountName;
+    private String categoryName;
    
    public CustomReader( CustomReaderData customReaderData )
         {
@@ -371,6 +373,21 @@ public class CustomReader extends TransactionReader
                     }
                 this.accountNameFromCSV = accountName;
                 }
+             else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_CATEGORY_NAME ) )
+                {
+                System.err.println(  "categoryName >" + fieldString + "<" );
+                categoryName = fieldString;
+                setUsingCategorynameFlag( true );
+                
+//                if ( rootAccount.getAccountByName( categoryName ) == null )
+//                    {
+//                    System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= will not import it." );
+////                    System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+////                    retVal = false;
+////                    break;
+//                    }
+                //this.categoryNameFromCSV = categoryName;
+                }
              } // end for
       }
 
@@ -571,7 +588,7 @@ public class CustomReader extends TransactionReader
             System.err.println(  "tag in phone field >" + fieldString + "<" );
             // storing it into phone field for now since onlinetxn cannot handle tags. A kludge for now.  Stan
 //            txn.setPhone( fieldString );
-			phoneString = fieldString;
+            phoneString = fieldString;
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_ACCOUNT_NAME ) )
             {
@@ -586,6 +603,20 @@ public class CustomReader extends TransactionReader
                 return false; // skip this line
                 }
             this.accountNameFromCSV = accountName;
+            }
+         else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_CATEGORY_NAME ) )
+            {
+            System.err.println(  "categoryName >" + fieldString + "<" );
+            categoryName = fieldString;
+
+//            if ( rootAccount.getAccountByName( accountName ) == null )
+//                {
+//                System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= will not import it." );
+////                System.err.println(  "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+////                throwException( "dataTypeExpecting =" + dataTypeExpecting + "=  but that account does not exist =" + fieldString + "= and STOP ON ERROR" );
+//                return false; // skip this line
+//                }
+//            this.accountNameFromCSV = accountName;
             }
          } // end for
 
@@ -722,6 +753,8 @@ public class CustomReader extends TransactionReader
     txn.setName( description );
     txn.setMemo( memo );
     txn.setPhone( phoneString );
+    txn.setSubAccountTo( categoryName );  // Hopefully this is ok to use as I do not know the MD api.
+    
 		// MOVED to TransactionReader so everyone creates it the same way.
 //		txn.setFITxnId( date + ":" + currency.format( amount, '.' )
 //				+ ":" + description + ":" + txn.getCheckNum() + ":" + txn.getMemo() );
