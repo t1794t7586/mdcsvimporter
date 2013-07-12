@@ -36,6 +36,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
@@ -66,6 +68,7 @@ public abstract class TransactionReader
    protected int defProtocolId = 999;  // per Sean at MD
    protected final static String DEFAULT_ENCODING = "UTF-8";  // "UTF-16LE"; "windows-1250"; Preselect this value in Encoding JComboBox.
    //protected String fileEncoding = DEFAULT_ENCODING;
+   protected boolean isUsingCategorynameFlag = false;
 
    protected abstract boolean canParse( CSVData data );
 
@@ -460,7 +463,10 @@ public abstract class TransactionReader
                     {
                     System.err.println( "add new parentTxn/splitTxn" );
                     ParentTxn pTxn = onlineToParentTxn( account, rootAccount, txn );
-                    txnSet.addNewTxn( pTxn );
+                    if ( pTxn != null )
+                        {
+                        txnSet.addNewTxn( pTxn );
+                        }
                     }
                 totalAccepted ++;
                 // I don't know why, but for now this works here, but not below, after the main loop - Stan. Maybe because of using multiple account names?
@@ -547,10 +553,20 @@ public abstract class TransactionReader
         ParentTxn pTxn = new ParentTxn( oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt()
                                                           , ckNum, account, oTxn.getName(), oTxn.getMemo()
                                                           , -1, AbstractTxn.STATUS_UNRECONCILED );
+       try {
+           System.err.println( "find category for oTxn.getSubAccountTo() =" + oTxn.getSubAccountTo() + "=" );
+           category = getAccount( account, oTxn.getSubAccountTo(), com.moneydance.apps.md.model.AccountUtil.getDefaultCategoryForAcct( account ).getAccountName()  //rr.getString("default_category"),
+                                  , oTxn.getAmount() <= 0 ? Account.ACCOUNT_TYPE_EXPENSE : Account.ACCOUNT_TYPE_INCOME );
+           System.err.println( "found category =" + category + "=" );
+
+       } catch (Exception ex) {
+           Logger.getLogger(TransactionReader.class.getName()).log(Level.SEVERE, null, ex);
+           return null;   // skip this transaction - do not add
+       }
         
         SplitTxn sptxn = new SplitTxn( pTxn, oTxn.getAmount(), oTxn.getAmount(), 1.0
-                                                     , com.moneydance.apps.md.model.AccountUtil.getDefaultCategoryForAcct(account)  /* category */
-                                                     , pTxn.getDescription(), -1, AbstractTxn.STATUS_UNRECONCILED );
+                                        , category  //com.moneydance.apps.md.model.AccountUtil.getDefaultCategoryForAcct(account)  /* category */
+                                        , pTxn.getDescription(), -1, AbstractTxn.STATUS_UNRECONCILED );
         
         sptxn.setIsNew( true );
         pTxn.addSplit( sptxn );
@@ -702,5 +718,104 @@ s        {
     public void setCustomReaderData(CustomReaderData customReaderData) {
         this.customReaderData = customReaderData;
     }
+    
+    public boolean isUsingCategorynameFlag() {
+        return isUsingCategorynameFlag;
+    }
+            
+    public void setUsingCategorynameFlag(boolean xx) {
+        this.isUsingCategorynameFlag = xx;
+        //System.err.println( "set isUsingCategorynameFlag to =" + isUsingCategorynameFlag + "=" );
+    }
+    
+    /**************************************************************************************/
 
+  /** Find and return the ACCOUNT field in the appropriate format. */
+  private final Account getAccount( Account account, String categoryName, String defaultAccount,
+                                    int defaultAcctType )
+    throws Exception
+  {
+    //String acctStr = getField(fieldValues, 1 /*ACCOUNT*/, null);
+    if ( categoryName == null ) return addNewAccount( defaultAccount, account.getCurrencyType(),
+                                           rootAccount, "", defaultAcctType, true, -1 );
+    //acctStr = acctStr.trim();
+    return addNewAccount( categoryName, account.getCurrencyType(), rootAccount, "",
+                          defaultAcctType, true, -1 );
+  }
+  
+  /**************************************************
+   * Copied from Text File Importer code with permission from Reilly Technologies, L.L.C. 
+   * I unfortunately do not understand what this code does.
+  **************************************************/
+  
+  private Account addNewAccount( String accountName, CurrencyType currencyType,
+                                Account parentAccount, String description,
+                                int accountType, boolean lenientMatch,
+                                int currAccountId)
+    throws Exception
+  {
+    if(accountName.indexOf(':')==0 &&
+       parentAccount.getAccountType()==Account.ACCOUNT_TYPE_ROOT) {
+      accountName = accountName.substring(1);
+    }
+
+    int colIndex = accountName.indexOf(':');
+    String restOfAcctName;
+    String thisAcctName;
+    if(colIndex>=0) {
+      restOfAcctName = accountName.substring(colIndex+1);
+      thisAcctName = accountName.substring(0,colIndex);
+    } else {
+      restOfAcctName = null;
+      thisAcctName = accountName;
+    }
+
+    Account newAccount = null;
+    for(int i=0; i<parentAccount.getSubAccountCount(); i++) {
+      Account subAcct = parentAccount.getSubAccount(i);
+      if((lenientMatch && subAcct.getAccountName().equalsIgnoreCase(thisAcctName)) ||
+         (subAcct.getAccountType()==accountType &&
+          subAcct.getAccountName().equalsIgnoreCase(thisAcctName))) {
+        newAccount = subAcct;
+        break;
+      }
+    }
+
+    if(newAccount==null) {
+      newAccount = 
+        Account.makeAccount(accountType, thisAcctName, currencyType, parentAccount);
+      if(newAccount instanceof com.moneydance.apps.md.model.BankAccount) {
+        ((com.moneydance.apps.md.model.BankAccount)newAccount).setBankName(description);
+      } else if(newAccount instanceof com.moneydance.apps.md.model.InvestmentAccount) {
+        (( com.moneydance.apps.md.model.InvestmentAccount)newAccount).setAccountDescription(description);
+      }
+      parentAccount.addSubAccount(newAccount);
+    }
+
+    if(restOfAcctName!=null) {
+      return addNewAccount(restOfAcctName, currencyType, newAccount,
+                           description, accountType,lenientMatch,
+                           currAccountId);
+    } else {
+      if(newAccount.getAccountNum()==currAccountId) {
+        // if the found account is the same as the container account
+        // create another account with the same name and return it
+        if(accountType==Account.ACCOUNT_TYPE_BANK &&
+           parentAccount==rootAccount) {
+          newAccount = Account.makeAccount(Account.ACCOUNT_TYPE_INCOME, 
+                                           thisAcctName+"X", currencyType, 
+                                           parentAccount);
+        } else {
+          newAccount = Account.makeAccount(accountType, thisAcctName+"X", 
+                                           currencyType, parentAccount);
+        }
+        if(newAccount instanceof com.moneydance.apps.md.model.BankAccount) {
+          (( com.moneydance.apps.md.model.BankAccount)newAccount).setBankName(description);
+        }
+        parentAccount.addSubAccount(newAccount);
+      }
+      return newAccount;
+    }
+  }  
+    
 }

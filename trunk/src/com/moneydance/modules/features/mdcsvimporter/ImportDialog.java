@@ -18,6 +18,7 @@ import com.moneydance.apps.md.model.Account;
 import com.moneydance.apps.md.model.RootAccount;
 import com.moneydance.apps.md.view.gui.MoneydanceGUI;
 import com.moneydance.apps.md.view.gui.OnlineManager;
+import static com.moneydance.modules.features.mdcsvimporter.TransactionReader.importDialog;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.io.*;
@@ -362,6 +363,14 @@ public class ImportDialog
                 {
                 System.err.println( "Have a custom reader. Read config for =" + transReader.toString() + "=" );
                 customReaderDialog.getReaderConfig( transReader.toString() );
+                
+//                System.err.println( "importDialog() isSelectedOnlineImportTypeRB()) =" + isSelectedOnlineImportTypeRB()+ "=" );
+//                System.err.println( "importDialog() reader.isUsingCategorynameFlag() =" + transReader.isUsingCategorynameFlag() + "=" );
+//                if ( importDialog.isSelectedOnlineImportTypeRB() && transReader.isUsingCategorynameFlag() )
+//                    {
+//                    JOptionPane.showMessageDialog( this, "Categories will not import using \'Online\' import type. Set to \'Regular\'" 
+//                                                    , "Message", JOptionPane.INFORMATION_MESSAGE );
+//                    }
                 }
 
              String[] formats = transReader.getSupportedDateFormats();
@@ -976,7 +985,8 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
    {
       String message = null;
       boolean error = false;
-
+      boolean isUsingCategorynameFlag = false;
+              
       // see if the file is selected
       if ( selectedFile == null || !selectedFile.exists() || !selectedFile.isFile() )
       {
@@ -1014,9 +1024,11 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
 
          comboFileFormat.removeAllItems();
          for ( TransactionReader reader : fileFormats )
-         {
+            {
             comboFileFormat.addItem( reader );
-         }
+            if ( reader.isUsingCategorynameFlag() )
+                isUsingCategorynameFlag = true;
+            }
 
          if ( fileFormats.length == 0 )
          {
@@ -1047,7 +1059,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
          comboFileFormat.setEnabled( false );
       }
 
-      if ( !error )
+      if ( ! error )
       {
          TransactionReader reader = (TransactionReader) comboFileFormat.getSelectedItem();
          String[] formats = reader.getSupportedDateFormats();
@@ -1073,6 +1085,15 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
             System.err.println( "importDialog() customReaderDialog.getDateFormatSelected()) =" + customReaderDialog.getDateFormatSelected() + "=" );
             comboDateFormat.setSelectedItem( customReaderDialog.getDateFormatSelected() );
          }
+         
+        System.err.println( "importDialog() error =" + error + "=" );
+        System.err.println( "importDialog() isSelectedOnlineImportTypeRB()) =" + isSelectedOnlineImportTypeRB()+ "=" );
+        System.err.println( "importDialog() reader.isUsingCategorynameFlag() =" + reader.isUsingCategorynameFlag() + "=" );
+        if ( ! error && importDialog.isSelectedOnlineImportTypeRB() && isUsingCategorynameFlag )
+            {
+            JOptionPane.showMessageDialog( this, "Categories will not import using \'Online\' import type. Set to \'Regular\'" 
+                                            , "Message", JOptionPane.INFORMATION_MESSAGE );
+            }
       }
       else
       {

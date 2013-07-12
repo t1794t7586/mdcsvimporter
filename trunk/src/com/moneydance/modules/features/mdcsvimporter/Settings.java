@@ -45,9 +45,28 @@ public final class Settings
       System.err.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
       if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
         {
-        File moneydanceHome = new File( System.getProperty( "user.home" ) + "/Library/Application Support", "Moneydance" );
-        System.err.println( "moneydanceHome folder =" + moneydanceHome + "=" );
-        return new File( moneydanceHome, "mdcsvimporter.props" );
+        File moneydanceHome = new File( System.getProperty( "user.home" ) + "/Library/Application Support/Moneydance", "mdcsvimporter.props" );
+        System.err.println( "try moneydanceHome folder =" + moneydanceHome + "=" );
+        if ( moneydanceHome.exists() )
+            return moneydanceHome;
+
+        moneydanceHome = new File( System.getProperty( "user.home" ) + "/Library/Preferences/Moneydance", "mdcsvimporter.props" );
+        System.err.println( "try moneydanceHome folder =" + moneydanceHome + "=" );
+        if ( moneydanceHome.exists() )
+            return moneydanceHome;
+        
+        moneydanceHome = new File( "/Library/Preferences/Moneydance", "mdcsvimporter.props" );
+        System.err.println( "try moneydanceHome folder =" + moneydanceHome + "=" );
+        if ( moneydanceHome.exists() )
+            return moneydanceHome;
+        
+        moneydanceHome = new File( System.getProperty( "user.home" ) + "/Library/Moneydance", "mdcsvimporter.props" );
+        System.err.println( "try moneydanceHome folder =" + moneydanceHome + "=" );
+        if ( moneydanceHome.exists() )
+            return moneydanceHome;
+        
+        System.err.println( "Could not find so assuming moneydanceHome folder =" + moneydanceHome + "=" );
+        return new File( System.getProperty( "user.home" ) + "/Library/Application Support/Moneydance", "mdcsvimporter.props" );
         }
 
       File moneydanceHome = new File( System.getProperty( "user.home" ), ".moneydance" );
