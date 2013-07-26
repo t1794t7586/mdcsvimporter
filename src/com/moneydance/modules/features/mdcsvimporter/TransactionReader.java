@@ -550,6 +550,14 @@ public abstract class TransactionReader
 
         String ckNum = oTxn.getCheckNum().replaceAll( "^0*(.*)", "$1" );
 
+        // Don't know why I have to do this but I had to to make Online and Regular transactions use the same sign.
+        // actually I noticed that the 'Type of Account' determines the sign of an amount also.
+        // Bank accounts input as: Payment, Deposit
+        // Charge accounts input as: Charge, Payment and are reversed sign !
+        // I am not going to worry about that at this point. It doesn't really matter. Just define your reader to compensate.
+        oTxn.setAmount( - oTxn.getAmount() );  
+        oTxn.setTotalAmount( - oTxn.getTotalAmount() );  
+        
         ParentTxn pTxn = new ParentTxn( oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt(), oTxn.getDateInitiatedInt()
                                                           , ckNum, account, oTxn.getName(), oTxn.getMemo()
                                                           , -1, AbstractTxn.STATUS_UNRECONCILED );
