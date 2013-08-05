@@ -426,8 +426,9 @@ public class ImportDialog
         comboDateFormat = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
         comboFileFormatLabel = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
 
         jLabel3.setText("jLabel3");
 
@@ -646,18 +647,6 @@ public class ImportDialog
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         getContentPane().add(jLabel5, gridBagConstraints);
 
-        jLabel6.setText("Suggestion");
-        jLabel6.setToolTipText("<html><font face=\\\"sansserif\\\" color=\\\"green\\\">Create a temporary bank account to import into.<br/>When you are ok with the imported records, then batch move<br/>them to the right account.</font></html>\n\n");
-        jLabel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        jLabel6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
-        getContentPane().add(jLabel6, gridBagConstraints);
-
         comboFileFormatLabel.setText(" ");
         comboFileFormatLabel.setMaximumSize(new java.awt.Dimension(40, 25));
         comboFileFormatLabel.setMinimumSize(new java.awt.Dimension(40, 25));
@@ -668,6 +657,24 @@ public class ImportDialog
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         getContentPane().add(comboFileFormatLabel, gridBagConstraints);
+
+        jButton2.setText("Suggestions");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        getContentPane().add(jButton2, gridBagConstraints);
+
+        jLabel1.setText(" ");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 10;
+        getContentPane().add(jLabel1, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -865,6 +872,11 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
 */
 }//GEN-LAST:event_comboFileFormatActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        JOptionPane.showMessageDialog( this, "<html><font face=\\\"sansserif\\\" color=\\\"green\\\">Create a temporary bank account to import into.<br/>When you are ok with the imported records, then \"Batch Change\"<br/>them to the right account.<br/>Not using \"Batch Change\" will mess up your accounts.<br/><br/>-Payment- and -Deposit- are just opposite signed amounts of each other<br/>so if your amount comes into the wrong column, just flip them.<br/></font></html>" 
+                                , "Message", JOptionPane.INFORMATION_MESSAGE );
+    }//GEN-LAST:event_jButton2ActionPerformed
+
     
     /**
      * @param args the command line arguments
@@ -896,9 +908,10 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     private javax.swing.JComboBox comboFileFormat;
     private javax.swing.JLabel comboFileFormatLabel;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel lblAccount;
     private javax.swing.JLabel lblDateFormat;
     private javax.swing.JLabel lblFileFormat;
