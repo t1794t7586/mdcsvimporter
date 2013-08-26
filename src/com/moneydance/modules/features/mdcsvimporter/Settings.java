@@ -49,11 +49,11 @@ public final class Settings
       File moneydanceHome2 = null;
       File moneydanceHome3 = null;
       File moneydanceHome4 = null;
-      String macErrMsg = "";
+      String missingHomeErrMsg = "";
               
       if ( System.getProperty( "os.name" ).toLowerCase().startsWith( "mac" ) )
         {
-        moneydanceHome1 = new File( System.getProperty( "user.home" ) + "/Library/Application Support/Moneydance", "mdcsvimporter.props" );
+        moneydanceHome1 = new File( System.getProperty( "user.home" ) + "/Library/Application Support", "Moneydance" );
         System.err.println( "try moneydanceHome folder =" + moneydanceHome1 + "=" );
         if ( moneydanceHome1.exists() )
             {
@@ -61,7 +61,7 @@ public final class Settings
             }
         else
             {
-            moneydanceHome2 = new File( System.getProperty( "user.home" ) + "/Library/Preferences/Moneydance", "mdcsvimporter.props" );
+            moneydanceHome2 = new File( System.getProperty( "user.home" ) + "/Library/Preferences", "Moneydance" );
             System.err.println( "try moneydanceHome folder =" + moneydanceHome2 + "=" );
             if ( moneydanceHome2.exists() )
                 {
@@ -69,7 +69,7 @@ public final class Settings
                 }
             else
                 {
-                moneydanceHome3 = new File( "/Library/Preferences/Moneydance", "mdcsvimporter.props" );
+                moneydanceHome3 = new File( "/Library/Preferences", "Moneydance" );
                 System.err.println( "try moneydanceHome folder =" + moneydanceHome3 + "=" );
                 if ( moneydanceHome3.exists() )
                     {
@@ -77,7 +77,7 @@ public final class Settings
                     }
                 else
                     {
-                    moneydanceHome4 = new File( System.getProperty( "user.home" ) + "/Library/Moneydance", "mdcsvimporter.props" );
+                    moneydanceHome4 = new File( System.getProperty( "user.home" ) + "/Library", "Moneydance" );
                     System.err.println( "try moneydanceHome folder =" + moneydanceHome4 + "=" );
                     if ( moneydanceHome4.exists() )
                         moneydanceHome = moneydanceHome4;
@@ -91,26 +91,42 @@ public final class Settings
             {
             System.err.println( "Could not find so assuming moneydanceHome folder =" + moneydanceHome1 + "=" );
             moneydanceHome = moneydanceHome1;
-            macErrMsg = "\n\nI looked in these 4 places in this order: \n\n"
+            missingHomeErrMsg = "\n\nI looked in these 4 places in this order: \n\n"
                         + moneydanceHome1 + "\n"
                         + moneydanceHome2 + "\n"
                         + moneydanceHome3 + "\n"
                         + moneydanceHome4 + "\n";
             }
         }
-      else  // windows + Linux : here I will create a home moneydance folder by not for mac
+      else  // windows + Linux : test for moneydance folder
         {
-        moneydanceHome = new File( System.getProperty( "user.home" ), ".moneydance" );
-        if ( ! moneydanceHome.exists() )
+        moneydanceHome1 = new File( System.getProperty( "user.home" ), ".moneydance" );
+        System.err.println( "try moneydanceHome folder =" + moneydanceHome1 + "=" );
+        if ( moneydanceHome1.exists() )
+            moneydanceHome = moneydanceHome1;
+
+        if ( moneydanceHome == null )
             {
-            try {
-                  moneydanceHome.createNewFile();
-                } catch (IOException ex) {
-                    Logger.getLogger(Settings.class.getName()).log(Level.SEVERE, null, ex);
-                }
+            System.err.println( "Could not find so assuming moneydanceHome folder =" + moneydanceHome1 + "=" );
+            moneydanceHome = moneydanceHome1;
+            missingHomeErrMsg = "";   //\n\nI looked in this place: \n\n"
+                                      //+ moneydanceHome + "\n";
             }
-        moneydanceHome = new File( moneydanceHome, "mdcsvimporter.props" );
         }
+
+      // for all os's
+    if ( ! moneydanceHome.exists() )
+        {
+        boolean ok = moneydanceHome.mkdirs();
+        JOptionPane.showMessageDialog( null, "Importer could not find a Moneydance Home directory so I created one here: \n\n" + moneydanceHome
+                                        + missingHomeErrMsg
+                                        );
+        if ( ! ok )
+            {
+            JOptionPane.showMessageDialog( null, "*** Error creating Moneydance Home directory: \n\n" + moneydanceHome );
+            }
+        }
+    moneydanceHome = new File( moneydanceHome, "mdcsvimporter.props" );
       
       // all systems - moneydanceHome now includes properties file path
       try {
@@ -118,7 +134,6 @@ public final class Settings
             {
             moneydanceHome.createNewFile();
             JOptionPane.showMessageDialog( null, "Importer could not find its properties files so I created one here: \n\n" + moneydanceHome
-                                            + macErrMsg
                         );
             }
         }
