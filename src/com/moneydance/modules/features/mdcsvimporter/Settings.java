@@ -41,7 +41,7 @@ public final class Settings
     static HashMap<String, TransactionReader> ReaderHM = null;
     static Properties currentProps = new Properties();
 
-   private static File getFilename()
+   public static File getFilename()
    {
       System.err.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
       File moneydanceHome = null;
