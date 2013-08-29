@@ -353,6 +353,10 @@ public class ImportDialog
         return autoProcessedAFile;
     }
    
+    public void setPropertiesFile() {
+        this.propertiesFile.setText( Settings.getFilename().toString() );
+    }
+    
     private void processFileFormatChanged( TransactionReader transReader )
     {                                       
       System.err.println( "processFileFormatChanged()  --------------- " );
@@ -429,13 +433,18 @@ public class ImportDialog
         comboFileFormatLabel = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
+        propertiesFile = new javax.swing.JLabel();
 
         jLabel3.setText("jLabel3");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Import File: " + main.VERSION_STRING);
         setName("importDialog"); // NOI18N
-        setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
+            }
+        });
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
         lblSelectFile.setText("Select Import File:");
@@ -648,9 +657,9 @@ public class ImportDialog
         getContentPane().add(jLabel5, gridBagConstraints);
 
         comboFileFormatLabel.setText(" ");
-        comboFileFormatLabel.setMaximumSize(new java.awt.Dimension(40, 25));
+        comboFileFormatLabel.setMaximumSize(new java.awt.Dimension(60, 25));
         comboFileFormatLabel.setMinimumSize(new java.awt.Dimension(40, 25));
-        comboFileFormatLabel.setPreferredSize(new java.awt.Dimension(40, 25));
+        comboFileFormatLabel.setPreferredSize(new java.awt.Dimension(60, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 6;
         gridBagConstraints.gridy = 2;
@@ -675,6 +684,19 @@ public class ImportDialog
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 10;
         getContentPane().add(jLabel1, gridBagConstraints);
+
+        propertiesFile.setText(" ");
+        propertiesFile.setMaximumSize(new java.awt.Dimension(180, 23));
+        propertiesFile.setMinimumSize(new java.awt.Dimension(180, 23));
+        propertiesFile.setPreferredSize(new java.awt.Dimension(180, 23));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridwidth = 7;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
+        gridBagConstraints.insets = new java.awt.Insets(4, 10, 10, 10);
+        getContentPane().add(propertiesFile, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -820,6 +842,7 @@ public class ImportDialog
     }//GEN-LAST:event_comboFileFormat1fileFormatChanged
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        setPropertiesFile();
         customReaderDialog.setVisible( true );
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -877,6 +900,10 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
                                 , "Message", JOptionPane.INFORMATION_MESSAGE );
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        this.setPropertiesFile(); 
+    }//GEN-LAST:event_formWindowOpened
+
     
     /**
      * @param args the command line arguments
@@ -918,6 +945,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     private javax.swing.JLabel lblMessage;
     private javax.swing.JLabel lblSelectFile;
     private javax.swing.JRadioButton onlineImportTypeRB;
+    private javax.swing.JLabel propertiesFile;
     private javax.swing.JRadioButton regularImportTypeRB;
     private javax.swing.JTextField textFilename;
     // End of variables declaration//GEN-END:variables
