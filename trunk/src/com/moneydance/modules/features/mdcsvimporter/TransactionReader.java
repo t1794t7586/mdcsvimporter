@@ -601,7 +601,7 @@ public abstract class TransactionReader
             return this.customReaderDialog.getNumberOfCustomReaderFieldsUsed();
         }
    
-   public static TransactionReader[] getCompatibleReaders( File selectedFile, ImportDialog importDialogArg, RootAccount rootAccount )
+   public static TransactionReader[] getCompatibleReaders( boolean getAllReadersList, File selectedFile, ImportDialog importDialogArg, RootAccount rootAccount )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
       importDialog = importDialogArg;
@@ -617,11 +617,25 @@ public abstract class TransactionReader
              try
                 {
                 System.err.println( "using fileEncoding >" + transactionReader.getCustomReaderData().getFileEncoding() + "< ===============" );
-                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ) );
+                if ( transactionReader.getCustomReaderData().getUseRegexFlag() )
+                    {
+                    System.err.println( "\n================  Regex Reader" );
+                    csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ) );
+                    }
+                else
+                    {
+                    System.err.println( "\n================  Csv Reader" );
+                    csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ) );
+                    }
                 CSVData csvData = new CSVData( csvReader );
             
                 transactionReader.setRootAccount( rootAccount );
-                if ( transactionReader.canParse( csvData ) )
+                if ( getAllReadersList )
+                      {
+                      System.err.println( "=============== add all readers for >" + key + "< ===============" );
+                      formats.add( transactionReader );
+                      }
+                else if ( transactionReader.canParse( csvData ) )
                       {
                       System.err.println( "=============== at canparse WORKS for >" + key + "< ===============" );
                       formats.add( transactionReader );
@@ -635,6 +649,8 @@ public abstract class TransactionReader
                  {
                  System.err.println( "at canparse error reading file !" );
                  System.err.println( "=============== at canparse NOT WORK for >" + key + "< ===============" );
+                 System.err.println( "File Error: " );
+                 x.printStackTrace();
                  }
              finally
                 {

@@ -40,7 +40,9 @@ public final class Settings
     static HashMap<String, CustomReaderData> ReaderConfigsHM = null;
     static HashMap<String, TransactionReader> ReaderHM = null;
     static Properties currentProps = new Properties();
-
+    static String emptyArrayProperty = "[,,,, , , , , , ]";
+  //  static String emptyRegexsArrayProperty = "[\u001F \u001F \u001F \u001F \u001F \u001F \u001F \u001F \u001F  ]";
+    //static String emptyRegexsArrayProperty = "[ a a a a a a a a a  ]";
    public static File getFilename()
    {
       System.err.println( "os.name =" + System.getProperty( "os.name" ) + "=" );
@@ -173,7 +175,7 @@ public final class Settings
    private static void save( Properties props )
       throws IOException
    {
-      OutputStream os = new FileOutputStream( getFilename() );
+      OutputStream os = new FileOutputStream( getFilename() );  //, Charset.forName( "UTF-8" ) ); //(String) transReader.getCustomReaderData().getFileEncoding() ) );
       try
       {
          props.store( os, "MDCSVImporter - Moneydance CSV Importer" );
@@ -328,13 +330,20 @@ public final class Settings
                 customReaderData.setAmountGroupingSeparatorChar( getInteger( false, readerName + ".AmountGroupingSeparatorChar", ',' ) );
                 customReaderData.setAmountFormat( props.getProperty( readerName + ".AmountFormat" ) );
                 customReaderData.setImportReverseOrderFlg( getBoolean( false, readerName + ".ImportReverseOrderFlag", false ) );
+                customReaderData.setUseRegexFlag(getBoolean( false, readerName + ".UseRegexFlag", false ) );
                 
-                customReaderData.setDataTypesList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DataTypesList" ).split( "[\\[\\],]" ) ) ) );
-                customReaderData.setEmptyFlagsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".EmptyFlagsList" ).split( "[\\[\\],]" ) ) ) );
+                //customReaderData.setRegexsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".RegexsList", emptyRegexsArrayProperty ).split( "[\\[\\]a]" ) ) ) );
+                //customReaderData.setRegexsList( new ArrayList<String>( 10 ) );
+                customReaderData.setRegexsList( new ArrayList<String>(Arrays.asList( "", "", "", "", "", "", "", "", "", "" ) ) );
+                customReaderData.setDataTypesList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".DataTypesList", emptyArrayProperty ).split( "[\\[\\],]" ) ) ) );
+                customReaderData.setEmptyFlagsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".EmptyFlagsList", emptyArrayProperty ).split( "[\\[\\],]" ) ) ) );
 
                 int max = customReaderData.getDataTypesList().size();
+                System.err.println( "props customReaderData.getRegexsList().size() =" + customReaderData.getRegexsList().size() + "=   max =" + max );
                 for ( int c = 1; c < max; c++ )
                     {
+                    customReaderData.getRegexsList().set( c - 1, props.getProperty( readerName + ".RegexsList." + (c-1), "" ) );
+                    //customReaderData.getRegexsList().set( c - 1,customReaderData.getRegexsList().get( c ).trim() );
                     customReaderData.getDataTypesList().set( c - 1,customReaderData.getDataTypesList().get( c ).trim() );
                     customReaderData.getEmptyFlagsList().set( c - 1,customReaderData.getEmptyFlagsList().get( c ).trim() );
                     }
@@ -359,6 +368,7 @@ public final class Settings
                 System.err.println( "props getFileEncoding() =" + customReaderData.getFileEncoding() + "=" );
                 System.err.println( "props getDateFormatString() =" + customReaderData.getDateFormatString()+ "=" );
                 System.err.println( "props getHeaderLines() =" + customReaderData.getHeaderLines() + "=" );
+                System.err.println( "props getRegexsList() =" + customReaderData.getRegexsList() + "=" );
                 System.err.println( "props getDataTypesList() =" + customReaderData.getDataTypesList() + "=" );
                 System.err.println( "props getEmptyFlagsList() =" + customReaderData.getEmptyFlagsList() + "=" );
                 
@@ -396,6 +406,11 @@ public final class Settings
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".FieldSeparator", Integer.toString( customReaderData.getFieldSeparatorChar() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".FileEncodingString", customReaderData.getFileEncoding() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatString", customReaderData.getDateFormatString() );
+         //setOnly( props, "reader:" + customReaderData.getReaderName() + ".RegexsList", customReaderData.getRegexsListEncoded() );
+         for( int c = 0; c < 10; c++ )
+            {
+            setOnly( props, "reader:" + customReaderData.getReaderName() + ".RegexsList." + c, customReaderData.getRegexsListEle( c ) );
+            }
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".DataTypesList", customReaderData.getDataTypesList().toString() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList", customReaderData.getEmptyFlagsList().toString() );
          //setOnly( props, "reader:" + customReaderData.getReaderName() + ".DateFormatList", customReaderData.getDateFormatList().toString() );
@@ -404,6 +419,7 @@ public final class Settings
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountGroupingSeparatorChar", Integer.toString( customReaderData.getAmountGroupingSeparatorChar() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountFormat", customReaderData.getAmountFormat() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".ImportReverseOrderFlag", Boolean.toString( customReaderData.getImportReverseOrderFlg() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".UseRegexFlag", Boolean.toString( customReaderData.getUseRegexFlag() ) );
 
          save( props );
       }
@@ -424,6 +440,7 @@ public final class Settings
          props.remove( "reader:" + customReaderData.getReaderName() + ".FooterLines" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".FieldSeparator" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".DateFormatString" );
+         props.remove( "reader:" + customReaderData.getReaderName() + ".RegexsList" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".DataTypesList" );
          props.remove( "reader:" + customReaderData.getReaderName() + ".EmptyFlagsList" );
          //props.remove( "reader:" + customReaderData.getReaderName() + ".DateFormatList" );

@@ -391,6 +391,7 @@ public class CustomReader extends TransactionReader
              } // end for
       }
 
+      System.err.println( "canParse will return =" + retVal );
       return retVal;
    }
 
