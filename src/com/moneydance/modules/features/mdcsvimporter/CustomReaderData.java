@@ -12,6 +12,7 @@ public class CustomReaderData {
 
 //    ArrayList<javax.swing.JComboBox> dataTypesList = new ArrayList<javax.swing.JComboBox>( 10 );
 //    ArrayList<javax.swing.JComboBox> emptyFlagsList = new ArrayList<javax.swing.JComboBox>( 10 );
+    ArrayList<String> regexsList = new ArrayList<String>( 10 );
     ArrayList<String> dataTypesList = new ArrayList<String>( 10 );
     ArrayList<String> emptyFlagsList = new ArrayList<String>( 10 );
     //ArrayList<String> dateFormatList = new ArrayList<String>( 10 );
@@ -23,11 +24,40 @@ public class CustomReaderData {
     int amountGroupingSeparatorChar = ',';
     String amountFormat = "#,###,###,##0.00;(#)";
     boolean importReverseOrderFlg = false;
+    boolean useRegexFlag = false;
     String readerName = "";
     String dateFormatString = "MM/DD/YY";
     String fileEncoding = TransactionReader.DEFAULT_ENCODING;
     
     
+    public ArrayList<String> getRegexsList() {
+        return regexsList;
+    }
+
+    public String getRegexsListEncoded() {
+        StringBuffer sbuf = new StringBuffer();
+        sbuf.append( "[" );
+        for( String str : regexsList )
+        {
+            sbuf.append( str );
+            sbuf.append( "a" );
+        }
+        sbuf.append( "]" );
+        return sbuf.toString();
+    }
+
+    public void setRegexsList(ArrayList<String> regexsList) {
+        this.regexsList = regexsList;
+    }
+
+    public String getRegexsListEle( int c ) {
+        return regexsList.get( c );
+    }
+
+    public void setRegexsListEle( int c, String regex) {
+        this.regexsList.set( c, regex );
+    }
+
     public ArrayList<String> getDataTypesList() {
         return dataTypesList;
     }
@@ -136,6 +166,14 @@ public class CustomReaderData {
 
     public void setImportReverseOrderFlg(boolean importReverseOrderFlg) {
         this.importReverseOrderFlg = importReverseOrderFlg;
+    }
+
+    public boolean getUseRegexFlag() {
+        return useRegexFlag;
+    }
+
+    public void setUseRegexFlag(boolean useRegexFlag) {
+        this.useRegexFlag = useRegexFlag;
     }
 
     public String getFileEncoding() {

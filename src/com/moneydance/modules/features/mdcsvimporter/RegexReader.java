@@ -15,14 +15,18 @@
 package com.moneydance.modules.features.mdcsvimporter;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author miki
  * modified by: Stan Towianski
  */
-public class CSVReader
+public class RegexReader extends CSVReader
 {
    /**
     * Carriage-Return
@@ -80,7 +84,11 @@ public class CSVReader
     */
    private StringBuilder builder = new StringBuilder();
 
-   public CSVReader()
+   private LineNumberReader lineReader;
+   private String rgLine = "";
+   private int rgFieldCnt = 0;
+   
+   public RegexReader()
       throws IOException
    {
    }
@@ -90,7 +98,7 @@ public class CSVReader
     * @param reader must be a valid reference to a reader providing CSV data to parse.
     * @throws java.io.IOException
     */
-   public CSVReader( Reader reader )
+   public RegexReader( Reader reader )
       throws IOException
    {
       if ( reader == null || !reader.ready() )
@@ -98,6 +106,7 @@ public class CSVReader
          throw new IllegalArgumentException( "Reader must be a valid object." );
       }
       this.reader = reader;
+      lineReader = new LineNumberReader( reader );
    }
 
    /**
@@ -121,7 +130,7 @@ public class CSVReader
     * @return true if the file contains another line.
     * @throws java.io.IOException if data cannot be read.
     */
-   public boolean nextLine()
+   public boolean nextLine_HIDE()
       throws IOException
    {
       while ( nextField() != null )
@@ -189,76 +198,105 @@ public class CSVReader
    public String nextField()
       throws IOException
    {
-      //System.err.println( "nextField() fieldSeparator =" + (char)fieldSeparator + "=" );
+    //Pattern and Matcher are used here, not String.matches(regexp),
+    //since String.matches(regexp) would repeatedly compile the same
+    //regular expression
+    //String pat42 =   "([^,]*([,]|\\Z)).*";
+    //String pat5 =   "Check[ ]#(\\d*)[^,]*|([^,]*)([,]|\\Z).*";
+    String pat42 =   "([^,]*([,]|\\Z)).*";
+    String pat5 =   "(?:Check[ ]#(\\d*)|([^,]*)([,]|\\Z)).*";
 
-      if ( isEol( lastChar ) || isEof( lastChar ) )
-      {
-         //System.err.println( "nextField() return null for Eol or Eof" );
-         return null;
-      }
+    Pattern regexp = Pattern.compile( pat42 );
+    Pattern regexp2 = Pattern.compile( pat5 );
+    
+    ArrayList<Matcher> matcherAl = new ArrayList<Matcher>();
+    matcherAl.add( regexp.matcher("") );
+    matcherAl.add( regexp.matcher("") );
+    matcherAl.add( regexp2.matcher("") );
+    matcherAl.add( regexp.matcher("") );
+    matcherAl.add( regexp.matcher("") );
+    matcherAl.add( regexp.matcher("") );
+    matcherAl.add( regexp.matcher("") );
+    Matcher matcher = regexp.matcher("");
+    
+    String item = null;
+    
+    System.err.println( "nextField() fieldSeparator =" + (char)fieldSeparator + "=" );
 
-      builder.setLength( 0 );
+//      if ( isEol( lastChar ) || isEof( lastChar ) )
+//      {
+//         //System.err.println( "nextField() return null for Eol or Eof" );
+//         return null;
+//      }
 
-      if ( isQuote( lastChar ) )
-      {
-         // quoted field
-         lastChar = reader.read();
-         while ( !isQuote( lastChar ) && !isEol( lastChar ) && !isEof( lastChar ) )
-         {
-            builder.appendCodePoint( lastChar );
-            lastChar = reader.read();
-            //System.err.println( "lastChar =" + lastChar + "=" );
-         }
-         //System.err.println( "end field" );
-         //System.err.println( "read field =" + builder.toString() + "=" );
-         
-         if ( !isQuote( lastChar ) )
-         {
-            throw new IOException( "Unexpected end of line." );
-         }
-
-         // skip quote
-         lastChar = reader.read();
-         // skip spaces
-         while ( isWhitespace( lastChar ) )
-         {
-            lastChar = reader.read();
-         }
-         // and the next field separator
-         if ( isFieldSeparator( lastChar ) )
-         {
-            lastChar = reader.read();
-         }
-      }
-      else
-      {
-         // plain value
-         while ( !isFieldSeparator( lastChar ) && !isEol( lastChar ) &&
-            !isEof( lastChar ) )
-         {
-            builder.appendCodePoint( lastChar );
-            lastChar = reader.read();
-         }
-         if ( isFieldSeparator( lastChar ) )
-         {
-            lastChar = reader.read();
-         }
-      }
+        if ( ! rgLine.isEmpty() )
+            {
+            System.err.println( "----- left =" + rgLine + "=" );
+            matcher = (matcherAl.get( rgFieldCnt ));
+            matcher.reset( rgLine ); //reset the input
+            if ( matcher.matches() )
+                {
+                //System.err.println("Num groups: " + matcher.groupCount());
+                item = matcher.group(1) == null ? "" : matcher.group(1);
+                rgLine = rgLine.substring( item.length() );
+                if ( item.endsWith( "," ) )
+                    item = item.substring( 0, item.length() - 1 );
+                System.err.println( "rgFieldCnt =" + rgFieldCnt + "   item >" + item + "<    item2 >" + matcher.group(2) + "<" );
+                }
+            else 
+                {
+                System.err.println("Input does not match pattern.");
+                rgLine = "";
+                return null;
+                }
+            rgFieldCnt++;
+            }
+        else
+            {
+            System.err.println( "No more fields left." );
+            rgLine = "";
+            return null;
+            }
 
       // TODO: skip separator
 
       if ( trimFields )
       {
-         //System.err.println( "CSVReader return nextField trim =" + builder.toString().trim() + "=" );
-         return builder.toString().trim();
+         System.err.println( "RegexReader return nextField trim =" + item.trim() + "=" );
+         return item.trim();
       }
       else
       {
-         //System.err.println( "CSVReader return nextField =" + builder.toString() + "=" );
-         return builder.toString();
+         System.err.println( "RegexReader return nextField =" + item + "=" );
+         return item;
       }
    }
 
+   public boolean nextLine()
+      throws IOException
+    //public void regexParseIntoLines(String aFileName) 
+   {
+    //Path path = Paths.get(aFileName);
+    try 
+        //(
+      //BufferedReader reader = Files.newBufferedReader(path, ENCODING);
+      //LineNumberReader lineReader = new LineNumberReader( reader );
+    //)
+    {
+      System.err.println( "entered RegexReader.nextLine()" );
+      if ((rgLine = lineReader.readLine()) != null) 
+        {
+        System.err.println( "\n---------- line =" + rgLine + "=" );
+        rgFieldCnt = 0;
+        return true;
+      }      
+    }    
+    catch (IOException ex){
+      ex.printStackTrace();
+    }
+    return false;
+  }
+  
    public void setFieldSeparator( int fieldSeparator )
    {
       //System.err.println( "CSVReader.setFieldSeparator =" + (char)fieldSeparator + "=" );
@@ -320,28 +358,4 @@ public class CSVReader
       return skipEmptyLines;
    }
 
-   protected final boolean isWhitespace( int ch )
-   {
-      return (ch == SPACE || ch == TAB) && !isQuote( ch ) && !isFieldSeparator( ch );
-   }
-
-   protected final boolean isQuote( int ch )
-   {
-      return ch == quoteCharacter;
-   }
-
-   protected final boolean isFieldSeparator( int ch )
-   {
-      return ch == fieldSeparator;
-   }
-
-   protected final boolean isEol( int ch )
-   {
-      return (ch == LF || ch == CR) && !isQuote( ch ) && !isFieldSeparator( ch );
-   }
-
-   protected final boolean isEof( int ch )
-   {
-      return ch < 0;
-   }
 }

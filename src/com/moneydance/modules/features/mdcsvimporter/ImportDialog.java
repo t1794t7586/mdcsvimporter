@@ -70,6 +70,9 @@ public class ImportDialog
    private boolean skipDuringInit = true;
    private boolean autoProcessedAFile = false;
    
+   private boolean GET_ALL_READERS = true;
+   private boolean GET_COMPATIBLE_READERS = false;
+           
    public ImportDialog()
    {
    }
@@ -118,6 +121,7 @@ public class ImportDialog
       onlineImportTypeRB.setSelected( Settings.getBoolean( false, "importtype.online.radiobutton" ) );
               
      skipDuringInit = false;
+     this.setModal( false );
     }
 
    protected ArrayList<Integer> processRunArguments()
@@ -316,7 +320,17 @@ public class ImportDialog
 
       if ( comboAccount.getItemCount() > 0 )
       {
-         comboAccount.setSelectedIndex( Settings.getInteger( false, "selected.account", 0 ) );
+         System.err.println( "Settings.getInteger( false, \"selected.account\", 0 ) =" + Settings.getInteger( false, "selected.account", 0 ) );
+         try {
+            comboAccount.setSelectedIndex( Settings.getInteger( false, "selected.account", 0 ) );
+            }
+         catch( Exception ex )
+            {
+            JOptionPane.showMessageDialog( rootPane, "Your 'Import to Account' is not longer valid. "
+                + "You will have to choose a new one.",
+                "Import to Account setting",
+                JOptionPane.ERROR_MESSAGE );
+            }
       }
    }
 
@@ -434,6 +448,8 @@ public class ImportDialog
         jButton2 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         propertiesFile = new javax.swing.JLabel();
+        PreviewImportBtn = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         jLabel3.setText("jLabel3");
 
@@ -462,7 +478,7 @@ public class ImportDialog
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 0.1;
@@ -476,7 +492,7 @@ public class ImportDialog
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridx = 7;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 10);
@@ -487,7 +503,7 @@ public class ImportDialog
         checkDeleteFile.setPreferredSize(new java.awt.Dimension(250, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.gridwidth = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 10, 10, 0);
@@ -500,8 +516,8 @@ public class ImportDialog
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         getContentPane().add(btnClose, gridBagConstraints);
@@ -514,16 +530,17 @@ public class ImportDialog
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 0);
         getContentPane().add(btnProcess, gridBagConstraints);
 
         lblAccount.setText("Import to Account:");
         lblAccount.setPreferredSize(new java.awt.Dimension(120, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblAccount, gridBagConstraints);
@@ -534,8 +551,8 @@ public class ImportDialog
         comboAccount.setPreferredSize(new java.awt.Dimension(180, 29));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
@@ -550,7 +567,7 @@ public class ImportDialog
         lblMessage.setPreferredSize(new java.awt.Dimension(3, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 14;
+        gridBagConstraints.gridy = 16;
         gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.ipady = 1;
@@ -562,7 +579,7 @@ public class ImportDialog
         lblFileFormat.setPreferredSize(new java.awt.Dimension(120, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblFileFormat, gridBagConstraints);
@@ -583,8 +600,8 @@ public class ImportDialog
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
@@ -594,7 +611,7 @@ public class ImportDialog
         onlineImportTypeRB.setText("Online");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         getContentPane().add(onlineImportTypeRB, gridBagConstraints);
 
@@ -603,7 +620,7 @@ public class ImportDialog
         regularImportTypeRB.setText("Regular");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
         getContentPane().add(regularImportTypeRB, gridBagConstraints);
 
@@ -611,7 +628,7 @@ public class ImportDialog
         lblDateFormat.setPreferredSize(new java.awt.Dimension(120, 24));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 0);
         getContentPane().add(lblDateFormat, gridBagConstraints);
@@ -627,8 +644,8 @@ public class ImportDialog
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 6;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(10, 4, 10, 0);
@@ -641,8 +658,8 @@ public class ImportDialog
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 12;
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 14;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 10, 0, 10);
         getContentPane().add(jButton1, gridBagConstraints);
@@ -651,7 +668,7 @@ public class ImportDialog
         jLabel5.setToolTipText("<html>Online: These will not have a default category pre-set.<br/>\nRegular: These are regular transactions and they get the default category for the account.<br/>\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You can also import a 'tag' field in the regular type.");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridy = 8;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 0, 0);
         getContentPane().add(jLabel5, gridBagConstraints);
@@ -661,8 +678,8 @@ public class ImportDialog
         comboFileFormatLabel.setMinimumSize(new java.awt.Dimension(40, 25));
         comboFileFormatLabel.setPreferredSize(new java.awt.Dimension(60, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 6;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(10, 10, 10, 10);
         getContentPane().add(comboFileFormatLabel, gridBagConstraints);
@@ -674,15 +691,15 @@ public class ImportDialog
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 9;
+        gridBagConstraints.gridx = 6;
+        gridBagConstraints.gridy = 11;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
         getContentPane().add(jButton2, gridBagConstraints);
 
         jLabel1.setText(" ");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
-        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridy = 12;
         getContentPane().add(jLabel1, gridBagConstraints);
 
         propertiesFile.setText(" ");
@@ -691,12 +708,36 @@ public class ImportDialog
         propertiesFile.setPreferredSize(new java.awt.Dimension(180, 23));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 15;
+        gridBagConstraints.gridy = 17;
         gridBagConstraints.gridwidth = 7;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.SOUTH;
         gridBagConstraints.insets = new java.awt.Insets(4, 10, 10, 10);
         getContentPane().add(propertiesFile, gridBagConstraints);
+
+        PreviewImportBtn.setText("Preview Import");
+        PreviewImportBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                PreviewImportBtnActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 14;
+        getContentPane().add(PreviewImportBtn, gridBagConstraints);
+
+        jButton3.setText("Find Reader(s) that Work on Import File");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 4;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 5, 0);
+        getContentPane().add(jButton3, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -723,13 +764,15 @@ public class ImportDialog
              return "Formatted Text File (*.csv)";
           }
        } );
-       if ( dialog.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
-       {
-          selectedFile = dialog.getSelectedFile();
-          Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
-          textFilename.setText( selectedFile.getPath() );
-          fileChanged();
-       }
+    if ( dialog.showDialog( this, "Select" ) == JFileChooser.APPROVE_OPTION )
+        {
+        selectedFile = dialog.getSelectedFile();
+        Settings.set( "last.directory", dialog.getCurrentDirectory().getAbsolutePath() );
+        textFilename.setText( selectedFile.getPath() );
+//          fileChanged();
+        fileChanged2();
+        btnProcess.setEnabled( false );
+        }
 }//GEN-LAST:event_btnBrowseActionPerformed
 
     private void btnCloseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btnCloseActionPerformed
@@ -749,9 +792,19 @@ public class ImportDialog
              TransactionReader transReader = (TransactionReader) comboFileFormat.getSelectedItem();
              System.err.println( "comboFileFormat is string =" + transReader.toString() + "=" );
              transReader.setDateFormat( (String) comboDateFormat.getSelectedItem() );
-
-             CSVReader csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
-             CSVData csvData = new CSVData( csvReader );            
+             CSVReader csvReader = null;
+    
+            if ( transReader.getCustomReaderData().getUseRegexFlag() )
+                {
+                System.err.println( "\n================  Regex Reader" );
+                csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                }
+            else
+                {
+                System.err.println( "\n================  Csv Reader" );
+                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                }
+            CSVData csvData = new CSVData( csvReader );            
        
        //System.err.println( "btnProcessActionPerformed  customReaderDialog.getFieldSeparatorChar() =" + (char)customReaderDialog.getFieldSeparatorChar() + "=" );
        //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
@@ -851,7 +904,9 @@ private void comboDateFormatActionPerformed(java.awt.event.ActionEvent evt) {//G
 }//GEN-LAST:event_comboDateFormatActionPerformed
 
 private void comboFileFormatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFileFormatActionPerformed
-         /*  use actionPerformed - not both !
+
+      btnProcess.setEnabled( false );
+    /*  use actionPerformed - not both !
 if ( comboFileFormat.getSelectedItem() instanceof String )
         {
         System.err.println( "comboFileFormat is string =" + (String) comboFileFormat.getSelectedItem() + "=" );
@@ -904,6 +959,55 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
         this.setPropertiesFile(); 
     }//GEN-LAST:event_formWindowOpened
 
+    private void PreviewImportBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PreviewImportBtnActionPerformed
+       System.err.println( "Preview Import button entered" );
+
+        try
+            {
+            TransactionReader transReader = (TransactionReader) comboFileFormat.getSelectedItem();
+            System.err.println( "comboFileFormat is string =" + transReader.toString() + "=" );
+            transReader.setDateFormat( (String) comboDateFormat.getSelectedItem() );
+            CSVReader csvReader = null;
+    
+            if ( transReader.getCustomReaderData().getUseRegexFlag() )
+                {
+                System.err.println( "\n================  Regex Reader" );
+                csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                }
+            else
+                {
+                System.err.println( "\n================  Csv Reader" );
+                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                }
+
+            CSVData csvData = new CSVData( csvReader );            
+       
+            //System.err.println( "btnProcessActionPerformed  customReaderDialog.getFieldSeparatorChar() =" + (char)customReaderDialog.getFieldSeparatorChar() + "=" );
+            //csvData.getReader().setFieldSeparator( customReaderDialog.getFieldSeparatorChar() );
+
+            Account account = (Account) comboAccount.getSelectedItem();
+            //System.err.println( "starting transReader.parse..." );
+            //transReader.parse( main, csvData, account, main.getRootAccount() );
+                      
+            transReader.setRootAccount( main.getRootAccount() );
+                
+            PreviewImportWin previewImportWin = new PreviewImportWin();
+            previewImportWin.myInit( this, transReader, csvData, csvReader );
+            }
+       catch ( IOException x )
+            {
+            JOptionPane.showMessageDialog( rootPane, "There was a problem with Preview importing "
+                + " selected file, probably because the file format was wrong. ",
+                "Error Importing File",
+                JOptionPane.ERROR_MESSAGE );
+            return;
+            }
+    }//GEN-LAST:event_PreviewImportBtnActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        fileChanged();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     
     /**
      * @param args the command line arguments
@@ -925,9 +1029,10 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton PreviewImportBtn;
     private javax.swing.JButton btnBrowse;
     private javax.swing.JButton btnClose;
-    private javax.swing.JButton btnProcess;
+    protected javax.swing.JButton btnProcess;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JCheckBox checkDeleteFile;
     private javax.swing.JComboBox comboAccount;
@@ -936,6 +1041,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
     private javax.swing.JLabel comboFileFormatLabel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -1007,7 +1113,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
       if ( !newFile.equals( selectedFile ) )
       {
          selectedFile = newFile;
-         fileChanged();
+//         fileChanged();
       }
    }
 
@@ -1061,7 +1167,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
         TransactionReader.customReaderDialog = customReaderDialog;
         
          setLabel( "FindAReader", "Find Reader" );
-         TransactionReader[] fileFormats = TransactionReader.getCompatibleReaders( selectedFile, this, main.getRootAccount() );
+         TransactionReader[] fileFormats = TransactionReader.getCompatibleReaders( GET_COMPATIBLE_READERS, selectedFile, this, main.getRootAccount() );
 
          comboFileFormat.removeAllItems();
          for ( TransactionReader reader : fileFormats )
@@ -1132,7 +1238,7 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
         System.err.println( "importDialog() reader.isUsingCategorynameFlag() =" + reader.isUsingCategorynameFlag() + "=" );
         if ( ! error && importDialog.isSelectedOnlineImportTypeRB() && isUsingCategorynameFlag )
             {
-            JOptionPane.showMessageDialog( this, "Categories will not import using \'Online\' import type. Set to \'Regular\'" 
+            JOptionPane.showMessageDialog( this, "Categories will not import using \'Online\' import type. Set to \'Regular\' if you want that." 
                                             , "Message", JOptionPane.INFORMATION_MESSAGE );
             }
       }
@@ -1141,6 +1247,70 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
          comboDateFormat.removeAllItems();
          comboDateFormat.addItem( "Date format not recognized" );
          comboDateFormat.setEnabled( false );
+      }
+
+      btnProcess.setEnabled( !error );
+      if ( error )
+      {
+         csvData = null;
+      }
+      setLabel( "main", message );
+   }
+   
+   protected void fileChanged2()
+   {
+      String message = null;
+      boolean error = false;
+      boolean isUsingCategorynameFlag = false;
+              
+      // see if the file is selected
+      if ( selectedFile == null || !selectedFile.exists() || !selectedFile.isFile() )
+      {
+         message = "Please select a valid file.";
+         error = true;
+      }
+
+      // detect file format
+      if ( ! error )
+      {
+        TransactionReader.customReaderDialog = customReaderDialog;
+        
+         setLabel( "FindAReader", "Find Reader" );
+         TransactionReader[] fileFormats = TransactionReader.getCompatibleReaders( GET_ALL_READERS, selectedFile, this, main.getRootAccount() );
+
+         comboFileFormat.removeAllItems();
+         for ( TransactionReader reader : fileFormats )
+            {
+            comboFileFormat.addItem( reader );
+            if ( reader.isUsingCategorynameFlag() )
+                isUsingCategorynameFlag = true;
+            }
+
+         if ( fileFormats.length == 0 )
+         {
+            comboFileFormat.addItem( "Format not recognized" );
+            comboFileFormat.setEnabled( false );
+            comboDateFormat.setEnabled( false );
+            error = true;
+            message = "Unsupported CSV file format.";
+         }
+         else if ( fileFormats.length == 1 )
+         {
+            comboFileFormat.setSelectedIndex( 0 );
+            comboFileFormat.setEnabled( false );
+         }
+         else
+         {
+            setLabel( "FindAReader", "Pick One" );
+            comboFileFormat.setEnabled( true );
+         }
+      }
+      else
+      {
+         setLabel( "FindAReader", "No File" );
+         comboFileFormat.removeAllItems();
+         comboFileFormat.addItem( "Format not recognized" );
+         comboFileFormat.setEnabled( false );
       }
 
       btnProcess.setEnabled( !error );

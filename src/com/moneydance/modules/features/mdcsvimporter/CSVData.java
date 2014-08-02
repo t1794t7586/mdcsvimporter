@@ -41,6 +41,11 @@ public class CSVData
       currentFieldIndex = -1;
    }
 
+   public String[][] getData()
+   {
+      return data;
+   }
+
    public void parseIntoLines( int fieldSeparator )
       throws IOException
    {
@@ -56,7 +61,7 @@ public class CSVData
         {
          for ( String s = reader.nextField(); s != null; s = reader.nextField() )
             {
-            //System.err.println( "         line.add string =" + s + "=" );
+            System.err.println( "         line.add string =" + s + "=" );
             line.add( s );
             }
 
@@ -70,7 +75,6 @@ public class CSVData
       data = new String[file.size()][];
       file.toArray( data );
       System.err.println( "    parsed lines total =" + file.size() + "=" );
-      
       currentLineIndex = -1;
       currentFieldIndex = -1;      
    }
@@ -175,13 +179,19 @@ public class CSVData
           }
 
       System.err.append( "\n curr line >" );
+      try {
        for ( int i = 0; i < data[currentLineIndex].length; i ++ )
            {
            if ( i > 0 )
                 System.err.append( "|" );
            System.err.append( data[currentLineIndex][currentFieldIndex] );
            }
-       System.err.append( "<" );
+        }
+      catch( Exception ex )
+        {
+        System.err.append( "*** Error in printCurrentLine at currentLineIndex =" + currentLineIndex + "   currentFieldIndex =" + currentFieldIndex );
+        }
+       System.err.append( "< curr line." );
        return null;
    }
 
