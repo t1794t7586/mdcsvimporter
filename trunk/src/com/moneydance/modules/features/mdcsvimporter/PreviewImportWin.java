@@ -2,10 +2,16 @@ package com.moneydance.modules.features.mdcsvimporter;
 
 import static com.moneydance.modules.features.mdcsvimporter.formats.CustomReader.DATA_TYPE_IGNORE;
 import static com.moneydance.modules.features.mdcsvimporter.formats.CustomReader.DATA_TYPE_IGNORE_REST;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -30,6 +36,7 @@ public class PreviewImportWin extends javax.swing.JFrame {
       System.err.println( "entered PreviewImportWin.myInit()" + "< ==============================" );
       transReader = transReaderArg;
       csvData = csvDataArg;
+      boolean gotError = false;
       
         try {
             if ( transReader.canParse( csvData ) )
@@ -42,7 +49,9 @@ public class PreviewImportWin extends javax.swing.JFrame {
                   {
                   this.setTitle( "For Reader: " + transReader.toString() + "    - Parse file does not work!" );
                   importDialog.btnProcess.setEnabled( false );
-                  System.err.println( "=============== at canparse NOT WORK for >" + transReader.getFormatName() + "< ===============" );
+                  System.err.println( "=============== at canparse NOT WORK for >" + transReader.getFormatName() + " at row,col " 
+                          + csvData.getCurrentLineIndex() + "," + csvData.getCurrentFieldIndex() + "< ===============" );
+                  gotError = true;
                   }
       
             //csvData.parseIntoLines( transReader.getCustomReaderData().getFieldSeparatorChar() );
@@ -92,6 +101,14 @@ public class PreviewImportWin extends javax.swing.JFrame {
                    }
                 }
             previewImportTbl.setModel( new PreviewImportTblModel( headerDataTypesList, csvData.getData() ) );
+            if ( gotError )
+                {
+                    //csvData.getCurrentLineIndex() + "," + csvData.getCurrentFieldIndex()
+                CustomTableCellRenderer customTableCellRenderer = new CustomTableCellRenderer();
+                customTableCellRenderer.setForRowCol( csvData.getCurrentLineIndex(), csvData.getCurrentFieldIndex() );
+                //previewImportTbl.getColumnModel().getColumn( csvData.getCurrentFieldIndexWithinBounds() ).setCellRenderer( customTableCellRenderer );
+                previewImportTbl.setDefaultRenderer( Object.class, customTableCellRenderer );
+                }
             } 
         catch (Exception ex) 
             {
@@ -109,6 +126,7 @@ public class PreviewImportWin extends javax.swing.JFrame {
                 this.setLocationRelativeTo( getRootPane() );
                 this.setVisible( true );
                 this.validate();
+                this.addEscapeListener( this );
                 }
             catch( Exception fex )
                 {
@@ -117,6 +135,20 @@ public class PreviewImportWin extends javax.swing.JFrame {
             }
     }
     
+    public static void addEscapeListener(final JFrame win) {
+        ActionListener escListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.err.println( "previewImportWin formWindow dispose()" );
+                win.dispose();
+            }
+        };
+
+        win.getRootPane().registerKeyboardAction(escListener,
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }    
 
     /**
      * @param args the command line arguments
@@ -143,6 +175,7 @@ public class PreviewImportWin extends javax.swing.JFrame {
                 dialog.previewImportTbl.setModel( new PreviewImportTblModel( header, data ) );
                 dialog.setSize( 800, 600 );
                 dialog.setVisible(true);
+                dialog.addEscapeListener( dialog );
             }
         });
     }

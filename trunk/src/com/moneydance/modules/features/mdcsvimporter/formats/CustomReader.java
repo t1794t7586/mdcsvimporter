@@ -25,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  *
@@ -160,7 +161,7 @@ public class CustomReader extends TransactionReader
       // convert to validate with Java date formatting d,y, and M. case matters.
       String jDateFormat = getCustomReaderData().getDateFormatString().toLowerCase();
       jDateFormat = jDateFormat.replace( 'm', 'M' );
-      SimpleDateFormat sdf = new SimpleDateFormat( jDateFormat );
+      SimpleDateFormat sdf = new SimpleDateFormat( jDateFormat, Locale.ENGLISH );
       sdf.setLenient( false );
       
       System.err.println(  "using dateFormat string =" + getCustomReaderData().getDateFormatString() + "->" + jDateFormat + "<-" );
@@ -479,15 +480,17 @@ public class CustomReader extends TransactionReader
          
          if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE ) )
             {
-            System.err.println(  "date >" + fieldString + "<" );
-            System.err.println(  "date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            System.err.println( "date >" + fieldString + "<" );
+
+            fieldString = convertMmmFormattedDate( fieldString, getCustomReaderData().getDateFormatString() );
+            System.err.println( "MMM date str =" + fieldString + "=   date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             date = dateFormat.parseInt( fieldString );
             // I thought the format was giving incorrect dates for 2/5/2011 so I started doing my own thing. I later
             // found out the method I am calling uses an MD method which is working, and my new stuff was not so I left it out.  Stan
-            Date gotDate = parseDateToInt( fieldString, getCustomReaderData().getDateFormatString() );  // part of my new stuff not being used.
+//            Date gotDate = parseDateToInt( fieldString, getCustomReaderData().getDateFormatString() );  // part of my new stuff not being used.
 //            date = getIntDate( gotDate );
-            System.err.println(  "new date int =" + getIntDate( gotDate ) + "=   new date formatted >" + giveFormattedDate( gotDate, getCustomReaderData().getDateFormatString() ) + "<" );
+//            System.err.println(  "new date int =" + getIntDate( gotDate ) + "=   new date formatted >" + giveFormattedDate( gotDate, getCustomReaderData().getDateFormatString() ) + "<" );
             
 //            txn.setDatePostedInt( date );
 //            txn.setDateInitiatedInt( date );
@@ -503,28 +506,32 @@ public class CustomReader extends TransactionReader
          else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_AVAILABLE ) )
             {
             System.err.println(  "dateAvailable >" + fieldString + "<" );
-            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            fieldString = convertMmmFormattedDate( fieldString, getCustomReaderData().getDateFormatString() );
+            System.err.println( "MMM date str =" + fieldString + "=   date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             dateAvailable = dateFormat.parseInt( fieldString );
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_INITIATED) )
             {
             System.err.println(  "dateInitiated >" + fieldString + "<" );
-            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            fieldString = convertMmmFormattedDate( fieldString, getCustomReaderData().getDateFormatString() );
+            System.err.println( "MMM date str =" + fieldString + "=   date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             dateInitiated = dateFormat.parseInt( fieldString );
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_POSTED ) )
             {
             System.err.println(  "datePosted >" + fieldString + "<" );
-            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            fieldString = convertMmmFormattedDate( fieldString, getCustomReaderData().getDateFormatString() );
+            System.err.println( "MMM date str =" + fieldString + "=   date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             datePosted = dateFormat.parseInt( fieldString );
             }
          else if ( dataTypeExpecting.equalsIgnoreCase( DATA_TYPE_DATE_PURCHASED ) )
             {
             System.err.println(  "datePurchased >" + fieldString + "<" );
-            System.err.println(  "fieldString =" + fieldString + "=   date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
+            fieldString = convertMmmFormattedDate( fieldString, getCustomReaderData().getDateFormatString() );
+            System.err.println( "MMM date str =" + fieldString + "=   date int  =" + dateFormat.parseInt( fieldString ) + "=   old date formatted >" + dateFormat.format( dateFormat.parseInt( fieldString ) ) + "<" );
 
             datePurchased = dateFormat.parseInt( fieldString );
             }
@@ -654,6 +661,36 @@ public class CustomReader extends TransactionReader
     return ddd;
     }
 
+    public String convertMmmFormattedDate( String dateStr, String format )
+     {
+      Date ddd = null;
+      SimpleDateFormat sdf = null;
+
+      try {
+      // convert to validate with Java date formatting d,y, and M. case matters.
+      String jDateFormat = format.toLowerCase();
+      jDateFormat = jDateFormat.replace( 'm', 'M' );
+      sdf = new SimpleDateFormat( jDateFormat );
+      sdf.setLenient( false );
+      
+      ddd = sdf.parse( dateStr );
+      System.err.println(  "convertMmmFormattedDate() from format =" + format + "=  and date in string =" + dateStr + "=   got Date =" + ddd.toString() + "=" );
+
+      jDateFormat = jDateFormat.replace( "MMM", "MM" );  // convert MMM Jan to MM number 1
+      sdf = new SimpleDateFormat( jDateFormat );
+      sdf.setLenient( false );
+    }
+    catch (ParseException e) {
+      System.err.println(  "parseDateToInt() parseException =" + sdf.toString() + "=" );
+      return dateStr;
+    }
+    catch (IllegalArgumentException e) {
+      System.err.println(  "parseDateToInt() IllegalArgumentException =" + sdf.toString() + "=" );
+      return dateStr;
+    }
+    return sdf.format( ddd );  
+    }
+             
     public int getIntDate( Date gotDate )
     {
         Calendar cal = Calendar.getInstance();

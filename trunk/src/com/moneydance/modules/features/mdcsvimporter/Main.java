@@ -32,15 +32,15 @@ import javax.swing.JFrame;
 public class Main
    extends FeatureModule
 {
-   private static final int VERSION = 16;
-   protected static final String VERSION_STRING = " Beta 16";
+   private static final int VERSION = 17;
+   protected static final String VERSION_STRING = " Beta 17";
    private static final String NAME = "CSV Importer";
    private static final String VENDOR = "Stan Towianski, Milutin Jovanović";
    private static final String URL = "http://code.google.com/p/mdcsvimporter/";
    private static final String DESCRIPTION =
       "Let's you create configs for say: Discover card, VISA, your private bank, etc... " +
       "You denote columns like: -Payment-, -Deposit-, date, amount, memo, etc... " +
-      "It tests your file, giving you a list of all the readers that can handle your file. " +
+      "It can test your file, giving you a list of all the readers that can handle your file. " +
       "Importing does matching to skip duplicate entries."
            ;
    private static Image image;

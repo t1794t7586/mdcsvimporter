@@ -28,6 +28,7 @@ public class CustomReaderData {
     String readerName = "";
     String dateFormatString = "MM/DD/YY";
     String fileEncoding = TransactionReader.DEFAULT_ENCODING;
+    String filenameMatcher = ".*\\.[Cc][Ss][Vv]";
     
     
     public ArrayList<String> getRegexsList() {
@@ -182,6 +183,14 @@ public class CustomReaderData {
 
     public void setFileEncoding(String fileEncoding) {
         this.fileEncoding = fileEncoding;
+    }
+
+    public String getFilenameMatcher() {
+        return filenameMatcher;
+    }
+
+    public void setFilenameMatcher(String filenameMatcher) {
+        this.filenameMatcher = filenameMatcher;
     }
   
 }

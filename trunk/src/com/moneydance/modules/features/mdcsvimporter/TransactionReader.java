@@ -98,6 +98,13 @@ public abstract class TransactionReader
       throw new IOException( message );
    }
 
+   public static void init( CustomReaderDialog customReaderDialogArg, ImportDialog importDialogArg, RootAccount rootAccountArg )
+    {
+    customReaderDialog = customReaderDialogArg;
+    importDialog = importDialogArg;
+    rootAccount = rootAccountArg;
+    }
+   
    protected final void setRootAccount( RootAccount rootAccount )
    {
         this.rootAccount = rootAccount;
@@ -604,7 +611,7 @@ public abstract class TransactionReader
    public static TransactionReader[] getCompatibleReaders( boolean getAllReadersList, File selectedFile, ImportDialog importDialogArg, RootAccount rootAccount )
    {
       ArrayList<TransactionReader> formats = new ArrayList<TransactionReader>();
-      importDialog = importDialogArg;
+// moving      importDialog = importDialogArg;
       
       System.err.println( "getCompatibleReaders() call cust read canParse()" );
       CSVReader csvReader = null;

@@ -331,6 +331,7 @@ public final class Settings
                 customReaderData.setAmountFormat( props.getProperty( readerName + ".AmountFormat" ) );
                 customReaderData.setImportReverseOrderFlg( getBoolean( false, readerName + ".ImportReverseOrderFlag", false ) );
                 customReaderData.setUseRegexFlag(getBoolean( false, readerName + ".UseRegexFlag", false ) );
+                customReaderData.setFilenameMatcher(props.getProperty( readerName + ".FilenameMatcher" ) );
                 
                 //customReaderData.setRegexsList( new ArrayList<String>(Arrays.asList( props.getProperty( readerName + ".RegexsList", emptyRegexsArrayProperty ).split( "[\\[\\]a]" ) ) ) );
                 //customReaderData.setRegexsList( new ArrayList<String>( 10 ) );
@@ -420,6 +421,7 @@ public final class Settings
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".AmountFormat", customReaderData.getAmountFormat() );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".ImportReverseOrderFlag", Boolean.toString( customReaderData.getImportReverseOrderFlg() ) );
          setOnly( props, "reader:" + customReaderData.getReaderName() + ".UseRegexFlag", Boolean.toString( customReaderData.getUseRegexFlag() ) );
+         setOnly( props, "reader:" + customReaderData.getReaderName() + ".FilenameMatcher", customReaderData.getFilenameMatcher() );
 
          save( props );
       }
