@@ -170,6 +170,37 @@ public class CSVData
         return currentLineIndex;
         }
    
+   public int getCurrentFieldIndex()
+        {
+        return currentFieldIndex;
+        }
+   
+   public int getCurrentLineIndexWithinBounds()
+        {
+        if ( currentLineIndex < 0 )
+            {
+            return 0;
+            }
+        if ( currentLineIndex >= data.length )
+            {
+            return data.length - 1;
+            }
+        return currentLineIndex;
+        }
+   
+   public int getCurrentFieldIndexWithinBounds()
+        {
+        if ( currentFieldIndex < 0 )
+            {
+            return 0;
+            }
+        if ( currentFieldIndex >= data[currentLineIndex].length )
+            {
+            return data[currentLineIndex].length - 1;
+            }
+        return currentFieldIndex;
+        }
+   
    public String printCurrentLine()
    {
       if ( currentLineIndex < 0 || currentLineIndex >= data.length )

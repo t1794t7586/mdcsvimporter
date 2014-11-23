@@ -14,11 +14,17 @@ import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReade
 import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.YodleeReader;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -90,7 +96,23 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         regex9.setVisible( false );
         
         this.setModal( false );
+        this.addEscapeListener( this );        
     }
+
+    public static void addEscapeListener(final JDialog win) {
+        ActionListener escListener = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //System.err.println( "previewImportWin formWindow dispose()" );
+                win.dispose();
+            }
+        };
+
+        win.getRootPane().registerKeyboardAction(escListener,
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }    
 
     public boolean addReaderConfig()
         {
@@ -119,6 +141,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         customReaderData.setAmountFormat( getAmountFormat() );
         customReaderData.setImportReverseOrderFlg( getImportReverseOrderFlg() );
         customReaderData.setUseRegexFlag( getUseRegexFlag() );
+        customReaderData.setFilenameMatcher( getFilenameMatcher() );
         
         /*
         System.out.println( "add datatype===================================" );
@@ -202,6 +225,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         setAmountFormat( customReaderData.getAmountFormat() );
         setImportReverseOrderFlg( customReaderData.getImportReverseOrderFlg() );
         setUseRegexFlag( customReaderData.getUseRegexFlag() );
+        setFilenameMatcher( customReaderData.getFilenameMatcher() );
 
         DefaultListModel listModel = (DefaultListModel) customReadersList.getModel();
         customReadersList.setSelectedValue( readerNameToGet, true );
@@ -575,6 +599,14 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         return useRegexFlag.isSelected();
     }
 
+    public void setFilenameMatcher( String xxx) {
+        filenameMatcher.setText( xxx );
+    }
+    
+    public String getFilenameMatcher() {
+        return (String) filenameMatcher.getText();
+    }
+    
     protected void init()
         {
         /*
@@ -689,6 +721,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
             }
 
     }                                 
+
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -778,10 +811,12 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         regex8 = new javax.swing.JTextField();
         regex9 = new javax.swing.JTextField();
         useRegexFlag = new javax.swing.JCheckBox();
+        filenameMatcher = new javax.swing.JTextField();
+        jLabel28 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(740, 600));
-        setPreferredSize(new java.awt.Dimension(740, 600));
+        setMinimumSize(new java.awt.Dimension(780, 600));
+        setPreferredSize(new java.awt.Dimension(780, 600));
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -817,7 +852,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(dataType1, gridBagConstraints);
 
         isNullable1.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable1.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable1.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable1.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -853,7 +888,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(dataType0, gridBagConstraints);
 
         isNullable0.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable0.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable0.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable0.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -862,7 +897,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable0, gridBagConstraints);
 
         isNullable2.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable2.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable2.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable2.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -871,7 +906,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable2, gridBagConstraints);
 
         isNullable3.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable3.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable3.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable3.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -880,7 +915,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable3, gridBagConstraints);
 
         isNullable4.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable4.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable4.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable4.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -889,7 +924,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable4, gridBagConstraints);
 
         isNullable5.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable5.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable5.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable5.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -898,7 +933,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable5, gridBagConstraints);
 
         isNullable6.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable6.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable6.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable6.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -907,7 +942,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable6, gridBagConstraints);
 
         isNullable7.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable7.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable7.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable7.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -916,7 +951,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable7, gridBagConstraints);
 
         isNullable8.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable8.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable8.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable8.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -925,7 +960,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(isNullable8, gridBagConstraints);
 
         isNullable9.setModel(new javax.swing.DefaultComboBoxModel( allowEmptyFlag ) );
-        isNullable9.setMinimumSize(new java.awt.Dimension(100, 25));
+        isNullable9.setMinimumSize(new java.awt.Dimension(150, 25));
         isNullable9.setPreferredSize(new java.awt.Dimension(100, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
@@ -1133,7 +1168,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         getContentPane().add(addBtn, gridBagConstraints);
 
@@ -1168,6 +1203,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(message, gridBagConstraints);
 
         jLabel16.setText(" ");
+        jLabel16.setMinimumSize(new java.awt.Dimension(150, 25));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 4;
         gridBagConstraints.gridy = 23;
@@ -1218,7 +1254,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         getContentPane().add(fieldSeparatorChar, gridBagConstraints);
 
         resetFieldsBtn.setText("Reset Fields");
-        resetFieldsBtn.setMinimumSize(new java.awt.Dimension(90, 23));
+        resetFieldsBtn.setMinimumSize(new java.awt.Dimension(100, 25));
         resetFieldsBtn.setPreferredSize(new java.awt.Dimension(110, 25));
         resetFieldsBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1495,6 +1531,24 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         gridBagConstraints.gridy = 10;
         getContentPane().add(useRegexFlag, gridBagConstraints);
 
+        filenameMatcher.setText(".*\\.(csv|CSV)");
+        filenameMatcher.setMinimumSize(new java.awt.Dimension(160, 25));
+        filenameMatcher.setPreferredSize(new java.awt.Dimension(160, 25));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 8;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 10);
+        getContentPane().add(filenameMatcher, gridBagConstraints);
+
+        jLabel28.setText("Filename Matcher:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 7;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 4);
+        getContentPane().add(jLabel28, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1556,6 +1610,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
         customReaderData.setAmountFormat( getAmountFormat() );
         customReaderData.setImportReverseOrderFlg( getImportReverseOrderFlg() );
         customReaderData.setUseRegexFlag( getUseRegexFlag() );
+        customReaderData.setFilenameMatcher( getFilenameMatcher() );
 
         ReaderConfigsHM.put( readerName.getText(), customReaderData );
         // *** I could get and replace the existing one but just do this for now until things work  ! ! !
@@ -1763,6 +1818,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     private javax.swing.JTextField fieldSeparatorChar;
     private javax.swing.JComboBox fileEncodingCB;
     private javax.swing.JLabel fileEncodingLbl;
+    private javax.swing.JTextField filenameMatcher;
     private javax.swing.JTextField footerLines;
     private javax.swing.JTextField headerLines;
     private javax.swing.JCheckBox importReverseOrderFlg;
@@ -1796,6 +1852,7 @@ public class CustomReaderDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
