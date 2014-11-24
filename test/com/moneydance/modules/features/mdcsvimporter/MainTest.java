@@ -86,6 +86,13 @@ public class MainTest
    {
    }
 
+   @Test
+   public void noopTest()
+      throws IOException
+   {
+      System.out.println( "finished noopTest() test." );
+   }
+
    /**
     * Test
     */

@@ -49,6 +49,13 @@ public class DateGuesserTest
    {
    }
 
+   @Test
+   public void noopTest()
+      throws IOException
+   {
+      System.out.println( "finished noopTest() test." );
+   }
+
    /**
     * Test of class DateGuesser.
     */
