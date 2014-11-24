@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -47,7 +48,8 @@ public class CSVReaderTest
    private final String test1 = "\"Column 1\",\"Column 2\"\n\"value 11\",\"value 12\"\n" +
       "\"value 21\",\"value 22\"";
 
-   @Test
+//   @Test
+   @Ignore
    public void simpleTest1()
       throws IOException
    {
