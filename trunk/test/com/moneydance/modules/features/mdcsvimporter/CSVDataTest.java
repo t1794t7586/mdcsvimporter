@@ -51,6 +51,13 @@ public class CSVDataTest
    private final String test1 = "\"Column 1\",\"Column 2\"\n\"value 11\",\"value 12\"\n" +
       "\"value 21\",\"value 22\"";
 
+   @Test
+   public void noopTest()
+      throws IOException
+   {
+      System.out.println( "finished noopTest() test." );
+   }
+
 //   @Test
    @Ignore
    public void simpleTest1()

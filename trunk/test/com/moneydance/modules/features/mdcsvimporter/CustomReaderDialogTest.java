@@ -86,6 +86,13 @@ public class CustomReaderDialogTest
    {
    }
 
+   @Test
+   public void noopTest()
+      throws IOException
+   {
+      System.out.println( "finished noopTest() test." );
+   }
+
    /**
     * Test
     */
