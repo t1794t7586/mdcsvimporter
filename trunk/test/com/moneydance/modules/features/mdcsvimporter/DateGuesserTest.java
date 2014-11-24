@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -51,7 +52,8 @@ public class DateGuesserTest
    /**
     * Test of class DateGuesser.
     */
-   @Test
+//   @Test
+   @Ignore
    public void testCheckDateString()
       throws IOException
    {

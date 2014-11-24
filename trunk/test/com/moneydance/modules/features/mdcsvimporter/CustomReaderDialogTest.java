@@ -107,7 +107,8 @@ public class CustomReaderDialogTest
     
    }
    
-   @Test
+//   @Test
+   @Ignore
    public void dummySoItHasOneTest()
    {
        
