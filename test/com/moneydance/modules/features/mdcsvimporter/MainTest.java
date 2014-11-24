@@ -89,7 +89,8 @@ public class MainTest
    /**
     * Test
     */
-   @Test
+//   @Test
+   @Ignore
    public void expectInvalidFileAndImportaccount()
       throws IOException
    {
@@ -127,7 +128,8 @@ public class MainTest
     assertEquals( (Integer) main1.getErrCodeList().get( 0 ), (Integer) ImportDialog.RUN_ARGS_ERRORCODE_INVALID_FILEFORMAT_FOR_FILE );
    }
    
-   @Test
+//   @Test
+   @Ignore
    public void expectMissingFileArg()
       throws IOException
    {
