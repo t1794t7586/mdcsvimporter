@@ -73,6 +73,7 @@ public class RegexReader extends CSVReader
     * Reference to the reader.
     */
    private Reader reader;
+   private CustomReaderData customReaderData;
    /**
     * The last char read from the reader. Also it stores the next character to be parsed.
     * &lt;0 if end of file is reached. Code is currently written so that initializing
@@ -98,7 +99,7 @@ public class RegexReader extends CSVReader
     * @param reader must be a valid reference to a reader providing CSV data to parse.
     * @throws java.io.IOException
     */
-   public RegexReader( Reader reader )
+   public RegexReader( Reader reader, CustomReaderData customReaderData )
       throws IOException
    {
       if ( reader == null || !reader.ready() )
@@ -106,6 +107,7 @@ public class RegexReader extends CSVReader
          throw new IllegalArgumentException( "Reader must be a valid object." );
       }
       this.reader = reader;
+      this.customReaderData = customReaderData;
       lineReader = new LineNumberReader( reader );
    }
 
@@ -203,13 +205,16 @@ public class RegexReader extends CSVReader
     //regular expression
     //String pat42 =   "([^,]*([,]|\\Z)).*";
     //String pat5 =   "Check[ ]#(\\d*)[^,]*|([^,]*)([,]|\\Z).*";
+       /* was used
     String pat42 =   "([^,]*([,]|\\Z)).*";
     String pat5 =   "(?:Check[ ]#(\\d*)|([^,]*)([,]|\\Z)).*";
 
     Pattern regexp = Pattern.compile( pat42 );
     Pattern regexp2 = Pattern.compile( pat5 );
-    
+    */
+       
     ArrayList<Matcher> matcherAl = new ArrayList<Matcher>();
+    /*
     matcherAl.add( regexp.matcher("") );
     matcherAl.add( regexp.matcher("") );
     matcherAl.add( regexp2.matcher("") );
@@ -218,10 +223,17 @@ public class RegexReader extends CSVReader
     matcherAl.add( regexp.matcher("") );
     matcherAl.add( regexp.matcher("") );
     Matcher matcher = regexp.matcher("");
-    
+    */
+    for ( String patString : customReaderData.getRegexsList() )
+        {
+        matcherAl.add( Pattern.compile( patString ).matcher("") );
+        //System.err.println( "patString =" + patString + "=" );
+        }
+    Matcher matcher = matcherAl.get( 0 );
+
     String item = null;
     
-    System.err.println( "nextField() fieldSeparator =" + (char)fieldSeparator + "=" );
+    //System.err.println( "\nnextField() fieldSeparator =" + (char)fieldSeparator + "=" );
 
 //      if ( isEol( lastChar ) || isEof( lastChar ) )
 //      {
@@ -231,7 +243,7 @@ public class RegexReader extends CSVReader
 
         if ( ! rgLine.isEmpty() )
             {
-            System.err.println( "----- left =" + rgLine + "=" );
+            System.err.println( "\n----- left =" + rgLine + "=   use regex =" + matcherAl.get( rgFieldCnt ).pattern() + "=" );
             matcher = (matcherAl.get( rgFieldCnt ));
             matcher.reset( rgLine ); //reset the input
             if ( matcher.matches() )

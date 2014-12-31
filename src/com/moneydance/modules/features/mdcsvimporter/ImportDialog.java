@@ -853,12 +853,12 @@ public class ImportDialog
             if ( transReader.getCustomReaderData().getUseRegexFlag() )
                 {
                 System.err.println( "\n================  Regex Reader" );
-                csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )), transReader.getCustomReaderData() );
                 }
             else
                 {
                 System.err.println( "\n================  Csv Reader" );
-                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )), transReader.getCustomReaderData() );
                 }
             CSVData csvData = new CSVData( csvReader );            
        
@@ -1028,12 +1028,12 @@ if ( comboFileFormat.getSelectedItem() instanceof String )
             if ( transReader.getCustomReaderData().getUseRegexFlag() )
                 {
                 System.err.println( "\n================  Regex Reader" );
-                csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )), transReader.getCustomReaderData() );
                 }
             else
                 {
                 System.err.println( "\n================  Csv Reader" );
-                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )) );
+                csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( (String) transReader.getCustomReaderData().getFileEncoding() )), transReader.getCustomReaderData() );
                 }
 
             CSVData csvData = new CSVData( csvReader );            

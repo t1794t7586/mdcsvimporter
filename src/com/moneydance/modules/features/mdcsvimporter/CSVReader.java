@@ -69,6 +69,7 @@ public class CSVReader
     * Reference to the reader.
     */
    private Reader reader;
+   private CustomReaderData customReaderData;
    /**
     * The last char read from the reader. Also it stores the next character to be parsed.
     * &lt;0 if end of file is reached. Code is currently written so that initializing
@@ -90,7 +91,7 @@ public class CSVReader
     * @param reader must be a valid reference to a reader providing CSV data to parse.
     * @throws java.io.IOException
     */
-   public CSVReader( Reader reader )
+   public CSVReader( Reader reader, CustomReaderData customReaderData )
       throws IOException
    {
       if ( reader == null || !reader.ready() )
@@ -98,6 +99,7 @@ public class CSVReader
          throw new IllegalArgumentException( "Reader must be a valid object." );
       }
       this.reader = reader;
+      this.customReaderData = customReaderData;
    }
 
    /**

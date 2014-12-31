@@ -7,13 +7,7 @@
 
 package com.moneydance.modules.features.mdcsvimporter;
 
-import com.moneydance.modules.features.mdcsvimporter.formats.BbvaCompassBankReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.CitiBankCanadaReader;
 import com.moneydance.modules.features.mdcsvimporter.formats.CustomReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.INGNetherlandsReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.SimpleCreditDebitReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.WellsFargoReader;
-import com.moneydance.modules.features.mdcsvimporter.formats.YodleeReader;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -70,12 +64,12 @@ public class CustomReaderDialog extends javax.swing.JDialog {
        SortedMap<String, Charset> encodings = Charset.availableCharsets();
        Set<String> fileEncodingNames = encodings.keySet();
         
-       private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
-       private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
-       private static SimpleCreditDebitReader simpleCreditDebitReader = new SimpleCreditDebitReader();
-       private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
-       private static YodleeReader yodleeReader = new YodleeReader();
-       private static BbvaCompassBankReader bbvaCompassReader = new BbvaCompassBankReader();
+       //private static CitiBankCanadaReader citiBankCanadaReader = new CitiBankCanadaReader();
+       //private static INGNetherlandsReader ingNetherlandsReader = new INGNetherlandsReader();
+       //private static SimpleCreditDebitReader simpleCreditDebitReader = new SimpleCreditDebitReader();
+       //private static WellsFargoReader wellsFargoReader = new WellsFargoReader();
+       //private static YodleeReader yodleeReader = new YodleeReader();
+       //private static BbvaCompassBankReader bbvaCompassReader = new BbvaCompassBankReader();
 
 
     /** Creates new form CustomerReaderDialog */

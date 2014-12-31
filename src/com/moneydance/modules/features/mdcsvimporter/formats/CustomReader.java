@@ -110,7 +110,7 @@ public class CustomReader extends TransactionReader
         {
         System.err.println(  "---------   entered customerReader().canParse() as type =" + getFormatName() + "=  -------------" );
         try {
-            data.parseIntoLines( getCustomReaderData().getFieldSeparatorChar() );
+            data.parseIntoLines( getCustomReaderData() );
             } 
         catch (IOException ex) 
             {
@@ -146,6 +146,7 @@ public class CustomReader extends TransactionReader
 
         data.reset();
         int skipHeaderLines = getHeaderCount();
+        System.err.println(  "skip any Header Lines =" + skipHeaderLines );
         for ( int i = 0; i < skipHeaderLines; i++ )
             {
             System.err.println( "skip header line" );
