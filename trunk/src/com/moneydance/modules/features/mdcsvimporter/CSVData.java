@@ -46,13 +46,14 @@ public class CSVData
       return data;
    }
 
-   public void parseIntoLines( int fieldSeparator )
+   public void parseIntoLines( CustomReaderData customReaderData )
       throws IOException
    {
       ArrayList<String> line = new ArrayList<String>();
       ArrayList<String[]> file = new ArrayList<String[]>();
+      int fieldSeparator = customReaderData.getFieldSeparatorChar();
 
-      if ( fieldSeparator > 0 )
+      if ( customReaderData != null )
         {
         reader.setFieldSeparator( fieldSeparator );
         }
@@ -65,7 +66,7 @@ public class CSVData
             line.add( s );
             }
 
-         //System.err.println( "         line.size() =" + line.size() + "=" );
+         System.err.println( "         line.size() =" + line.size() + "=\n" );
          String[] newLine = new String[ line.size() ];
          line.toArray( newLine );
          file.add( newLine );

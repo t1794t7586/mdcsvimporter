@@ -316,11 +316,11 @@ public abstract class TransactionReader
       //csvData.reset();
         if ( this instanceof CustomReader )
             {
-            csvData.parseIntoLines( customReaderData.getFieldSeparatorChar() );
+            csvData.parseIntoLines( customReaderData );
             }
         else
             {
-            csvData.parseIntoLines( 0 );
+            csvData.parseIntoLines( null );
             }
 
       //System.err.println( "at parse getFieldSeparator() =" + (char)csvData.getReader().getFieldSeparator() + "=" );
@@ -627,12 +627,12 @@ public abstract class TransactionReader
                 if ( transactionReader.getCustomReaderData().getUseRegexFlag() )
                     {
                     System.err.println( "\n================  Regex Reader" );
-                    csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ) );
+                    csvReader = new RegexReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ), transactionReader.getCustomReaderData() );
                     }
                 else
                     {
                     System.err.println( "\n================  Csv Reader" );
-                    csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ) );
+                    csvReader = new CSVReader( new InputStreamReader( new FileInputStream( selectedFile ), Charset.forName( transactionReader.getCustomReaderData().getFileEncoding() ) ), transactionReader.getCustomReaderData() );
                     }
                 CSVData csvData = new CSVData( csvReader );
             
